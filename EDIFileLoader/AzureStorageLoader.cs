@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAzure.Storage;
+﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System;
 using EDILibrary.Interfaces;

@@ -1,4 +1,5 @@
-﻿using EDILibrary.Exceptions;
+﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
+using EDILibrary.Exceptions;
 using EDILibrary.Helper;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

@@ -1,0 +1,13 @@
+﻿extensions: designer.cs generated.cs
+extensions: .cs .cpp .h
+// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
+extensions: .aspx .ascx
+<%-- 
+Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
+--%>
+extensions: .vb
+'Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH.
+extensions:  .xml .config .xsd
+<!--
+Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
+-->

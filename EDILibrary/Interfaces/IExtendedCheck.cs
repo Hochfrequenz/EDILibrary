@@ -1,4 +1,5 @@
-﻿namespace EDILibrary.Interfaces
+﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
+namespace EDILibrary.Interfaces
 {
     public interface IExtendedCheck
     {

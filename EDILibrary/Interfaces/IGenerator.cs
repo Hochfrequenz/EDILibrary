@@ -1,4 +1,5 @@
-﻿using EDILibrary.Generatoren;
+﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
+using EDILibrary.Generatoren;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
