@@ -8,7 +8,7 @@ assembly_info:
 
 before_build:
   - nuget restore
-  - ps: gitversion /l console /output buildserver
+  - ps: gitversion /l console /output buildserver /updateAssemblyInfo
 
 build:
   project: EDILibrary.sln
