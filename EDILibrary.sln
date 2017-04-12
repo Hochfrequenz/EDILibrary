@@ -3,7 +3,31 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26403.3
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EDIFileLoader", "EDIFileLoader\EDIFileLoader.csproj", "{008A8E94-4E0B-471A-AE39-93B9D2B3AC0D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EDILibrary", "EDILibrary\EDILibrary.csproj", "{7A0202C8-90A5-47BE-9CFA-A78DB6DC9206}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EDILibrary.Standard", "EDILibraryBase\EDILibrary.Standard.csproj", "{B7A0314C-DFB8-4B54-B6FD-716028F15A3C}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{008A8E94-4E0B-471A-AE39-93B9D2B3AC0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{008A8E94-4E0B-471A-AE39-93B9D2B3AC0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{008A8E94-4E0B-471A-AE39-93B9D2B3AC0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{008A8E94-4E0B-471A-AE39-93B9D2B3AC0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A0202C8-90A5-47BE-9CFA-A78DB6DC9206}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A0202C8-90A5-47BE-9CFA-A78DB6DC9206}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A0202C8-90A5-47BE-9CFA-A78DB6DC9206}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A0202C8-90A5-47BE-9CFA-A78DB6DC9206}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7A0314C-DFB8-4B54-B6FD-716028F15A3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7A0314C-DFB8-4B54-B6FD-716028F15A3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7A0314C-DFB8-4B54-B6FD-716028F15A3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7A0314C-DFB8-4B54-B6FD-716028F15A3C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

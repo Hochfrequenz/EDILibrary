@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
-using EDILibrary.Repositories;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -155,8 +154,8 @@ namespace EDILibrary
         {
             bool hasKey = false;
 
-            int i = cur.Fields.Count;// cur.Descendants("Field").Where(d => d.Parent == cur).Count();
-            bool hasClass = cur.Children.Count > 0; // cur.Descendants("Class").Where(d => d.Parent == cur).Count() > 0;
+            int i = cur.Fields.Count;
+            bool hasClass = cur.Children.Count > 0;
             if (cur.Key!=null)
             {
                 hasKey = true;
@@ -257,24 +256,11 @@ namespace EDILibrary
         {
             XElement root = new XElement("EDIFACT");
             Recurse(root, this);
-            //string xml;
-            //using (var ms = new System.IO.MemoryStream())
-            //{
-            //    using (var tw = new System.IO.StreamWriter(ms, Encoding.UTF8))
-            //    {
-            //        root.Save(tw);
-            //    }
-            //    xml = Encoding.UTF8.GetString(ms.GetBuffer(), 0, (int)ms.Length);
-            //}
-            //return xml;
             return root.ToString();
         }
 
         public string SerializeToJSON()
         {
-            //XElement root = new XElement("Class");
-            //root.SetAttributeValue("name", "Dokument");
-           // recurse(root, this);
             _builder = new StringBuilder();
             _builder.AppendLine("{");
             _builder.AppendLine("\"Dokument\":[{");

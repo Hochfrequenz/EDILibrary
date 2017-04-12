@@ -1,6 +1,5 @@
 ﻿using EDILibrary.Exceptions;
 using EDILibrary.Helper;
-using EDILibrary.Repositories;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -22,7 +21,7 @@ namespace EDILibrary
             _loader = loader;
         }
 
-        public async Task<string> ParseToJson(string edi, string packageVersion = null, string includeEmptyValues = null)
+        public async Task<string> ParseToJson(string edi, string packageVersion, string includeEmptyValues = null)
         {
             var edi_info = EDIHelper.GetEDIFileInfo(edi);
             var edi_string = EDIHelper.NormalizeEDIHeader(edi);
@@ -35,17 +34,11 @@ namespace EDILibrary
             TreeHelper.RefreshDirtyFlags(tree);
             var fileObject = loader.LoadTemplateWithLoadedTree(template, edi_tree);
             var jsonResult = JsonConvert.DeserializeObject<JObject>(fileObject.SerializeToJSON());
-            string package;
+            string package = null;
             if (packageVersion != null)
             {
                 package = packageVersion;
             }
-            else
-            {
-                //das neueste Paket zuerst (in [0] steht "keine Angabe")
-                package = FormatVersionRepository.GetFormatPackages()[1];
-            }
-
             //mapping laden
             JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, edi_info.Format+edi_info.Version+".json"));
             dynamic resultObject = new ExpandoObject();
@@ -58,16 +51,11 @@ namespace EDILibrary
         {
             string format = "UTILMD";
             string version = "5.1g";
-            string package;
+            string package = null;
             if (formatPackage != null)
             {
                 package = formatPackage;
-            }
-            else
-            {
-                //das neueste Paket zuerst (in [0] steht "keine Angabe")
-                package = FormatVersionRepository.GetFormatPackages()[1];
-            }
+            }         
             var json = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, "wim_utilmd.json"));
             var inputJson = JsonConvert.DeserializeObject<JObject>(jsonInput);
             JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, format+version+".json"));
