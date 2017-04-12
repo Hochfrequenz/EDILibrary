@@ -19,3 +19,7 @@ deploy:
     secure: cZfZAsgKc3vpblzCf7AVM//wiwGUOubDjeZeCprEss6lAbxtNH/G8R8rfpaL7ATi
   skip_symbols: true
   artifact: /.*\.nupkg/
+  
+artifacts:
+  - path: '**\*.nupkg' # find all NuGet packages recursively
+    name: Nuget packages
