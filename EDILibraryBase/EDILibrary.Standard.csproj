@@ -8,6 +8,7 @@
     <Authors>EDILibrary.Standard</Authors>
     <Company>EDILibrary.Standard</Company>
     <Product>EDILibrary.Standard</Product>
+    <Version>0.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

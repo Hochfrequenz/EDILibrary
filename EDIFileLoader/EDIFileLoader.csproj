@@ -6,11 +6,15 @@
     <Description>EDIFileLoader for AzureStorageAccounts</Description>
     <Copyright>Hochfrequenz Unternehmensberatung 2017</Copyright>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <Version>0.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EDILibrary.Standard" Version="0.2.5" />
     <PackageReference Include="WindowsAzure.Storage" Version="8.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EDILibraryBase\EDILibrary.Standard.csproj" />
   </ItemGroup>
 
 </Project>
