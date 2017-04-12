@@ -6,7 +6,7 @@ assembly_info:
 
 before_build:
   - nuget restore
-  - ps: gitversion /l console /output buildserver /updateAssemblyInfo
+  - ps: gitversion /l console /output buildserver
 
 build:
   project: <your sln file>
