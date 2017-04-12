@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GitVersionTask" Version="4.0.0-beta0011" />
     <PackageReference Include="WindowsAzure.Storage" Version="8.1.1" />
   </ItemGroup>
 
