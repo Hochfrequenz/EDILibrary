@@ -20,16 +20,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\EDIFileLoader\EDIFileLoader.licenseheader" Link="EDIFileLoader.licenseheader" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="GitVersionTask" Version="4.0.0-beta0011">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
     <PackageReference Include="System.ComponentModel.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="IoC\" />
   </ItemGroup>
 
 </Project>
