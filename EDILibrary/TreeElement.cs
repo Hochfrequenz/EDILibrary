@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Linq;
 using System.Linq;
+using System.Data.HashFunction;
 namespace EDILibrary
 {
     public class TreeElement :IDisposable
@@ -352,7 +353,8 @@ namespace EDILibrary
 
             }
         }
-        static SHA1 hash = System.Security.Cryptography.SHA1.Create();
+      //  static SHA1 hash = System.Security.Cryptography.SHA1.Create();
+        static MurmurHash3 hash = new MurmurHash3();
         static UnicodeEncoding UE = new UnicodeEncoding();
         public static string GetHash(string TextToHash)
         {
