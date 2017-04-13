@@ -56,7 +56,11 @@ namespace EDILibrary
             if (formatPackage != null)
             {
                 package = formatPackage;
-            }         
+            }
+            else
+            {
+                throw new Exception("FormatPackage must be specified");
+            }
             var json = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, "wim_utilmd.json"));
             var inputJson = JsonConvert.DeserializeObject<JObject>(jsonInput);
             JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, format+version+".json"));
