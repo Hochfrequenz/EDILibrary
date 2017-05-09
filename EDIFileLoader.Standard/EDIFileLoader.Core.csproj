@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <AssemblyName>EDIFileLoader.Core</AssemblyName>
+    <RootNamespace>EDIFileLoader.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\EDIFileLoader\AzureStorageLoader.cs" Link="AzureStorageLoader.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WindowsAzure.Storage" Version="8.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EDILibrary\EDILibrary.csproj" />
+  </ItemGroup>
+
+</Project>

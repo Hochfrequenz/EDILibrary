@@ -41,7 +41,7 @@ namespace EDILibrary
                 package = packageVersion;
             }
             //mapping laden
-            JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, edi_info.Format+edi_info.Version+".json"));
+            JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, edi_info.Format + edi_info.Version + ".json"));
             dynamic resultObject = new ExpandoObject();
             var resultDict = resultObject as IDictionary<string, object>;
             ParseObject(jsonResult, resultObject as IDictionary<string, object>, mappings, includeEmptyValues != null);
@@ -63,7 +63,7 @@ namespace EDILibrary
             }
             var json = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, "wim_utilmd.json"));
             var inputJson = JsonConvert.DeserializeObject<JObject>(jsonInput);
-            JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, format+version+".json"));
+            JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, format + version + ".json"));
             //map inputJson via fix values from mapping
             if (((JObject)json.Where(entry => ((JObject)entry).Property("key").Value.Value<string>() == "utilmd").FirstOrDefault()) != null)
             {
@@ -79,9 +79,9 @@ namespace EDILibrary
                 throw new BadPIDException(pid);
             }
             JArray maskArray = new JArray();
-            foreach(var step in processMapping.Property("steps").Value)
+            foreach (var step in processMapping.Property("steps").Value)
             {
-                maskArray.Merge((step as JObject)?.Property("fields").Value as JArray,new JsonMergeSettings() { MergeArrayHandling = MergeArrayHandling.Union });
+                maskArray.Merge((step as JObject)?.Property("fields").Value as JArray, new JsonMergeSettings() { MergeArrayHandling = MergeArrayHandling.Union });
             }
             var outputJson = CreateMsgJSON(inputJson, mappings, maskArray);
             IEdiObject result = IEdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
@@ -96,7 +96,9 @@ namespace EDILibrary
                 var deps = mappings.Where(map => FindDependentObject(map, prop.Name, out JToken propVal) != null).ToList();
                 if (deps.Count() > 0)
                 {
-                    FindDependentObject(deps.First(), prop.Name, out JToken propVal);
+                    var retObj = FindDependentObject(deps.First(), prop.Name, out JToken propVal);
+                    var superValue = ((JProperty)retObj.First).Value.Value<string>();
+                    var superKey = ((JProperty)retObj.First).Name;
                     if (propVal.Type == JTokenType.Array)
                     {
                         dynamic obj = new ExpandoObject();
@@ -123,9 +125,20 @@ namespace EDILibrary
                     }
                     else
                     {
-                        if (!String.IsNullOrEmpty(prop.Value.Value<string>()))
-                            AddProperty(target, ((JValue)propVal).Value<string>(), prop.Value);
-
+                        if (superKey!= prop.Name && superValue != prop.Name)
+                        {
+                            dynamic obj = new ExpandoObject();
+                            if (!target.ContainsKey(superValue))
+                            {
+                                target.Add(superValue, new ExpandoObject());
+                            }
+                            AddProperty((target[superValue] as IDictionary<string, object>), ((JValue)propVal).Value<string>(), prop.Value);
+                        }
+                        else
+                        {
+                            if (!String.IsNullOrEmpty(prop.Value.Value<string>()))
+                                AddProperty(target, ((JValue)propVal).Value<string>(), prop.Value);
+                        }
                     }
                 }
             }
