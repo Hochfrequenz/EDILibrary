@@ -125,7 +125,7 @@ namespace EDILibrary
                     }
                     else
                     {
-                        if (superKey!= prop.Name && superValue != prop.Name)
+                        if (superKey != prop.Name && superValue != prop.Name)
                         {
                             dynamic obj = new ExpandoObject();
                             if (!target.ContainsKey(superValue))
@@ -200,9 +200,18 @@ namespace EDILibrary
                             if (map != null)
                                 newArray = new JArray(newArray.Union(map));
                         }
+                        if (newMappings.Count() > 0 && newArray.Count == 0)
+                        {
+                            //Spezialfall für "groupBy"-Objekte (z.B. Beginn der Nachricht)
+                            newArray.Add(deps.First());
+                            var newSub = CreateMsgJSON(prop.Value as JObject, newArray, mask);
+                            foreach (KeyValuePair<string,object> subProp in (newSub as IDictionary<string,object>))
+                                (returnObject as IDictionary<string, object>).Add(subProp.Key, subProp.Value);
+                            continue;
+                        }
                         if (newArray.Count == 0)
                         {
-                            var subObj = FindObjectByKey(deps.First(), prop.Name, out propVal, true);
+                            var subObj = FindObjectByKey(deps.First(), prop.Name, out propVal, false);
                             if (subObj.SelectToken("_meta") != null)
                             {
                                 string format = subObj.SelectToken("_meta.format").Value<string>();
