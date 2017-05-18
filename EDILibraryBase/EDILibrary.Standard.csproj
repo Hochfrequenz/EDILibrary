@@ -16,6 +16,7 @@
     <Compile Include="..\EDILibrary\EDIFACTEnums.cs" Link="EDIFACTEnums.cs" />
     <Compile Include="..\EDILibrary\EDIHelper.cs" Link="EDIHelper.cs" />
     <Compile Include="..\EDILibrary\EdiJsonMapper.cs" Link="EdiJsonMapper.cs" />
+    <Compile Include="..\EDILibrary\Exceptions\BadFormatException.cs" Link="Exceptions\BadFormatException.cs" />
     <Compile Include="..\EDILibrary\Exceptions\BadPIDException.cs" Link="Exceptions\BadPIDException.cs" />
     <Compile Include="..\EDILibrary\ExtendedMappings.cs" Link="ExtendedMappings.cs" />
     <Compile Include="..\EDILibrary\GenericEDILoader.cs" Link="GenericEDILoader.cs" />

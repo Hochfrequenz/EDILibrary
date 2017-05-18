@@ -41,8 +41,18 @@ namespace EDILibrary
                 package = packageVersion;
             }
             //mapping laden
-            JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, edi_info.Format + edi_info.Version + ".json"));
+            JArray mappings = null;
+            try
+            {
+                mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, edi_info.Format + edi_info.Version + ".json"));
+
+            }
+            catch(Exception e)
+            {
+                throw new BadFormatException(edi_info.Format, edi_info.Version);
+            }
             dynamic resultObject = new ExpandoObject();
+
             var resultDict = resultObject as IDictionary<string, object>;
             ParseObject(jsonResult, resultObject as IDictionary<string, object>, mappings, includeEmptyValues != null);
 
