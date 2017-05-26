@@ -47,7 +47,7 @@ namespace EDILibrary
                 mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, edi_info.Format + edi_info.Version + ".json"));
 
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new BadFormatException(edi_info.Format, edi_info.Version);
             }
@@ -135,14 +135,30 @@ namespace EDILibrary
                     }
                     else
                     {
+                        //special case for groupBy fields
                         if (superKey != prop.Name && superValue != prop.Name)
                         {
                             dynamic obj = new ExpandoObject();
                             if (!target.ContainsKey(superValue))
                             {
-                                target.Add(superValue, new JArray(new ExpandoObject()));
+                                //create group array
+                                target.Add(superValue, new JArray());
                             }
-                            AddProperty((((target[superValue])as JArray)[0] as IDictionary<string, object>), ((JValue)propVal).Value<string>(), prop.Value);
+                            var newProp = new ExpandoObject();
+                            AddProperty(newProp, ((JValue)propVal).Value<string>(), prop.Value);
+                            var addObj = new JObject();
+                            //if we already have an object in the array, just add the new property
+                            if ((target[superValue] as JArray).Count > 0)
+                                addObj = (target[superValue] as JArray)[0] as JObject;
+                            // go through all new defined properties and add them to the JObject
+                            foreach (var kvp in newProp as IDictionary<string, object>)
+                            {
+                                addObj.Add(kvp.Key, JToken.FromObject(kvp.Value));
+                            }
+                            if ((target[superValue] as JArray).Count == 0)
+                                (target[superValue] as JArray).Add(addObj);
+
+
                         }
                         else
                         {
@@ -212,10 +228,14 @@ namespace EDILibrary
                         }
                         if (newMappings.Count() > 0 && newArray.Count == 0)
                         {
-                            //Spezialfall für "groupBy"-Objekte (z.B. Beginn der Nachricht)
+                            //Spezialfall für "groupBy"-Array-Objekte (z.B. Beginn der Nachricht)
                             newArray.Add(deps.First());
-                            var newSub = CreateMsgJSON(prop.Value as JObject, newArray, mask);
-                            foreach (KeyValuePair<string,object> subProp in (newSub as IDictionary<string,object>))
+                            // Das Array kann in einem groupBy-Fall immer nur ein Element haben
+                            // war früher ein JObject, daher hier die Ausnahme abfangen
+                            if (prop.Value.GetType() == typeof(JObject))
+                                continue;
+                            var newSub = CreateMsgJSON((prop.Value as JArray)[0] as JObject, newArray, mask);
+                            foreach (KeyValuePair<string, object> subProp in (newSub as IDictionary<string, object>))
                                 (returnObject as IDictionary<string, object>).Add(subProp.Key, subProp.Value);
                             continue;
                         }
