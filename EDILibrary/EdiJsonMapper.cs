@@ -140,9 +140,9 @@ namespace EDILibrary
                             dynamic obj = new ExpandoObject();
                             if (!target.ContainsKey(superValue))
                             {
-                                target.Add(superValue, new ExpandoObject());
+                                target.Add(superValue, new JArray(new ExpandoObject()));
                             }
-                            AddProperty((target[superValue] as IDictionary<string, object>), ((JValue)propVal).Value<string>(), prop.Value);
+                            AddProperty((((target[superValue])as JArray)[0] as IDictionary<string, object>), ((JValue)propVal).Value<string>(), prop.Value);
                         }
                         else
                         {
