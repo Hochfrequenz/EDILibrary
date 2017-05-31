@@ -71,27 +71,36 @@ namespace EDILibrary
             {
                 throw new Exception("FormatPackage must be specified");
             }
-            var json = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, "wim_utilmd.json"));
+            var json = JsonConvert.DeserializeObject<JObject>(await _loader.LoadJSONTemplate(package, $"{pid}.json"));
             var inputJson = JsonConvert.DeserializeObject<JObject>(jsonInput);
             JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, format + version + ".json"));
             //map inputJson via fix values from mapping
-            if (((JObject)json.Where(entry => ((JObject)entry).Property("key").Value.Value<string>() == "utilmd").FirstOrDefault()) != null)
-            {
-                ApplyFix(inputJson, ((JObject)json.Where(entry => ((JObject)entry).Property("key").Value.Value<string>() == "utilmd").FirstOrDefault()));
-            }
-            var processMapping = ((JObject)json.Where(entry => ((JObject)entry).Property("key").Value.Value<string>() == pid).FirstOrDefault());
-            if (processMapping != null)
-            {
-                ApplyFix(inputJson, processMapping);
-            }
-            else
-            {
-                throw new BadPIDException(pid);
-            }
+            // if (((JObject)json.Where(entry => ((JObject)entry).Property("key").Value.Value<string>() == "utilmd").FirstOrDefault()) != null)
+            //{
+            //   ApplyFix(inputJson, ((JObject)json.Where(entry => ((JObject)entry).Property("key").Value.Value<string>() == "utilmd").FirstOrDefault()));
+            // }
+            //  var processMapping =json;// ((JObject)json.Where(entry => ((JObject)entry).Property("key").Value.Value<string>() == pid).FirstOrDefault());
+            //   if (processMapping != null)
+            //  {
+            //       ApplyFix(inputJson, processMapping);
+            //  }
+            //   else
+            //    {
+            //       throw new BadPIDException(pid);
+            //    }
             JArray maskArray = new JArray();
-            foreach (var step in processMapping.Property("steps").Value)
+            foreach (var step in json.Property("steps").Value)
             {
-                maskArray.Merge((step as JObject)?.Property("fields").Value as JArray, new JsonMergeSettings() { MergeArrayHandling = MergeArrayHandling.Union });
+                foreach (var prop in ((step as JObject)?.Property("fields").Value as JObject).Properties())
+                {
+                    var newObj = new JObject
+                    {
+                        { "key", prop.Name },
+                        { "type", (prop.Value as JObject).Property("obligType").Value }
+                    };
+                    maskArray.Add(newObj);
+                }
+                //maskArray.Merge(((step as JObject)?.Property("fields").Value as JObject).Properties(), new JsonMergeSettings() { MergeArrayHandling = MergeArrayHandling.Union });
             }
             var outputJson = CreateMsgJSON(inputJson, mappings, maskArray);
             IEdiObject result = IEdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
