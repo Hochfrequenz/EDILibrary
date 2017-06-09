@@ -130,13 +130,17 @@ namespace EDILibrary
                 //    _valueCache.Add(edi, new Dictionary<string, string>());
                 //}
                 //_valueCache[edi][pos] = result.Trim();
-                return result.Trim();
+                return Escape(result.Trim());
             }
         }
         public void PrepareEDIMapping(string edi)
         {
             _ediLines = new List<string>();
             _ediLines = edi.Split(new string[] { "'" }, StringSplitOptions.None).ToList<string>();
+        }
+        public String Escape(string input)
+        {
+            return input.Replace("+", "?+").Replace(":", "?:").Replace("'", "?'");
         }
         public void ExecuteEDIMapping(string mappingName)
         {

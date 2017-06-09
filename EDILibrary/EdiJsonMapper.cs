@@ -206,7 +206,7 @@ namespace EDILibrary
             foreach (var maskEntry in mask)
             {
                 if ((maskEntry as JObject).Property("key")?.Value.Value<string>() == maskKey)
-                    return (maskEntry as JObject).Property("type")?.Value.Value<string>() == "M";
+                    return (maskEntry as JObject).Property("type")?.Value.Value<string>() != "N";
             }
             return false;
         }
