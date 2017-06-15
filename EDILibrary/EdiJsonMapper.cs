@@ -44,7 +44,7 @@ namespace EDILibrary
             JArray mappings = null;
             try
             {
-                mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, edi_info.Format + edi_info.Version + ".json"));
+                mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, edi_info.Format + ".json"));
 
             }
             catch (Exception e)
@@ -60,8 +60,23 @@ namespace EDILibrary
         }
         public async Task<string> CreateFromJson(string jsonInput, string pid, string formatPackage = null)
         {
-            string format = "UTILMD";
-            string version = "5.1g";
+            string format = "ERROR";
+            //format is derived from the pid
+            switch (pid.Substring(0, 2))
+            {
+                case "11": format = "UTILMD"; break;
+                case "13": format = "MSCONS"; break;
+                case "17": format = "ORDERS"; break;
+                case "19": format = "ORDRSP"; break;
+                case "21": format = "IFTSTA"; break;
+                case "70": format = "SSQNOT"; break;
+                case "31": format = "INVOIC"; break;
+                case "33": format = "REMADV"; break;
+                case "27": format = "PRICAT"; break;
+                case "35": format = "REQOTE"; break;
+                case "15": format = "QUOTES"; break;
+                case "23": format = "INSRPT"; break;
+            }
             string package = null;
             if (formatPackage != null)
             {
@@ -73,7 +88,7 @@ namespace EDILibrary
             }
             var json = JsonConvert.DeserializeObject<JObject>(await _loader.LoadJSONTemplate(package, $"{pid}.json"));
             var inputJson = JsonConvert.DeserializeObject<JObject>(jsonInput);
-            JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, format + version + ".json"));
+            JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, format + ".json"));
             //map inputJson via fix values from mapping
             // if (((JObject)json.Where(entry => ((JObject)entry).Property("key").Value.Value<string>() == "utilmd").FirstOrDefault()) != null)
             //{
@@ -88,6 +103,8 @@ namespace EDILibrary
             //    {
             //       throw new BadPIDException(pid);
             //    }
+            string version = mappings[0]["_meta"]["version"].Value<string>();
+
             JArray maskArray = new JArray();
             foreach (var step in json.Property("steps").Value)
             {
