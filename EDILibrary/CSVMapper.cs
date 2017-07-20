@@ -52,22 +52,67 @@ namespace EDILibrary
                 }
             }
         }
+        protected void ParseProperty(JProperty prop, String prefix, StringBuilder builder, StringBuilder valueBuilder)
+        {
+            if (prop.Value.GetType() == typeof(JArray))
+            {
+
+                foreach (var subProp in ((prop.Value as JArray)[0] as JObject).Properties())
+                {
+                    ParseProperty(subProp, prefix + prop.Name + "|", builder, valueBuilder);
+                }
+            }
+            else if (prop.Value.GetType() == typeof(JObject))
+            {
+                foreach (var subProp in (prop.Value as JObject).Properties())
+                {
+                    builder.Append(prefix + prop.Name + "|" + subProp.Name + ";");
+                }
+            }
+            else
+            {
+                builder.Append(prefix + prop.Name + ";");
+                if (valueBuilder != null)
+                    valueBuilder.Append(prop.Value.Value<string>() + ";");
+            }
+        }
         public string CreateCSVTemplateFromJSON(string json)
         {
             JObject rootObject = JsonConvert.DeserializeObject<JObject>(json);
             StringBuilder builder = new StringBuilder();
-            foreach (var step in ((rootObject.Property("steps").Value) as JObject).Properties())
+            StringBuilder valueBuilder = new StringBuilder();
+            if (rootObject.Property("steps") != null)
             {
-                ParseStep(step.Value.Value<JObject>(), builder);
+                foreach (var step in ((rootObject.Property("steps").Value) as JObject).Properties())
+                {
+                    ParseStep(step.Value.Value<JObject>(), builder);
+                }
             }
-            return builder.ToString();
+            else
+            {
+                //navigate to first document and first message
+                try
+                {
+                    rootObject = (rootObject.Property("Dokument").Value as JArray)[0] as JObject;
+                    rootObject = (rootObject.Property("Nachricht").Value as JArray)[0] as JObject;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+                foreach (var prop in rootObject.Properties())
+                {
+                    ParseProperty(prop, "", builder, valueBuilder);
+                }
+            }
+            return builder.ToString().TrimEnd(';') + "\r\n" + valueBuilder.ToString().TrimEnd(';');
         }
         protected void BuildObjectFromSegment(string segment, string value, JObject localRoot)
         {
-            if (segment.Contains("/"))
+            if (segment.Contains("|"))
             {
-                var segmentParts = segment.Split('/');
-                string newSegment = String.Join("/", segmentParts.Skip(1));
+                var segmentParts = segment.Split('|');
+                string newSegment = String.Join("|", segmentParts.Skip(1));
                 if (localRoot.Property(segmentParts[0]) == null)
                 {
                     JArray newChilds = new JArray(new JObject());
@@ -82,11 +127,11 @@ namespace EDILibrary
         }
         protected string RemoveStepFromSegment(string segment)
         {
-            if (!segment.Contains("/"))
+            if (!segment.Contains("|"))
             {
                 return segment;
             }
-            return String.Join("/",segment.Split('/').Skip(1));
+            return String.Join("|", segment.Split('|').Skip(1));
         }
         public List<string> CreateJSONFromCSV(string csv)
         {
@@ -109,7 +154,7 @@ namespace EDILibrary
                 };
                 foreach (var segment in segments)
                 {
-                    BuildObjectFromSegment(RemoveStepFromSegment(segment), lineSegments[index], lineObject);
+                    BuildObjectFromSegment(segment, lineSegments[index], lineObject);
                     index++;
                 }
                 returnList.Add(JsonConvert.SerializeObject(dokumentObject));
