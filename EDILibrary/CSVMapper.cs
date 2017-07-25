@@ -56,6 +56,9 @@ namespace EDILibrary
         {
             if (prop.Value.GetType() == typeof(JArray))
             {
+                //if the array is non empty, process properties, otherwise continue
+                if ((prop.Value as JArray).Count == 0)
+                    return;
 
                 foreach (var subProp in ((prop.Value as JArray)[0] as JObject).Properties())
                 {
