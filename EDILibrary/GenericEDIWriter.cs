@@ -266,7 +266,7 @@ namespace EDILibrary
                         // deduct UNH and UNT
                         /* Aufgrund von Fehlermeldung "weiterer Fehler? Segmentzähler" vom 22.08.2011 werden UNH und UNT nun mitgezählt*/
                         //segCount-=2;
-
+                        resultBuilder.Append(segCount);
                         //TODO: Direktes schreiben in die Ausgabe
                         //scope.SetVariable("SegmentCounter", segCount.ToString());
                         
@@ -274,7 +274,7 @@ namespace EDILibrary
                     else if (codeTemplate.Contains("MessageNumber"))
                     {
                         int messageCount = template.Split(new string[]{"UNH+"},StringSplitOptions.RemoveEmptyEntries).Length - 1;
-
+                        resultBuilder.Append(messageCount);
                         //TODO: Direktes schreiben in die Ausgabe
                         //scope.SetVariable("MessageNumber", messageCount.ToString());
                     }

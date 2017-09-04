@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <OutputTypeEx>library</OutputTypeEx>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>EDI Library for german energy market (.net Core version)</Description>
@@ -20,6 +20,11 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;NETCOREAPP1_1</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>

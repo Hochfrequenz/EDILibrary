@@ -42,7 +42,7 @@ namespace EDILibrary
                     }
                 }
             }
-            IEnumerable<Attribute> attrs =
+            IEnumerable<Attribute> attrs = (IEnumerable<Attribute>)
                 typeof(EDIEnums).GetRuntimeField(DescriptionMap[name]).GetCustomAttributes(typeof(EDIDescriptionAttribute), false);
             if (attrs != null)
             {
@@ -54,7 +54,7 @@ namespace EDILibrary
         public static string GetAPERAKDescription(EDIEnums enumValue)
         {
             string name = enumValue.ToString();
-            IEnumerable<Attribute> attrs = 
+            IEnumerable<Attribute> attrs = (IEnumerable<Attribute>)
                 enumValue.GetType().GetRuntimeField(name).GetCustomAttributes(typeof(APERAKDescriptionAttribute), false);
             if (attrs != null)
             {
@@ -62,7 +62,7 @@ namespace EDILibrary
             }
             else
             {
-                attrs =
+                attrs = (IEnumerable<Attribute>)
                 enumValue.GetType().GetRuntimeField(name).GetCustomAttributes(typeof(DescriptionAttribute), false);
                 return (attrs.Count() > 0) ? "FEHLER:"+((DescriptionAttribute)attrs.First()).Description : "FEHLER:"+name;
             }
@@ -70,7 +70,7 @@ namespace EDILibrary
         public static string GetEDIDescription(EDIEnums enumValue)
         {
             string name = enumValue.ToString();
-            IEnumerable<Attribute> attrs = 
+            IEnumerable<Attribute> attrs = (IEnumerable<Attribute>)
                 enumValue.GetType().GetRuntimeField(name).GetCustomAttributes(typeof(EDIDescriptionAttribute), false);
             if (attrs != null)
             {
@@ -78,7 +78,7 @@ namespace EDILibrary
             }
             else
             {
-                attrs =
+                attrs = (IEnumerable<Attribute>)
                 enumValue.GetType().GetRuntimeField(name).GetCustomAttributes(typeof(DescriptionAttribute), false);
                 return (attrs.Count() > 0) ? ((DescriptionAttribute)attrs.First()).Description : name;
             }
@@ -86,7 +86,7 @@ namespace EDILibrary
         public static string GetDescription(EDIEnums enumValue)
         {
             string name = enumValue.ToString();
-            IEnumerable<Attribute> attrs = 
+            IEnumerable<Attribute> attrs = (IEnumerable<Attribute>)
                 enumValue.GetType().GetRuntimeField(name).GetCustomAttributes(typeof(DescriptionAttribute), false);
             return (attrs.Count() > 0) ? ((DescriptionAttribute)attrs.First()).Description : name;
         }

@@ -140,11 +140,11 @@ namespace EDILibrary
         {
             //first split header line from content lines
             var lines = csv.LowMemSplit("\r\n");
-            var segments = lines[0].Split(';');
+            var segments = lines[0].Split(new string[] { ";" }, StringSplitOptions.None);
             List<string> returnList = new List<string>();
             foreach (var line in lines.Skip(1))
             {
-                var lineSegments = line.Split(';');
+                var lineSegments = line.Split(new string[] { ";" }, StringSplitOptions.None);
                 int index = 0;
                 JObject lineObject = new JObject();
                 JObject nachrichtObject = new JObject
