@@ -8,6 +8,7 @@
     <Authors>Joscha Metze</Authors>
     <Company>Hochfrequenz Unternehmensberatung GmbH</Company>
     <Version>0.2.25</Version>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -20,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="GitVersionTask" Version="4.0.0-beta0012" />
     <PackageReference Include="WindowsAzure.Storage" Version="8.1.1" />
   </ItemGroup>
 

@@ -7,6 +7,7 @@
     <Copyright>Hochfrequenz Unternehmensberatung 2017</Copyright>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <Version>0.0.1</Version>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <ItemGroup>

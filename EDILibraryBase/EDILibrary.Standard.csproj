@@ -9,6 +9,7 @@
     <Company>EDILibrary.Standard</Company>
     <Product>EDILibrary.Standard</Product>
     <Version>0.0.1</Version>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <ItemGroup>

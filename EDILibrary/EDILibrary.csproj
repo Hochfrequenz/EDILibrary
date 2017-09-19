@@ -16,6 +16,7 @@
     <Version>0.0.1</Version>
     <AssemblyName>EDILibrary.Core</AssemblyName>
     <RootNamespace>EDILibrary</RootNamespace>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
