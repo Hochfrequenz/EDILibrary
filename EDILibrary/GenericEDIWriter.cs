@@ -263,20 +263,13 @@ namespace EDILibrary
                         Regex r = new Regex("\\?'");
                         int deduct=r.Matches(template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+"))).Count;
                         segCount -= deduct;
-                        // deduct UNH and UNT
-                        /* Aufgrund von Fehlermeldung "weiterer Fehler? Segmentzähler" vom 22.08.2011 werden UNH und UNT nun mitgezählt*/
-                        //segCount-=2;
                         resultBuilder.Append(segCount);
-                        //TODO: Direktes schreiben in die Ausgabe
-                        //scope.SetVariable("SegmentCounter", segCount.ToString());
                         
                     }
                     else if (codeTemplate.Contains("MessageNumber"))
                     {
                         int messageCount = template.Split(new string[]{"UNH+"},StringSplitOptions.RemoveEmptyEntries).Length - 1;
                         resultBuilder.Append(messageCount);
-                        //TODO: Direktes schreiben in die Ausgabe
-                        //scope.SetVariable("MessageNumber", messageCount.ToString());
                     }
                     code = code.TrimStart(new char[] { '!', '$' });
                     // evaluate code
