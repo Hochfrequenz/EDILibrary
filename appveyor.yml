@@ -1,7 +1,7 @@
 image: Visual Studio 2017
 
 install:
-#  - choco install gitversion.portable -pre -y
+  - choco install gitversion.portable -pre -y
 
 assembly_info:
   patch: false
@@ -15,7 +15,7 @@ dotnet_csproj:
 
 before_build:
   - nuget restore
-#  - ps: gitversion /l console /output buildserver /updateAssemblyInfo
+  - ps: gitversion /l console /output buildserver /updateAssemblyInfo
 
 build:
   project: EDILibrary.sln
