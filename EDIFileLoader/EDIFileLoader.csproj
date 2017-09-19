@@ -14,7 +14,7 @@
     <PackageReference Include="GitVersionTask" Version="4.0.0-beta0012">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="WindowsAzure.Storage" Version="8.1.1" />
+    <PackageReference Include="WindowsAzure.Storage" Version="8.4.0" />
   </ItemGroup>
 
   <ItemGroup>
