@@ -8,10 +8,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Linq;
 using System.Linq;
-using System.Data.HashFunction;
 namespace EDILibrary
 {
-    public class TreeElement :IDisposable
+    public class TreeElement : IDisposable
     {
         public String Name;
         public int Occurence;
@@ -157,7 +156,7 @@ namespace EDILibrary
             {
                 foreach (TreeElement child in Children.Values)
                 {
-                    child.FindElements(name, recursive, ref list, recursionDepth-1);
+                    child.FindElements(name, recursive, ref list, recursionDepth - 1);
                 }
             }
             return;
@@ -353,8 +352,8 @@ namespace EDILibrary
 
             }
         }
-      //  static SHA1 hash = System.Security.Cryptography.SHA1.Create();
-        static MurmurHash3 hash = new MurmurHash3();
+        //  static SHA1 hash = System.Security.Cryptography.SHA1.Create();
+        static HashAlgorithm hash = Murmur.MurmurHash.Create128(seed: (uint)new DateTime().Ticks);
         static UnicodeEncoding UE = new UnicodeEncoding();
         public static string GetHash(string TextToHash)
         {
