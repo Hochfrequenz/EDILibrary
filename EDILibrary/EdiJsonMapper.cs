@@ -444,14 +444,6 @@ namespace EDILibrary
             }
             foreach (JObject req in (JArray)requires)
             {
-                if (req.Type != JTokenType.Object)
-                {
-                    //if (((JProperty)req).Value.Value<string>() == key)
-                    //{
-                    //    propVal = ((JProperty)req).Name;
-                    //}
-                }
-
                 foreach (JProperty sub in req.Properties())
                 {
                     if (sub.Value.Type == JTokenType.String)
