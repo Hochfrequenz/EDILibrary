@@ -119,7 +119,7 @@ namespace EDILibrary
                 }
                 //maskArray.Merge(((step as JObject)?.Property("fields").Value as JObject).Properties(), new JsonMergeSettings() { MergeArrayHandling = MergeArrayHandling.Union });
             }
-            var outputJson = CreateMsgJSON(inputJson, mappings, maskArray);
+            var outputJson = CreateMsgJSON(inputJson, mappings, maskArray,out var subParent);
             IEdiObject result = IEdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
             return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo() { Format = format, Version = version }, new List<string>(), _loader);
@@ -227,8 +227,9 @@ namespace EDILibrary
             }
             return false;
         }
-        protected dynamic CreateMsgJSON(JObject input, JArray mapping, JArray mask)
+        protected dynamic CreateMsgJSON(JObject input, JArray mapping, JArray mask, out bool createInParent)
         {
+            createInParent = false;
             var returnObject = new ExpandoObject();
             foreach (var prop in input.Properties())
             {
@@ -260,7 +261,7 @@ namespace EDILibrary
                             // war früher ein JObject, daher hier die Ausnahme abfangen
                             if (prop.Value.GetType() == typeof(JObject))
                                 continue;
-                            var newSub = CreateMsgJSON((prop.Value as JArray)[0] as JObject, newArray, mask);
+                            var newSub = CreateMsgJSON((prop.Value as JArray)[0] as JObject, newArray, mask, out var subParent);
                             foreach (KeyValuePair<string, object> subProp in (newSub as IDictionary<string, object>))
                                 (returnObject as IDictionary<string, object>).Add(subProp.Key, subProp.Value);
                             continue;
@@ -289,14 +290,34 @@ namespace EDILibrary
                                     (returnObject as IDictionary<string, object>).Add(newPropName, new List<dynamic>());
                                     foreach (var sub in prop.Value as JArray)
                                     {
-                                        var newSub = CreateMsgJSON(sub as JObject, newArray, mask);
-                                        ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newSub);
+                                        var newSub = CreateMsgJSON(sub as JObject, newArray, mask,out var subParent);
+                                        if(!subParent)
+                                            ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newSub);
+                                        else
+                                        {
+                                            dynamic newObj = new ExpandoObject();
+                                            foreach(var newProp in (newSub as IDictionary<string, object>).ToList<KeyValuePair<string,object>>())
+                                            {
+                                                 (newObj as IDictionary<string, object>).Add(newProp.Key,newProp.Value);
+                                            }
+                                            ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newObj);
+                                        }
                                     }
                                 }
                                 else
                                 {
-                                    var newSub = CreateMsgJSON(prop.Value as JObject, newArray, mask);
-                                    (returnObject as IDictionary<string, object>).Add(newPropName, newSub);
+                                    var newSub = CreateMsgJSON(prop.Value as JObject, newArray, mask, out var subParent);
+                                    if(!subParent)
+                                        (returnObject as IDictionary<string, object>).Add(newPropName, newSub);
+                                    else
+                                    {
+                                        dynamic newObj = new ExpandoObject();
+                                        foreach (var newProp in (newSub as IDictionary<string, object>).ToList<KeyValuePair<string, object>>())
+                                        {
+                                            (newObj as IDictionary<string, object>).Add(newProp.Key, newProp.Value);
+                                        }
+                                            ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newObj);
+                                    }
                                 }
                             }
                         }
@@ -309,7 +330,24 @@ namespace EDILibrary
                             if (!FindMask(mask, foundObj.Property("key").Value.Value<string>()))
                                 continue;
                         }
-                        (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), prop.Value);
+                        //if we have a complex type (e.g. Absender.Code) make sure to apply all values
+                        if (prop.Value.Type == JTokenType.Array)
+                        {
+                            foreach (var dep in deps)
+                            {
+                                FindObjectByKey(dep, prop.Name, out JToken newVal, false);
+                                var valPath = dep[newVal.Value<String>()].Value<String>();
+                                var pathParts = valPath.Split('.');
+                                //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
+                                createInParent = true;
+                                (returnObject as IDictionary<string, object>).Add(newVal.Value<string>(), prop.Value[0][pathParts[1]]);
+
+                            }
+                        }
+                        else
+                        {
+                            (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), prop.Value);
+                        }
                     }
 
                 }
@@ -414,41 +452,62 @@ namespace EDILibrary
             }
             return null;
         }
+        protected bool CheckFieldName(string name, string key)
+        {
+            if (name == key)
+                return true;
+            if (name.Contains("."))
+            {
+                if (name.Split('.').First() == key)
+                    return true;
+            }
+            return false;
+        }
         protected JObject FindObjectByKey(JToken val, string key, out JToken propVal, bool ignoreParentKey)
         {
-
+            //searches in a mapping json object for a corresponding key and returns the found token
             propVal = null;
 
+            //if we don't provide a mapping (variable val) or it is not an object return
             if (val == null)
                 return null;
             if (val.Type != JTokenType.Object)
                 return null;
             JObject obj = (JObject)val;
+            //we have found a top level match (val.key), check if we want top level matches and return
             if (!ignoreParentKey && obj.Property("key")?.Value.Value<string>() == key)
             {
                 return obj;
             }
+            //now go deeper and look for object names in the requires array
             var requires = obj.SelectToken("requires");
+            //if requires is an object and not an array look for matching keys in the object properties
             if (requires == null || requires.Type != JTokenType.Array)
             {
                 foreach (JProperty prop in obj.Properties())
                 {
-                    if (!prop.Name.StartsWith("_") && prop.Value.Value<string>() == key)
+                    if (!prop.Name.StartsWith("_") && prop.Value.Type == JTokenType.String)
                     {
-                        propVal = prop.Name;
-                        return obj;
+                        if (CheckFieldName(prop.Value.Value<string>(), key))
+                        {
+                            propVal = prop.Name;
+                            return obj;
+                        }
                     }
                 }
                 return null;
 
             }
+            //if it is an array check all entries in the array
             foreach (JObject req in (JArray)requires)
             {
+                // check all properties for a match
                 foreach (JProperty sub in req.Properties())
                 {
+                    //only check properties with value type string (otherwise we can't compare the key name)
                     if (sub.Value.Type == JTokenType.String)
                     {
-                        if (sub.Value.Value<string>() == key)
+                        if (CheckFieldName(sub.Value.Value<string>(), key))
                         {
                             propVal = sub.Name;
                             return req;
