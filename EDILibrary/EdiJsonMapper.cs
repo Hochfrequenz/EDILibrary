@@ -351,9 +351,16 @@ namespace EDILibrary
                                 FindObjectByKey(dep, prop.Name, out JToken newVal, false);
                                 var valPath = dep[newVal.Value<String>()].Value<String>();
                                 var pathParts = valPath.Split('.');
-                                //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
-                                createInParent = true;
-                                (returnObject as IDictionary<string, object>).Add(newVal.Value<string>(), prop.Value[pathParts[1]]);
+                                if (pathParts.Length > 1)
+                                {
+                                    //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
+                                    createInParent = true;
+                                    (returnObject as IDictionary<string, object>).Add(newVal.Value<string>(), prop.Value[pathParts[1]]);
+                                }
+                                else
+                                {
+                                    (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), prop.Value);
+                                }
 
                             }
                         }
