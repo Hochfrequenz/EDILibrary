@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace EDILibrary
 {
@@ -216,13 +217,20 @@ namespace EDILibrary
                 }
             }
         }
+        protected bool CompareKey(string left, string right)
+        {
+            Regex rx = new Regex("[^A-Za-z]");
+            var left_replaced = rx.Replace(left, "");
+            var right_replaced = rx.Replace(right, "");
+            return left_replaced == right_replaced;
+        }
         protected bool FindMask(JArray mask, string maskKey)
         {
             if (mask == null)
                 return false;
             foreach (var maskEntry in mask)
             {
-                if ((maskEntry as JObject).Property("key")?.Value.Value<string>() == maskKey)
+                if (CompareKey((maskEntry as JObject).Property("key")?.Value.Value<string>(),maskKey))
                     return (maskEntry as JObject).Property("type")?.Value.Value<string>() != "N";
             }
             return false;
