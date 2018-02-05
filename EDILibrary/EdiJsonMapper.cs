@@ -120,7 +120,7 @@ namespace EDILibrary
                 }
                 //maskArray.Merge(((step as JObject)?.Property("fields").Value as JObject).Properties(), new JsonMergeSettings() { MergeArrayHandling = MergeArrayHandling.Union });
             }
-            var outputJson = CreateMsgJSON(inputJson, mappings, maskArray,out var subParent);
+            var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, out var subParent);
             IEdiObject result = IEdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
             return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo() { Format = format, Version = version }, new List<string>(), _loader);
@@ -230,7 +230,7 @@ namespace EDILibrary
                 return false;
             foreach (var maskEntry in mask)
             {
-                if (CompareKey((maskEntry as JObject).Property("key")?.Value.Value<string>(),maskKey))
+                if (CompareKey((maskEntry as JObject).Property("key")?.Value.Value<string>(), maskKey))
                     return (maskEntry as JObject).Property("type")?.Value.Value<string>() != "N";
             }
             return false;
@@ -290,7 +290,12 @@ namespace EDILibrary
                         }
                         else
                         {
-                            if (FindMask(mask, prop.Name) || prop.Name == "Dokument" || prop.Name == "Nachricht")
+                            //check for virtual groups
+                            bool virtualGroup = false;
+                            var subObj = FindObjectByKey(deps.First(), prop.Name, out propVal, false);
+                            if (subObj.SelectToken("_meta.virtual") != null)
+                                virtualGroup = subObj.SelectToken("_meta.virtual").Value<bool>();
+                            if (FindMask(mask, prop.Name) || prop.Name == "Dokument" || prop.Name == "Nachricht" || virtualGroup)
                             {
                                 var newPropName = ((deps.First() as JObject).Property("requires").Value.Value<JArray>().FirstOrDefault() as JObject)?.Properties().FirstOrDefault()?.Name;
                                 if (prop.Value.Type == JTokenType.Array)
@@ -298,15 +303,15 @@ namespace EDILibrary
                                     (returnObject as IDictionary<string, object>).Add(newPropName, new List<dynamic>());
                                     foreach (var sub in prop.Value as JArray)
                                     {
-                                        var newSub = CreateMsgJSON(sub as JObject, newArray, mask,out var subParent);
-                                        if(!subParent)
+                                        var newSub = CreateMsgJSON(sub as JObject, newArray, mask, out var subParent);
+                                        if (!subParent)
                                             ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newSub);
                                         else
                                         {
                                             dynamic newObj = new ExpandoObject();
-                                            foreach(var newProp in (newSub as IDictionary<string, object>).ToList<KeyValuePair<string,object>>())
+                                            foreach (var newProp in (newSub as IDictionary<string, object>).ToList<KeyValuePair<string, object>>())
                                             {
-                                                 (newObj as IDictionary<string, object>).Add(newProp.Key,newProp.Value);
+                                                (newObj as IDictionary<string, object>).Add(newProp.Key, newProp.Value);
                                             }
                                             ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newObj);
                                         }
@@ -315,7 +320,7 @@ namespace EDILibrary
                                 else
                                 {
                                     var newSub = CreateMsgJSON(prop.Value as JObject, newArray, mask, out var subParent);
-                                    if(!subParent)
+                                    if (!subParent)
                                         (returnObject as IDictionary<string, object>).Add(newPropName, newSub);
                                     else
                                     {
@@ -352,7 +357,7 @@ namespace EDILibrary
 
                             }
                         }
-                        else if(prop.Value.Type == JTokenType.Object)
+                        else if (prop.Value.Type == JTokenType.Object)
                         {
                             foreach (var dep in deps)
                             {
