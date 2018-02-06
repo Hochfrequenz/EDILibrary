@@ -294,7 +294,12 @@ namespace EDILibrary
                         }
                         else
                         {
-                            if (FindMask(mask, prop.Name) || prop.Name == "Dokument" || prop.Name == "Nachricht")
+                            //check for virtual groups
+                            bool virtualGroup = false;
+                            var subObj = FindObjectByKey(deps.First(), prop.Name, out propVal, false);
+                            if (subObj.SelectToken("_meta.virtual") != null)
+                                virtualGroup = subObj.SelectToken("_meta.virtual").Value<bool>();
+                            if (FindMask(mask, prop.Name) || prop.Name == "Dokument" || prop.Name == "Nachricht" || virtualGroup)
                             {
                                 var newPropName = ((deps.First() as JObject).Property("requires").Value.Value<JArray>().FirstOrDefault() as JObject)?.Properties().FirstOrDefault()?.Name;
                                 if (prop.Value.Type == JTokenType.Array)

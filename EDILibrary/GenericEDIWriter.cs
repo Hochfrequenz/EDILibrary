@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace EDILibrary 
 {
@@ -17,8 +18,11 @@ namespace EDILibrary
         }
         public String FormatDate(String dateString, String format)
         {
-
-            if (!DateTime.TryParse(dateString, out DateTime date))
+            DateTime date;
+            bool foundDate = false;
+            CultureInfo deDE = new CultureInfo("de-DE");
+            foundDate = DateTime.TryParseExact(dateString, new string[] { "yyyyMMdd", "MMdd", "yyyyMMddHHmm", "yyyyMMddHHmmss" }, deDE, DateTimeStyles.None, out date);
+            if (!foundDate && !DateTime.TryParse(dateString, out date))
                 return dateString;
 
             switch (format)
