@@ -53,13 +53,19 @@ namespace EDILibrary
 
 
         }
-        
+        public static string RemoveBOM(string edi)
+        {
+            if (edi[0] != 'U')
+                return edi.Substring(1);
+            else return edi;
+        }
         public static string NormalizeEDIHeader(string edi)
         {
 
 
             if (edi == null)
                 return null;
+            edi = RemoveBOM(edi);
             string elementDelimiter = ":";
             string groupDelimiter = "+";
             string segmentDelimiter = "'";
@@ -109,6 +115,7 @@ namespace EDILibrary
                 return null;
             try
             {
+                edi = RemoveBOM(edi);
                 string elementDelimiter = ":";
                 string groupDelimiter = "+";
                 string segmentDelimiter = "'";
