@@ -125,7 +125,7 @@ namespace EDILibrary
             //apply scripts
             return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo() { Format = format, Version = version }, new List<string>(), _loader);
 
-        }
+        }   
         protected void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool includeEmptyValues)
         {
             foreach (var prop in value.Properties())
@@ -307,17 +307,20 @@ namespace EDILibrary
                                     (returnObject as IDictionary<string, object>).Add(newPropName, new List<dynamic>());
                                     foreach (var sub in prop.Value as JArray)
                                     {
-                                        var newSub = CreateMsgJSON(sub as JObject, newArray, mask, out var subParent);
-                                        if (!subParent)
-                                            ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newSub);
-                                        else
+                                        if (sub as JObject != null)
                                         {
-                                            dynamic newObj = new ExpandoObject();
-                                            foreach (var newProp in (newSub as IDictionary<string, object>).ToList<KeyValuePair<string, object>>())
+                                            var newSub = CreateMsgJSON(sub as JObject, newArray, mask, out var subParent);
+                                            if (!subParent)
+                                                ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newSub);
+                                            else
                                             {
-                                                (newObj as IDictionary<string, object>).Add(newProp.Key, newProp.Value);
+                                                dynamic newObj = new ExpandoObject();
+                                                foreach (var newProp in (newSub as IDictionary<string, object>).ToList<KeyValuePair<string, object>>())
+                                                {
+                                                    (newObj as IDictionary<string, object>).Add(newProp.Key, newProp.Value);
+                                                }
+                                                ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newObj);
                                             }
-                                            ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newObj);
                                         }
                                     }
                                 }
