@@ -285,7 +285,7 @@ namespace EDILibrary
                             {
                                 string format = subObj.SelectToken("_meta.format").Value<string>();
                                 //format date
-                                (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), new ScriptHelper().FormatDate(prop.Value.Value<string>(), format));
+                                (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), new ScriptHelper() { useLocalTime = false }.FormatDate(prop.Value.Value<string>(), format));
                             }
                             else
                             {

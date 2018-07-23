@@ -11,7 +11,7 @@ namespace EDILibrary
 {
     public class ScriptHelper
     {
-        public readonly bool useLocalTime = true;
+        public bool useLocalTime = true;
         public String Escape(string input)
         {
             return input.Replace("+", "?+").Replace(":", "?:").Replace("'","?'");
