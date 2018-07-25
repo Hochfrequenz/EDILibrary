@@ -123,7 +123,7 @@ namespace EDILibrary
             var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, out var subParent);
             IEdiObject result = IEdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
-            return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo() { Format = format, Version = version }, new List<string>(), _loader);
+            return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo() { Format = format, Version = version }, new List<string>(), _loader,false);
 
         }   
         protected void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool includeEmptyValues)
@@ -133,64 +133,66 @@ namespace EDILibrary
                 var deps = mappings.Where(map => FindDependentObject(map, prop.Name, out JToken propVal) != null).ToList();
                 if (deps.Count() > 0)
                 {
-                    var retObj = FindDependentObject(deps.First(), prop.Name, out JToken propVal);
-                    var superValue = ((JProperty)retObj.First).Value.Value<string>();
-                    var superKey = ((JProperty)retObj.First).Name;
-                    if (propVal.Type == JTokenType.Array)
-                    {
-                        dynamic obj = new ExpandoObject();
-                        //call recursively
-                        var returns = new JArray();
-                        if (prop.Value.Type == JTokenType.Array)
-                        {
-                            obj = new List<dynamic>();
-                            foreach (var entry in prop.Value as JArray)
-                            {
-                                dynamic subObj = new ExpandoObject();
-                                ParseObject(entry as JObject, subObj as IDictionary<string, object>, ((JArray)propVal), includeEmptyValues);
-                                obj.Add(subObj);
-                            }
-                        }
-                        else
-                        {
-                            ParseObject(prop.Value as JObject, obj as IDictionary<string, object>, ((JArray)propVal), includeEmptyValues);
-                        }
-
-                        target.Add(((JObject)deps.First()).Property("key").Value.Value<string>(), obj);
-
-                        continue;
-                    }
-                    else
-                    {
-                        //special case for groupBy fields
-                        if (superKey != prop.Name && superValue != prop.Name)
+                    foreach(var dep in deps) {
+                        var retObj = FindDependentObject(dep, prop.Name, out JToken propVal);
+                        var superValue = ((JProperty)retObj.First).Value.Value<string>();
+                        var superKey = ((JProperty)retObj.First).Name;
+                        if (propVal.Type == JTokenType.Array)
                         {
                             dynamic obj = new ExpandoObject();
-                            if (!target.ContainsKey(superValue))
+                            //call recursively
+                            var returns = new JArray();
+                            if (prop.Value.Type == JTokenType.Array)
                             {
-                                //create group array
-                                target.Add(superValue, new JArray());
+                                obj = new List<dynamic>();
+                                foreach (var entry in prop.Value as JArray)
+                                {
+                                    dynamic subObj = new ExpandoObject();
+                                    ParseObject(entry as JObject, subObj as IDictionary<string, object>, ((JArray)propVal), includeEmptyValues);
+                                    obj.Add(subObj);
+                                }
                             }
-                            var newProp = new ExpandoObject();
-                            AddProperty(newProp, ((JValue)propVal).Value<string>(), prop.Value);
-                            var addObj = new JObject();
-                            //if we already have an object in the array, just add the new property
-                            if ((target[superValue] as JArray).Count > 0)
-                                addObj = (target[superValue] as JArray)[0] as JObject;
-                            // go through all new defined properties and add them to the JObject
-                            foreach (var kvp in newProp as IDictionary<string, object>)
+                            else
                             {
-                                addObj.Add(kvp.Key, JToken.FromObject(kvp.Value));
+                                ParseObject(prop.Value as JObject, obj as IDictionary<string, object>, ((JArray)propVal), includeEmptyValues);
                             }
-                            if ((target[superValue] as JArray).Count == 0)
-                                (target[superValue] as JArray).Add(addObj);
 
+                            target.Add(((JObject)dep).Property("key").Value.Value<string>(), obj);
 
+                            continue;
                         }
                         else
                         {
-                            if (!String.IsNullOrEmpty(prop.Value.Value<string>()))
-                                AddProperty(target, ((JValue)propVal).Value<string>(), prop.Value);
+                            //special case for groupBy fields
+                            if (superKey != prop.Name && superValue != prop.Name)
+                            {
+                                dynamic obj = new ExpandoObject();
+                                if (!target.ContainsKey(superValue))
+                                {
+                                    //create group array
+                                    target.Add(superValue, new JArray());
+                                }
+                                var newProp = new ExpandoObject();
+                                AddProperty(newProp, ((JValue)propVal).Value<string>(), prop.Value);
+                                var addObj = new JObject();
+                                //if we already have an object in the array, just add the new property
+                                if ((target[superValue] as JArray).Count > 0)
+                                    addObj = (target[superValue] as JArray)[0] as JObject;
+                                // go through all new defined properties and add them to the JObject
+                                foreach (var kvp in newProp as IDictionary<string, object>)
+                                {
+                                    addObj.Add(kvp.Key, JToken.FromObject(kvp.Value));
+                                }
+                                if ((target[superValue] as JArray).Count == 0)
+                                    (target[superValue] as JArray).Add(addObj);
+
+
+                            }
+                            else
+                            {
+                                if (!String.IsNullOrEmpty(prop.Value.Value<string>()))
+                                    AddProperty(target, ((JValue)propVal).Value<string>(), prop.Value);
+                            }
                         }
                     }
                 }

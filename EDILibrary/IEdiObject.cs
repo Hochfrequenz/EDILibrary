@@ -157,26 +157,47 @@ namespace EDILibrary
 
             int i = cur.Fields.Count;
             bool hasClass = cur.Children.Count > 0;
-            if (cur.Key!=null)
+            if (cur.Key != null)
             {
                 hasKey = true;
                 _builder.AppendLine("\"" + "Key" + "\" : \"" + cur.Key + "\"" + (i != 0 || hasClass ? "," : ""));
             }
-            foreach (var elem in cur.Fields)
+            if (cur.Fields.Where(f => f.Value.Count() > 1).Count() == cur.Fields.Count && cur.Fields.Where(f => f.Value.Count() > 1).Count() >0) // check for multiple values
             {
-                i--;
-                _builder.AppendLine("\"" + elem.Key+ "\" : \"" + elem.Value.FirstOrDefault() + "\"" + (i != 0 || hasClass ? "," : ""));
+                int index = 0;
+                var oldI = i;
+                while (index < cur.Fields.Where(f => f.Value.Count > 1).First().Value.Count)
+                {
+                    foreach (var elem in cur.Fields)
+                    {
+                        i--;
+                        _builder.AppendLine("\"" + elem.Key + "\" : \"" + elem.Value.ElementAt(index) + "\"" + (i != 0 || hasClass ? "," : ""));
 
+                    }
+                    i = oldI;
+                    if (index + 1 < cur.Fields.Where(f => f.Value.Count > 1).First().Value.Count)
+                        _builder.AppendLine("},{");
+                    index++;
+                }
+            }
+            else
+            {
+                foreach (var elem in cur.Fields)
+                {
+                    i--;
+                    _builder.AppendLine("\"" + elem.Key + "\" : \"" + elem.Value.FirstOrDefault() + "\"" + (i != 0 || hasClass ? "," : ""));
+
+                }
             }
             int j = cur.Children.Count;
-            if (j == 0 && cur.Fields.Count==0) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
+            if (j == 0 && cur.Fields.Count == 0) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
             {
                 if (!hasKey)
                 {
                     string key = "";
                     if (cur.Key != null)
                     {
-                        key = "\"" + "Key" + "\" : \"" + cur.Key+ "\"" + (i != 0 || hasClass ? "," : "");
+                        key = "\"" + "Key" + "\" : \"" + cur.Key + "\"" + (i != 0 || hasClass ? "," : "");
                     }
                     else
                     {
@@ -207,7 +228,7 @@ namespace EDILibrary
                 _builder.AppendLine("}");
                 lastName = elem.Name;
             }
-            if(openElement)
+            if (openElement)
                 _builder.AppendLine("]" + (j != 0 ? "," : ""));
         }
         protected void RecurseJSON(XElement cur)
@@ -233,7 +254,7 @@ namespace EDILibrary
                 if (!hasKey)
                 {
                     string key = "";
-                    if(cur.Attribute("key")!=null)
+                    if (cur.Attribute("key") != null)
                     {
                         key = "\"" + "Key" + "\" : \"" + cur.Attribute("key").Value + "\"" + (i != 0 || hasClass ? "," : "");
                     }
@@ -243,7 +264,7 @@ namespace EDILibrary
                     }
                     _builder.AppendLine(key);
                 }
-                    
+
             }
             foreach (var elem in cur.Descendants("Class").Where(d => d.Parent == cur))
             {
