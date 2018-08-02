@@ -22,8 +22,19 @@ namespace EDILibrary
         {
             _loader = loader;
         }
-
+        public struct JsonResult
+        {
+            public string EDI;
+            public string Format;
+            public string Version;
+            public string Sender;
+            public string Receiver;
+        }
         public async Task<string> ParseToJson(string edi, string packageVersion, string includeEmptyValues = null)
+        {
+            return (await ParseToJsonWithVersion(edi, packageVersion, includeEmptyValues)).EDI;
+        }
+            public async Task<JsonResult> ParseToJsonWithVersion(string edi, string packageVersion, string includeEmptyValues = null)
         {
             var edi_info = EDIHelper.GetEDIFileInfo(edi);
             var edi_string = EDIHelper.NormalizeEDIHeader(edi);
@@ -56,8 +67,13 @@ namespace EDILibrary
 
             var resultDict = resultObject as IDictionary<string, object>;
             ParseObject(jsonResult, resultObject as IDictionary<string, object>, mappings, includeEmptyValues != null);
-
-            return JsonConvert.SerializeObject(resultObject);
+            JsonResult result = new JsonResult();
+            result.EDI = JsonConvert.SerializeObject(resultObject);
+            result.Format = edi_info.Format;
+            result.Version = edi_info.Version;
+            result.Sender = edi_info.Sender.ID;
+            result.Receiver = edi_info.Empfänger.ID;
+            return result;
         }
         public async Task<string> CreateFromJson(string jsonInput, string pid, string formatPackage = null)
         {
