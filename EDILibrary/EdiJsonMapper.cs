@@ -52,6 +52,11 @@ namespace EDILibrary
             {
                 package = packageVersion;
             }
+            else
+            {
+                //The template loader can try to read the package from the format and version (and the right table)
+                package = edi_info.Format + "|" + edi_info.Version;          
+            }
             //mapping laden
             JArray mappings = null;
             try

@@ -1,11 +1,13 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
 using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System;
 using EDILibrary.Interfaces;
 using EDILibrary;
 using System.Threading.Tasks;
 using System.Text;
+using Newtonsoft.Json.Linq;
 
 namespace EDIFileLoader
 {
@@ -18,7 +20,9 @@ namespace EDIFileLoader
 
         protected CloudStorageAccount _storageAccount;
         protected CloudBlobClient _blobClient;
+        protected CloudTableClient _tableClient;
         protected CloudBlobContainer _container;
+        protected CloudTable _formatTable;
         public AzureStorageLoader(string accountName, string accountKey, string containerName,string connectionString)
         {
             _accountKey = accountKey;
@@ -30,6 +34,8 @@ namespace EDIFileLoader
 
             _blobClient = _storageAccount.CreateCloudBlobClient();
 
+            _tableClient = _storageAccount.CreateCloudTableClient();
+            _formatTable =  _tableClient.GetTableReference("formatPackage");
             _container = _blobClient.GetContainerReference(containerName);
 
         }
@@ -50,6 +56,13 @@ namespace EDIFileLoader
         }
         public async Task<string> LoadJSONTemplate(string formatPackage, string fileName)
         {
+            if(formatPackage.Contains("|")) //New special case in that a formatPackage is not given directly but a format version string
+            {
+                //try to read from Azure
+                TableResult result = await _formatTable.ExecuteAsync(TableOperation.Retrieve(formatPackage.Split('|')[0],formatPackage.Split('|')[1]));
+                formatPackage = JObject.FromObject(result.Result)["formatPackage"].Value<string>();
+                
+            }
             CloudBlockBlob blockBlob = _container.GetBlockBlobReference(System.IO.Path.Combine(formatPackage.Replace("/",""),fileName).Replace("\\", "/"));
             BlobRequestOptions options = new BlobRequestOptions()
             {
