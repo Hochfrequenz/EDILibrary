@@ -59,8 +59,8 @@ namespace EDIFileLoader
             if(formatPackage.Contains("|")) //New special case in that a formatPackage is not given directly but a format version string
             {
                 //try to read from Azure
-                TableResult result = await _formatTable.ExecuteAsync(TableOperation.Retrieve(formatPackage.Split('|')[0],formatPackage.Split('|')[1]));
-                formatPackage = JObject.FromObject(result.Result)["formatPackage"].Value<string>();
+                TableResult result = await _formatTable.ExecuteAsync(TableOperation.Retrieve<FormatPackage>(formatPackage.Split('|')[0],formatPackage.Split('|')[1]));
+                formatPackage = ((FormatPackage)result.Result).formatPackage;
                 
             }
             CloudBlockBlob blockBlob = _container.GetBlockBlobReference(System.IO.Path.Combine(formatPackage.Replace("/",""),fileName).Replace("\\", "/"));

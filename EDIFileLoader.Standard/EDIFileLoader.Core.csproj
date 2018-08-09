@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <Compile Include="..\EDIFileLoader\AzureStorageLoader.cs" Link="AzureStorageLoader.cs" />
+    <Compile Include="..\EDIFileLoader\FormatPackage.cs" Link="FormatPackage.cs" />
   </ItemGroup>
 
   <ItemGroup>
