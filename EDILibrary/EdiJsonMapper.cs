@@ -264,6 +264,8 @@ namespace EDILibrary
         }
         protected dynamic CreateMsgJSON(JObject input, JArray mapping, JArray mask, out bool createInParent)
         {
+            if (input == null)
+                return null;
             createInParent = false;
             var returnObject = new ExpandoObject();
             foreach (var prop in input.Properties())
