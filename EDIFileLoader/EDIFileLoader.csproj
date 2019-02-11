@@ -8,6 +8,21 @@
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <Version>0.0.1</Version>
     <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSymbols>true</IncludeSymbols>
+    <!-- Optional: Declare that the Repository URL can be published to NuSpec -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <!-- Optional: Embed source files that are not tracked by the source control manager to the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!-- Optional: Embed source files that are not tracked by the source control manager to the PDB -->
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!-- Optional: Include PDB in the built .nupkg -->
+
+    <!-- Optional: Include PDB in the built .nupkg -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <PackageProjectUrl>https://github.com/Hochfrequenz/EDILibrary</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Hochfrequenz/EDILibrary</RepositoryUrl>
+
   </PropertyGroup>
 
   <ItemGroup>
