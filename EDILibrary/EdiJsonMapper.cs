@@ -98,6 +98,7 @@ namespace EDILibrary
                 case "35": format = "REQOTE"; break;
                 case "15": format = "QUOTES"; break;
                 case "23": format = "INSRPT"; break;
+                case "99": format = "APERAK"; break;
             }
             string package = null;
             if (formatPackage != null)
