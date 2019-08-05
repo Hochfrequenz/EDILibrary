@@ -433,6 +433,7 @@ namespace EDILibrary
 
             string message = edi.Substring(UNAoffset + segDelimiterLength, edi.Length - (UNAoffset + segDelimiterLength));
             message = message.Replace("?'", "?$");
+            message = message.Replace("\"", "\\\"");
             var Segments = message.LowMemSplit(segmentDelimiter);
             if (tree != null)
             {
