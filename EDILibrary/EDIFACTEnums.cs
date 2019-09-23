@@ -93,6 +93,84 @@ namespace EDILibrary
     }
     public enum EDIEnums
     {
-        Dokument
+        [Description("Dokument")]
+        Dokument,
+        [Description("Nachricht")]
+        Nachricht,
+        [Description("Kategorie")]
+        Kategorie,
+        [Description("Nachrichtenfunktion")]
+        Nachrichtenfunktion,
+        [Description("Nachrichtendatum")]
+        Nachrichtendatum,
+        [Description("Zeitzone")]
+        Zeitzone,
+        [Description("Gueltigkeit")]
+        Gueltigkeit,
+        [Description("Referenz Anfrage")]
+        Referenz_Anfrage,
+        [Description("Absender_NAD")]
+        Absender_NAD,
+        [Description("Empfaenger_NAD")]
+        [APERAKDescription("MP-ID Empfänger")]
+        Empfänger_NAD,
+        [Description("Absender_Code_UNB")]
+        Absender_Code_UNB,
+        [Description("Absender")]
+        Absender,
+        [Description("Empfaenger_Code_UNB")]
+        Empfänger_Code_UNB,
+        [Description("Empfaenger")]
+        Empfänger,
+        [Description("Vorgang")]
+        Vorgang,
+        [Description("Syntaxfehler")]
+        Syntaxfehler,
+        [Description("Servicesegment")]
+        Servicesegment,
+        [Description("Segmentposition")]
+        Segmentposition,
+        [Description("Gruppenposition")]
+        Gruppenposition,
+        [Description("Nachrichtentyp")]
+        Nachrichtentyp,
+        [Description("Nachrichtenversion")]
+        Nachrichtenversion,
+        [Description("Freigabenummer")]
+        Freigabenummer,
+        [Description("Anwendungscode")]
+        Anwendungscode,
+        [Description("Aktion")]
+        Aktion,
+        [Description("Herausgeber")]
+        Herausgeber,
+        [Description("Antwortsegment")]
+        Antwortsegment,
+        [Description("Fehlersegment")]
+        Fehlersegment,
+        [Description("Fehlerelement")]
+        Fehlerelement,
+        [Description("Segment")]
+        Segment,
+        [Description("Segmentname")]
+        Segmentname,
+        [Description("Dokumentendatum")]
+        Dokumentendatum,
+        [Description("Dokumentenuhrzeit")]
+        Dokumentenuhrzeit,
+        [Description("Referenzdatum")]
+        Referenzdatum,
+        [Description("Status Identifikation")]
+        Status_Identifikation,
+        [Description("Absenderreferenz")]
+        Absenderreferenz,
+        [Description("Status")]
+        Status,
+        [Description("Referenz")]
+        Referenz,
+        [Description("Version")]
+        Version,
+
+
     }
 }
