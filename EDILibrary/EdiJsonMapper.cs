@@ -62,7 +62,6 @@ namespace EDILibrary
             try
             {
                 mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, edi_info.Format + ".json"));
-
             }
             catch (Exception e)
             {
