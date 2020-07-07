@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using System;
@@ -140,7 +140,7 @@ namespace EDILibrary
         public List<string> CreateJSONFromCSV(string csv)
         {
             //first split header line from content lines
-            var lines = csv.LowMemSplit("\r\n");
+            var lines = csv.LowMemSplit("\r\n"); // todo: make this more lenient to also accept  LF line endings.
             var segments = lines[0].Split(new string[] { ";" }, StringSplitOptions.None);
             List<string> returnList = new List<string>();
             foreach (var line in lines.Skip(1))
