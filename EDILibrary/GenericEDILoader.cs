@@ -108,15 +108,15 @@ namespace EDILibrary
             string[] SubPos = pos.Split(new string[] { ":" }, StringSplitOptions.None);
             if (!edi.StartsWith(SubPos[0]))
                 return null;
-            int GroupPos = Int32.Parse(SubPos[1]);
+            int GroupPos = int.Parse(SubPos[1]);
             if (Groups.Length <= GroupPos)
                 return null;
             string[] SubGroups = Groups[GroupPos].Split(new string[] { ":" }, StringSplitOptions.None);
             if (SubPos[2].Contains("("))
             {
                 string[] range = SubPos[2].Split(new string[] { "," }, StringSplitOptions.None);
-                int start = Int32.Parse(range[0].Substring(1));
-                int end = Int32.Parse(range[1].Substring(0, range[1].Length - 1));
+                int start = int.Parse(range[0].Substring(1));
+                int end = int.Parse(range[1].Substring(0, range[1].Length - 1));
                 List<string> parts = new List<string>();
                 for (int i = start; i <= end; i++)
                 {
@@ -124,7 +124,7 @@ namespace EDILibrary
                         break;
                     parts.Add(SubGroups[i].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?"));
                 }
-                string endValue = String.Join("", parts).Trim();
+                string endValue = string.Join("", parts).Trim();
                 if (_useCache && !_valueCache.ContainsKey(edi))
                 {
                     _valueCache.Add(edi, new Dictionary<string, string>());
@@ -135,10 +135,10 @@ namespace EDILibrary
             }
             else
             {
-                int DetailPos = Int32.Parse(SubPos[2]);
+                int DetailPos = int.Parse(SubPos[2]);
                 if (SubGroups.Length <= DetailPos)
                     return null;
-                String result = SubGroups[DetailPos].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?");
+                string result = SubGroups[DetailPos].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?");
                 if (!_valueCache.ContainsKey(edi))
                 {
                     _valueCache.Add(edi, new Dictionary<string, string>());
@@ -297,7 +297,7 @@ namespace EDILibrary
                                     }
                                 }
                             }
-                            if (String.IsNullOrWhiteSpace(Part) == false)
+                            if (string.IsNullOrWhiteSpace(Part) == false)
                             {
                                 if (path.Contains('|'))
                                 {
@@ -328,7 +328,7 @@ namespace EDILibrary
                     }
                 }
                 if (ResultParts.Count > 0)
-                    return String.Join("|", ResultParts);
+                    return string.Join("|", ResultParts);
                 else
                     return null;
             }
@@ -377,7 +377,7 @@ namespace EDILibrary
         public TreeElement LoadTree(string tree)
         {
             TreeElement treeRoot;
-            String seperator = "\n";
+            string seperator = "\n";
             if (tree.IndexOf("\r\n") > -1)
             {
                 seperator = "\r\n";
@@ -438,7 +438,7 @@ namespace EDILibrary
             {
                 TreeHelper.treeRoot = null;
                 TreeElement currentTreeRoot = tree;
-                foreach (String segment in Segments)
+                foreach (string segment in Segments)
                 {
                     string str_segment = segment.TrimStart(new char[] { '\r', '\n', '\t' }).TrimEnd(new char[] { '\r', '\n', '\t' });
                     TreeElement child = TreeHelper.FindEdiElement(ref currentTreeRoot, str_segment);

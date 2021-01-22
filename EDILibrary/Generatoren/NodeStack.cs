@@ -43,7 +43,7 @@ namespace EDILibrary.Generatoren
                     paths.Add(node.Node + "[" + node.Counter + "]");
             }
             paths.Reverse();
-            return String.Join(".", paths.Skip(iSkip));
+            return string.Join(".", paths.Skip(iSkip));
         }
         public static string EscapePath(string path)
         {
@@ -61,7 +61,7 @@ namespace EDILibrary.Generatoren
                     escaped.Add("['" + ext + "']");
                 }
             }
-            return String.Join(".", escaped);
+            return string.Join(".", escaped);
         }
         public static string CombinePath(string path, string extension, bool escape = false)
         {
@@ -83,7 +83,7 @@ namespace EDILibrary.Generatoren
                         {
                             escaped.Add("['" + ext + "']");
                         }
-                        extensionSafe = String.Join(".", escaped);
+                        extensionSafe = string.Join(".", escaped);
                     }
                 }
                 else if(extension != null)
@@ -100,9 +100,9 @@ namespace EDILibrary.Generatoren
 
                 }
             }
-            if (String.IsNullOrWhiteSpace(path) == false)
+            if (string.IsNullOrWhiteSpace(path) == false)
             {
-                if (String.IsNullOrWhiteSpace(extensionSafe) == false)
+                if (string.IsNullOrWhiteSpace(extensionSafe) == false)
                     return path + "." + extensionSafe;
                 else
                     return path;

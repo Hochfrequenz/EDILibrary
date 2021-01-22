@@ -29,7 +29,7 @@ namespace EDILibrary
                         else
                         {
                             string fieldName = field.Property("key").Value.Value<string>();
-                            builder.Append(String.Format("{0}/{1};", groupName, fieldName));
+                            builder.Append(string.Format("{0}/{1};", groupName, fieldName));
                         }
                     }
                 }
@@ -48,12 +48,12 @@ namespace EDILibrary
                     else
                     {
                         string fieldName = field.Property("key").Value.Value<string>();
-                        builder.Append(String.Format("{0};", fieldName));
+                        builder.Append(string.Format("{0};", fieldName));
                     }
                 }
             }
         }
-        protected void ParseProperty(JProperty prop, String prefix, StringBuilder builder, StringBuilder valueBuilder)
+        protected void ParseProperty(JProperty prop, string prefix, StringBuilder builder, StringBuilder valueBuilder)
         {
             if (prop.Value.GetType() == typeof(JArray))
             {
@@ -116,7 +116,7 @@ namespace EDILibrary
             if (segment.Contains("|"))
             {
                 var segmentParts = segment.Split('|');
-                string newSegment = String.Join("|", segmentParts.Skip(1));
+                string newSegment = string.Join("|", segmentParts.Skip(1));
                 if (localRoot.Property(segmentParts[0]) == null)
                 {
                     JArray newChilds = new JArray(new JObject());
@@ -135,7 +135,7 @@ namespace EDILibrary
             {
                 return segment;
             }
-            return String.Join("|", segment.Split('|').Skip(1));
+            return string.Join("|", segment.Split('|').Skip(1));
         }
         public List<string> CreateJSONFromCSV(string csv)
         {

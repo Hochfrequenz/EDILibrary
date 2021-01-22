@@ -210,7 +210,7 @@ namespace EDILibrary
                             }
                             else
                             {
-                                if (!String.IsNullOrEmpty(prop.Value.Value<string>()))
+                                if (!string.IsNullOrEmpty(prop.Value.Value<string>()))
                                     AddProperty(target, ((JValue)propVal).Value<string>(), prop.Value);
                             }
                         }
@@ -229,13 +229,13 @@ namespace EDILibrary
                 var splits = name.Split(new string[] { "." }, StringSplitOptions.None);
                 if (target.ContainsKey(splits.First()))
                 {
-                    AddProperty(target[splits.First()] as IDictionary<string, object>, String.Join(".", splits.Skip(1)), value);
+                    AddProperty(target[splits.First()] as IDictionary<string, object>, string.Join(".", splits.Skip(1)), value);
                 }
                 else
                 {
                     var newObj = new ExpandoObject();
                     target.Add(splits.First(), newObj);
-                    AddProperty(target[splits.First()] as IDictionary<string, object>, String.Join(".", splits.Skip(1)), value);
+                    AddProperty(target[splits.First()] as IDictionary<string, object>, string.Join(".", splits.Skip(1)), value);
                 }
             }
         }
@@ -381,7 +381,7 @@ namespace EDILibrary
                             foreach (var dep in deps)
                             {
                                 FindObjectByKey(dep, prop.Name, out JToken newVal, false);
-                                var valPath = dep[newVal.Value<String>()].Value<String>();
+                                var valPath = dep[newVal.Value<string>()].Value<string>();
                                 var pathParts = valPath.Split('.');
                                 //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
                                 createInParent = true;
@@ -394,7 +394,7 @@ namespace EDILibrary
                             foreach (var dep in deps)
                             {
                                 FindObjectByKey(dep, prop.Name, out JToken newVal, false);
-                                var valPath = dep[newVal.Value<String>()].Value<String>();
+                                var valPath = dep[newVal.Value<string>()].Value<string>();
                                 var pathParts = valPath.Split('.');
                                 if (pathParts.Length > 1)
                                 {
@@ -426,7 +426,7 @@ namespace EDILibrary
             {
                 foreach (var subObj in input.SelectToken(splits.First()) as JArray)
                 {
-                    SetValue(subObj as JObject, String.Join("[].", splits.Skip(1)), value);
+                    SetValue(subObj as JObject, string.Join("[].", splits.Skip(1)), value);
                 }
             }
             else if (input.SelectToken(splits.First()) != null)
@@ -442,7 +442,7 @@ namespace EDILibrary
                     {
                         new JObject()
                     };
-                    SetValue(newArray.First as JObject, String.Join("[].", splits.Skip(1)), value);
+                    SetValue(newArray.First as JObject, string.Join("[].", splits.Skip(1)), value);
                     //unescape name
                     var unescapedName = splits.First().Replace("['", "").Replace("']", "");
                     input.Add(unescapedName, newArray);

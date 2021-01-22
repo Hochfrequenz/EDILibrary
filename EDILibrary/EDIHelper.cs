@@ -27,7 +27,7 @@ namespace EDILibrary
         public string Nachrichtenversion;
         public override string ToString()
         {
-            return String.Join("_", new List<string>() { Format, Referenz, Sender != null ? Sender.ToString() : "", Empfänger != null ? Empfänger.ToString() : "", DateTime.UtcNow.ToString("yyyyMMdd"), ID });
+            return string.Join("_", new List<string>() { Format, Referenz, Sender != null ? Sender.ToString() : "", Empfänger != null ? Empfänger.ToString() : "", DateTime.UtcNow.ToString("yyyyMMdd"), ID });
         }
 
 
@@ -133,7 +133,7 @@ namespace EDILibrary
                 }
 
                 string message = edi.Substring(UNAoffset + segDelimiterLength, edi.Length - (UNAoffset + segDelimiterLength));
-                String[] Segments = message.LowMemSplit(segmentDelimiter).Take(2).ToArray();
+                string[] Segments = message.LowMemSplit(segmentDelimiter).Take(2).ToArray();
                 string UNB = Segments[0];
                 string UNH = Segments[1];
                 string[] UNBParts = UNB.Split(groupDelimiter.ToCharArray());

@@ -11,11 +11,11 @@ namespace EDILibrary
     public class ScriptHelper
     {
         public bool useLocalTime = true;
-        public String Escape(string input)
+        public string Escape(string input)
         {
             return input.Replace("+", "?+").Replace(":", "?:").Replace("'","?'");
         }
-        public String FormatDate(String dateString, String format)
+        public string FormatDate(string dateString, string format)
         {
             DateTime date;
             bool foundDate = false;
@@ -124,7 +124,7 @@ namespace EDILibrary
             }
             return value;
         }
-        String RecurseTemplate(string template, IEdiObject parent)
+        string RecurseTemplate(string template, IEdiObject parent)
         {
             int currentIndex = 0;
             int beginIndex = 0;
@@ -142,7 +142,7 @@ namespace EDILibrary
                 if (codeTemplate.StartsWith("<foreach"))
                 {
                     string[] nodeparts = code.Split(new char[] { ' ' });
-                    string node = String.Join(" ", nodeparts.Skip(1));
+                    string node = string.Join(" ", nodeparts.Skip(1));
                     string innercode;
                     beginIndex = template.IndexOf("</foreach " + node + ">", endIndex);
                     innercode = template.Substring(endIndex + 1, (beginIndex - endIndex) - 1);
@@ -183,7 +183,7 @@ namespace EDILibrary
                 else if (codeTemplate.StartsWith("<if"))
                 {
                     string[] nodeparts = code.Split(new char[] { ' ' });
-                    string node = String.Join(" ", nodeparts.Skip(1));
+                    string node = string.Join(" ", nodeparts.Skip(1));
                     string innercode;
                     beginIndex = template.IndexOf("</if>", endIndex);
                     innercode = template.Substring(endIndex + 1, (beginIndex - endIndex) - 1);
@@ -214,7 +214,7 @@ namespace EDILibrary
                 else if (codeTemplate.StartsWith("<date"))
                 {
                     string[] nodeparts = code.Split(new char[] { ' ' });
-                    string node = String.Join(" ", nodeparts.Skip(1));
+                    string node = string.Join(" ", nodeparts.Skip(1));
                     var innerNodeParts = node.Split(new char[] { ';' });
                     string value = null;
 
@@ -278,7 +278,7 @@ namespace EDILibrary
                     // evaluate code
                     try
                     {
-                        String[] lines = code.Split(new char[] { ';' });
+                        string[] lines = code.Split(new char[] { ';' });
                         /*int counter = 0;
                         
                         foreach (string line in lines)
@@ -314,9 +314,9 @@ namespace EDILibrary
                 }
                 else if (codeTemplate.StartsWith("<§"))
                 {
-                    String[] items = code.Split(new char[] { ' ' });
+                    string[] items = code.Split(new char[] { ' ' });
                     string variableName = items.Skip(1).Take(1).First();
-                    string item = String.Join(" ", items.Skip(2));
+                    string item = string.Join(" ", items.Skip(2));
                     string value = null;
                     try
                     {
@@ -388,7 +388,7 @@ namespace EDILibrary
                         if (value == null)
                             value = "";
                         string temp_value =value;
-                        int laenge = Int32.Parse(length);
+                        int laenge = int.Parse(length);
                         if (max_count != null) // gleiche Längen
                         {
                             while (temp_value.Length > laenge)
@@ -400,7 +400,7 @@ namespace EDILibrary
                             }
                             parts.Add(temp_value);
                             // Auffüllen auf Maximalanzahl, da sonst Konstellationen wie Nachname::Vorname nicht möglich sind
-                            while (parts.Count < Int32.Parse(max_count))
+                            while (parts.Count < int.Parse(max_count))
                             {
                                 parts.Add("");
                             }
@@ -410,7 +410,7 @@ namespace EDILibrary
                             int count = fieldLengths.Length;
                             while (fieldLengths.Length > 0)
                             {
-                                laenge = Int32.Parse(fieldLengths.First());
+                                laenge = int.Parse(fieldLengths.First());
                                 fieldLengths = fieldLengths.Skip(1).ToArray();
                                 if(temp_value.Length> laenge)
                                 {
@@ -431,7 +431,7 @@ namespace EDILibrary
                         }
                         // Bei leerem Vornamen muss trotzdem ein Doppelpunkt drin sein.
                         //if((from string s in parts where s!="" select s).Count()>0)
-                            value = string.Join(":", parts.Take(Int32.Parse(max_count)));
+                            value = string.Join(":", parts.Take(int.Parse(max_count)));
                        
                     }
                     
@@ -451,7 +451,7 @@ namespace EDILibrary
         {
             
         }
-        public String CompileTemplate(String template, IEdiObject sourceRoot)
+        public string CompileTemplate(string template, IEdiObject sourceRoot)
         {
             
             string result = RecurseTemplate(template, sourceRoot);

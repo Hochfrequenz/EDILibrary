@@ -138,7 +138,7 @@ namespace EDILibrary
             {
                 XElement f = new XElement("Field");
                 f.SetAttributeValue("name", field.Key);
-                f.Value = String.Join("|", field.Value);
+                f.Value = string.Join("|", field.Value);
                 elem.Add(f);
             }
             foreach (var cl in child.Children)
