@@ -66,7 +66,7 @@ namespace EDIFileLoader
             {
                 DisableContentMD5Validation = true
             };
-            string text = await blockBlob.DownloadTextAsync(System.Text.Encoding.UTF8, null,options,null);
+            string text = await blockBlob.DownloadTextAsync(Encoding.UTF8, null,options,null);
 
             byte[] preamble = Encoding.UTF8.GetPreamble();
             string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(preamble);

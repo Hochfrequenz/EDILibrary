@@ -7,8 +7,8 @@ namespace EDIFileLoader
     {
         public FormatPackage(string format, string version)
         {
-            this.PartitionKey = format;
-            this.RowKey = version;
+            PartitionKey = format;
+            RowKey = version;
         }
 
         public FormatPackage() { }

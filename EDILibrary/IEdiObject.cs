@@ -79,13 +79,13 @@ namespace EDILibrary
                         IEdiObject childNode = new IEdiObject(child.Name, null, GenerateKey(child.Name));
                         childNode.ParseJSON(childValue);
                         if (childNode.Fields.Count > 0 || childNode.Children.Count > 0)
-                            this.AddChild(childNode);
+                            AddChild(childNode);
                     }
                 }
                 else
                 {
                     if (!(child.Value == null || child.Type == JTokenType.Null))
-                        this.Fields.Add(child.Name, new List<string> { child.Value.ToString() });
+                        Fields.Add(child.Name, new List<string> { child.Value.ToString() });
                 }
             }
 
@@ -100,13 +100,13 @@ namespace EDILibrary
         }
         public bool IsEqual(IEdiObject comp)
         {
-            if (this.Name != comp.Name)
+            if (Name != comp.Name)
                 return false;
-            if (this.Fields.Count != comp.Fields.Count)
+            if (Fields.Count != comp.Fields.Count)
                 return false;
-            if (this.Children.Count != comp.Children.Count)
+            if (Children.Count != comp.Children.Count)
                 return false;
-            foreach (var child in this.Children)
+            foreach (var child in Children)
             {
                 var compChild = comp.Children.Where(ch => ch.Name == child.Name && ch.Key == child.Key).FirstOrDefault();
                 if (compChild == null)
@@ -114,7 +114,7 @@ namespace EDILibrary
                 if (!child.IsEqual(compChild))
                     return false;
             }
-            foreach (var field in this.Fields)
+            foreach (var field in Fields)
             {
                 var compField = comp.Fields[field.Key];
                 if (compField == null)
@@ -376,7 +376,7 @@ namespace EDILibrary
             if (child == null)
                 return;
             child.Parent = this;
-            this.Children.Add(child);
+            Children.Add(child);
         }
         public bool ContainsChild(EDIEnums name, string key)
         {
@@ -396,7 +396,7 @@ namespace EDILibrary
         }
         public void RemoveField(string name)
         {
-            this.Fields.Remove(name);
+            Fields.Remove(name);
         }
         public void RemoveChilds(EDIEnums name)
         {
@@ -420,12 +420,12 @@ namespace EDILibrary
         }
         public IEdiObject Clone()
         {
-            IEdiObject clone = new IEdiObject(this.Name, null, this.Key);
-            foreach (var child in this.Children)
+            IEdiObject clone = new IEdiObject(Name, null, Key);
+            foreach (var child in Children)
             {
                 clone.AddChild(child.Clone());
             }
-            foreach (var field in this.Fields)
+            foreach (var field in Fields)
             {
                 clone.Fields.Add(field.Key, new List<string>(field.Value));
             }

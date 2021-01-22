@@ -39,7 +39,7 @@ namespace EDILibrary
             var edi_string = EDIHelper.NormalizeEDIHeader(edi);
             string treeString = await _loader.LoadEDITemplate(edi_info, "tree");
             string templateString = await _loader.LoadEDITemplate(edi_info, "template");
-            EDILibrary.GenericEDILoader loader = new GenericEDILoader();
+            GenericEDILoader loader = new GenericEDILoader();
             XElement template = loader.LoadTemplate(templateString);
             TreeElement tree = loader.LoadTree(treeString);
             var edi_tree = loader.LoadEDI(edi_string, tree);

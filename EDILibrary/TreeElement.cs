@@ -31,33 +31,33 @@ namespace EDILibrary
             child.Parent = this;
             if (child.Name.StartsWith("SG") || child.Name == "UNH")
             {
-                if (this.Children.ContainsKey(child.Name + "_" + child.Occurence) == false)
-                    this.Children.Add(child.Name + "_" + child.Occurence, child);
+                if (Children.ContainsKey(child.Name + "_" + child.Occurence) == false)
+                    Children.Add(child.Name + "_" + child.Occurence, child);
             }
             else
             {
-                if (this.Children.ContainsKey(child.Name) == false)
-                    this.Children.Add(child.Name, child);
+                if (Children.ContainsKey(child.Name) == false)
+                    Children.Add(child.Name, child);
             }
         }
         public TreeElement AddEdi(string edi, TreeElement currentRoot)
         {
 
             Edi.Add(edi);
-            return this.Parent;
+            return Parent;
 
         }
         public TreeElement(TreeElement old)
         {
-            this.Name = old.Name;
+            Name = old.Name;
 
-            this.Children = new Dictionary<string, TreeElement>();
-            this.Parent = old.Parent;
-            this.Key = old.Key;
-            this.CONTRL_Status = old.CONTRL_Status;
-            this.APERAK_Status = old.APERAK_Status;
-            this.CONTRL_Check_String = old.CONTRL_Check_String;
-            this.APERAK_Check_String = old.APERAK_Check_String;
+            Children = new Dictionary<string, TreeElement>();
+            Parent = old.Parent;
+            Key = old.Key;
+            CONTRL_Status = old.CONTRL_Status;
+            APERAK_Status = old.APERAK_Status;
+            CONTRL_Check_String = old.CONTRL_Check_String;
+            APERAK_Check_String = old.APERAK_Check_String;
             foreach (TreeElement child in old.Children.Values)
             {
                 TreeElement newChild = new TreeElement(child)
@@ -68,25 +68,25 @@ namespace EDILibrary
                 {
                     if (Occurence > 0)
                     {
-                        if (this.Children.ContainsKey(newChild.Name + "_" + Occurence) == false)
-                            this.Children.Add(newChild.Name + "_" + Occurence, newChild);
+                        if (Children.ContainsKey(newChild.Name + "_" + Occurence) == false)
+                            Children.Add(newChild.Name + "_" + Occurence, newChild);
                     }
                     else
                     {
-                        if (this.Children.ContainsKey(newChild.Name) == false)
-                            this.Children.Add(newChild.Name, newChild);
+                        if (Children.ContainsKey(newChild.Name) == false)
+                            Children.Add(newChild.Name, newChild);
                     }
                 }
                 else
                 {
-                    if (this.Children.ContainsKey(newChild.Name) == false)
-                        this.Children.Add(newChild.Name, newChild);
+                    if (Children.ContainsKey(newChild.Name) == false)
+                        Children.Add(newChild.Name, newChild);
                 }
 
             }
-            this.Occurence = old.Occurence + 1;
+            Occurence = old.Occurence + 1;
             Edi = new List<string>();
-            this.Dirty = old.Dirty;
+            Dirty = old.Dirty;
         }
         public TreeElement(string name, int lineCounter = -1)
         {
@@ -366,7 +366,7 @@ namespace EDILibrary
             byte[] textToHash = UE.GetBytes(TextToHash);
             byte[] result = hash.ComputeHash(textToHash);
 
-            return System.BitConverter.ToString(result);
+            return BitConverter.ToString(result);
         }
         public static bool CleanTree(TreeElement ele)
         {
