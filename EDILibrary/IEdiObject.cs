@@ -108,7 +108,7 @@ namespace EDILibrary
                 return false;
             foreach (var child in Children)
             {
-                var compChild = comp.Children.Where(ch => ch.Name == child.Name && ch.Key == child.Key).FirstOrDefault();
+                var compChild = comp.Children.FirstOrDefault(ch => ch.Name == child.Name && ch.Key == child.Key);
                 if (compChild == null)
                     return false;
                 if (!child.IsEqual(compChild))
@@ -162,11 +162,11 @@ namespace EDILibrary
                 hasKey = true;
                 _builder.AppendLine("\"" + "Key" + "\" : \"" + cur.Key + "\"" + (i != 0 || hasClass ? "," : ""));
             }
-            if (cur.Fields.Where(f => f.Value.Count() > 1).Count() == cur.Fields.Count && cur.Fields.Where(f => f.Value.Count() > 1).Count() >0) // check for multiple values
+            if (cur.Fields.Count(f => f.Value.Count() > 1) == cur.Fields.Count && cur.Fields.Any(f => f.Value.Count() > 1)) // check for multiple values
             {
                 int index = 0;
                 var oldI = i;
-                while (index < cur.Fields.Where(f => f.Value.Count > 1).First().Value.Count)
+                while (index < cur.Fields.First(f => f.Value.Count > 1).Value.Count)
                 {
                     foreach (var elem in cur.Fields)
                     {
@@ -175,7 +175,7 @@ namespace EDILibrary
 
                     }
                     i = oldI;
-                    if (index + 1 < cur.Fields.Where(f => f.Value.Count > 1).First().Value.Count)
+                    if (index + 1 < cur.Fields.First(f => f.Value.Count > 1).Value.Count)
                         _builder.AppendLine("},{");
                     index++;
                 }
@@ -235,8 +235,8 @@ namespace EDILibrary
         {
             bool hasKey = false;
 
-            int i = cur.Descendants("Field").Where(d => d.Parent == cur).Count();
-            bool hasClass = cur.Descendants("Class").Where(d => d.Parent == cur).Count() > 0;
+            int i = cur.Descendants("Field").Count(d => d.Parent == cur);
+            bool hasClass = cur.Descendants("Class").Any(d => d.Parent == cur);
             if (cur.Attribute("key") != null)
             {
                 hasKey = true;
@@ -248,8 +248,8 @@ namespace EDILibrary
                 _builder.AppendLine("\"" + elem.Attribute("name").Value + "\" : \"" + elem.Value + "\"" + (i != 0 || hasClass ? "," : ""));
 
             }
-            int j = cur.Descendants("Class").Where(d => d.Parent == cur).Count();
-            if (j == 0 && cur.Descendants("Field").Where(d => d.Parent == cur).Count() == 0) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
+            int j = cur.Descendants("Class").Count(d => d.Parent == cur);
+            if (j == 0 && cur.Descendants("Field").All(d => d.Parent != cur)) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
             {
                 if (!hasKey)
                 {
