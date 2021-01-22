@@ -89,17 +89,17 @@ namespace EDILibrary
             edi = edi.Replace("??", "<<").Replace("?+", "?<").Replace("?:", "?>");
             if (pos == null || pos == "")
                 return null;
-            string[] Groups = edi.Split(new[] { '+' });
-            string[] SubPos = pos.Split(new[] { ':' });
+            string[] Groups = edi.Split('+');
+            string[] SubPos = pos.Split(':');
             if (!edi.StartsWith(SubPos[0]))
                 return null;
             int GroupPos = int.Parse(SubPos[1]);
             if (Groups.Length <= GroupPos)
                 return null;
-            string[] SubGroups = Groups[GroupPos].Split(new[] { ':' });
+            string[] SubGroups = Groups[GroupPos].Split(':');
             if (SubPos[2].Contains("("))
             {
-                string[] range = SubPos[2].Split(new[] { ',' });
+                string[] range = SubPos[2].Split(',');
                 int start = int.Parse(range[0].Substring(1));
                 int end = int.Parse(range[1].Substring(0, range[1].Length - 1));
                 List<string> parts = new List<string>();
@@ -202,7 +202,7 @@ namespace EDILibrary
                         if (path != null)
                         {
                             var selection_path = path_selector;
-                            if (path_selector.Split(new[] { ':' }).Count() <= 2)
+                            if (path_selector.Split(':').Count() <= 2)
                             {
                                 selection_path = segment + ":" + path_selector;
                             }
