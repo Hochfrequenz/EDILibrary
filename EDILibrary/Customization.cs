@@ -11,7 +11,7 @@ namespace EDILibrary
     public class Customization
     {
 
-        protected static Customization _instance = null;
+        protected static Customization _instance;
         protected Dictionary<CustomizingOptions, object> _parameters = new Dictionary<CustomizingOptions, object>();
         public object this[CustomizingOptions index]
         {

@@ -15,7 +15,7 @@ namespace EDILibrary
     public class ExtendedMappings
     {
         
-        public readonly string _zuLang = null;
+        public readonly string _zuLang;
         protected List<XElement> _mappingRoot = new List<XElement>();
 
         public ExtendedMappings()
@@ -76,7 +76,7 @@ namespace EDILibrary
                 }
             }
         }
-        protected List<string> _ediLines = null;
+        protected List<string> _ediLines;
         protected string GetValue(string pos, string edi)
         {
             //if (_valueCache.ContainsKey(edi))

@@ -25,7 +25,7 @@ namespace EDILibrary
     }
     public class EDIEnumHelper
     {
-        public static Dictionary<string, string> DescriptionMap = null;
+        public static Dictionary<string, string> DescriptionMap;
         public static string GetDescription(string name)
         {
             if (DescriptionMap == null)
