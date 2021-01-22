@@ -158,11 +158,8 @@ namespace EDILibrary
             return;
             // }
         }
-        public TreeElement FindElement(string name)
-        {
-            return FindElement(name, true);
-        }
-        public TreeElement FindElement(string name, bool recursive)
+
+        public TreeElement FindElement(string name, bool recursive = true)
         {
             if (Name == name)
                 return this;
