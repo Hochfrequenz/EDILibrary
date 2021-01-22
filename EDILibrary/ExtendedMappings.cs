@@ -24,7 +24,7 @@ namespace EDILibrary
         }
         public List<string> GetListOfMappings()
         {
-            return _mappingRoot.Select(mr => mr.Attribute("Name").Value).ToList<string>();
+            return _mappingRoot.Select(mr => mr.Attribute("Name").Value).ToList();
         }
         public List<MappingEntry> GetListOfMappingTypes()
         {
@@ -33,7 +33,7 @@ namespace EDILibrary
                 Name = mr.Attribute("Name").Value,
                 Type = mr.Attribute("type") != null ? mr.Attribute("type").Value : "python",
                 Format = mr.Attribute("format")?.Value
-            }).ToList<MappingEntry>();
+            }).ToList();
         }
         public void LoadMappings(string mappingXML, int iClient)
         {
@@ -135,7 +135,7 @@ namespace EDILibrary
         public void PrepareEDIMapping(string edi)
         {
             _ediLines = new List<string>();
-            _ediLines = edi.Split(new[] { "'" }, StringSplitOptions.None).ToList<string>();
+            _ediLines = edi.Split(new[] { "'" }, StringSplitOptions.None).ToList();
         }
         public string Escape(string input)
         {
