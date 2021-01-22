@@ -351,7 +351,7 @@ namespace EDILibrary
         public static string GetHash(string TextToHash)
         {
             //Prüfen ob Daten übergeben wurden.
-            if (TextToHash == null || TextToHash.Length == 0)
+            if (string.IsNullOrEmpty(TextToHash))
             {
                 return string.Empty;
             }
