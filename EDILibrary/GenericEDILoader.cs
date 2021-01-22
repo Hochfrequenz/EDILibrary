@@ -79,7 +79,7 @@ namespace EDILibrary
                 string refName = child.Attribute("ref").Value.Split(new char[] { '[' })[0];
                 List<TreeElement> childTree = new List<TreeElement>();
                 treeRoot.FindElements(refName, true, ref childTree, 1);
-                childTree = (from childElem in childTree where (childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0) select childElem).ToList<TreeElement>();
+                childTree = (from childElem in childTree where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList<TreeElement>();
 
                 foreach (TreeElement childRoot in childTree)
                 {
@@ -161,7 +161,7 @@ namespace EDILibrary
                 sepIndex = selection.Length;
             string segment = selection.Substring(0, sepIndex);
             if (klammerIndex != selector.Length)
-                path = selector.Substring(klammerIndex + 1, (selector.Length - 1) - klammerIndex - 1);
+                path = selector.Substring(klammerIndex + 1, selector.Length - 1 - klammerIndex - 1);
             List<TreeElement> resultList = new List<TreeElement>();
             List<string> resultEDI = new List<string>();
             if (_useCache && _elementCache.ContainsKey(templateRoot))
@@ -268,7 +268,7 @@ namespace EDILibrary
                             string path_selector = seg_path.Substring(0, opIndex);
                             string path_value = null;
                             if (seg_path.Length != sepIndex)
-                                path_value = seg_path.Substring(opIndex + (sep_op.Length), seg_path.Length - opIndex - (sep_op.Length));
+                                path_value = seg_path.Substring(opIndex + sep_op.Length, seg_path.Length - opIndex - sep_op.Length);
                             else
                             {
                                 path_value = "";
@@ -362,7 +362,7 @@ namespace EDILibrary
                     List<TreeElement> treeElements = new List<TreeElement>();
                     string refName = cls.Attribute("ref").Value.Split(new char[] { '[' })[0];
                     tree.FindElements(refName, true, ref treeElements);
-                    treeElements = (from childElem in treeElements where (childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0) select childElem).ToList<TreeElement>();
+                    treeElements = (from childElem in treeElements where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList<TreeElement>();
                     docElement = treeElements[0];
                 }
                 //List<TreeElement> treeElements = new List<TreeElement>();

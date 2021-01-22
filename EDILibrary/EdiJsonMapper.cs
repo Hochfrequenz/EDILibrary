@@ -168,13 +168,13 @@ namespace EDILibrary
                                 foreach (var entry in prop.Value as JArray)
                                 {
                                     dynamic subObj = new ExpandoObject();
-                                    ParseObject(entry as JObject, subObj as IDictionary<string, object>, ((JArray)propVal), includeEmptyValues);
+                                    ParseObject(entry as JObject, subObj as IDictionary<string, object>, (JArray)propVal, includeEmptyValues);
                                     obj.Add(subObj);
                                 }
                             }
                             else
                             {
-                                ParseObject(prop.Value as JObject, obj as IDictionary<string, object>, ((JArray)propVal), includeEmptyValues);
+                                ParseObject(prop.Value as JObject, obj as IDictionary<string, object>, (JArray)propVal, includeEmptyValues);
                             }
 
                             target.Add(((JObject)dep).Property("key").Value.Value<string>(), obj);
@@ -277,13 +277,13 @@ namespace EDILibrary
                     if (propVal == null) // then create new target element and recurse
                     {
 
-                        var newMappings = (((deps.First() as JObject).Property("requires").Value as JArray).Select(req =>
+                        var newMappings = ((deps.First() as JObject).Property("requires").Value as JArray).Select(req =>
                         {
-                            if ((((req as JObject).Properties().FirstOrDefault() as JProperty)?.Value as JArray) != null)
-                                return (((req as JObject).Properties().FirstOrDefault() as JProperty)?.Value as JArray);
+                            if (((req as JObject).Properties().FirstOrDefault() as JProperty)?.Value as JArray != null)
+                                return ((req as JObject).Properties().FirstOrDefault() as JProperty)?.Value as JArray;
                             else
                                 return null;
-                        })).ToArray();
+                        }).ToArray();
                         JArray newArray = new JArray();
                         foreach (var map in newMappings)
                         {
@@ -299,7 +299,7 @@ namespace EDILibrary
                             if (prop.Value.GetType() == typeof(JObject))
                                 continue;
                             var newSub = CreateMsgJSON((prop.Value as JArray)[0] as JObject, newArray, mask, out var subParent);
-                            foreach (KeyValuePair<string, object> subProp in (newSub as IDictionary<string, object>))
+                            foreach (KeyValuePair<string, object> subProp in newSub as IDictionary<string, object>)
                                 (returnObject as IDictionary<string, object>).Add(subProp.Key, subProp.Value);
                             continue;
                         }

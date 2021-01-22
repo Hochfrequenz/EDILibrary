@@ -136,7 +136,7 @@ namespace EDILibrary
                 if (beginIndex == -1)
                     continue;
                 endIndex = template.IndexOf(">", beginIndex);
-                string codeTemplate = template.Substring(beginIndex, (endIndex - beginIndex) + 1);
+                string codeTemplate = template.Substring(beginIndex, endIndex - beginIndex + 1);
                 string code = codeTemplate.Substring(1, codeTemplate.Length - 2);
                 resultBuilder.Clear();
                 if (codeTemplate.StartsWith("<foreach"))
@@ -145,7 +145,7 @@ namespace EDILibrary
                     string node = string.Join(" ", nodeparts.Skip(1));
                     string innercode;
                     beginIndex = template.IndexOf("</foreach " + node + ">", endIndex);
-                    innercode = template.Substring(endIndex + 1, (beginIndex - endIndex) - 1);
+                    innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
                     var nodes = from ele in parent.SelfOrChildren
                                 where ele.Name == node
                                 select ele;
@@ -170,13 +170,13 @@ namespace EDILibrary
                     int max = nodes.Count();
                     foreach (var subnode in nodes)
                     {
-                        resultBuilder.Append(RecurseTemplate(innercode, subnode) + ((i != max) ? "\r\n" : ""));
+                        resultBuilder.Append(RecurseTemplate(innercode, subnode) + (i != max ? "\r\n" : ""));
                     }
                     beginIndex = template.IndexOf("<foreach", 0);
                     string end = "</foreach " + node + ">";
                     endIndex = template.IndexOf(end, beginIndex);
 
-                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + end.Length).Replace(template.Substring(beginIndex, (endIndex - beginIndex) + end.Length), resultBuilder.ToString()) + template.Substring(endIndex + end.Length);
+                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + end.Length).Replace(template.Substring(beginIndex, endIndex - beginIndex + end.Length), resultBuilder.ToString()) + template.Substring(endIndex + end.Length);
                     template = template.TrimEnd(new char[] { '\r', '\n', '\t' });
                     beginIndex = 0;
                 }
@@ -186,13 +186,13 @@ namespace EDILibrary
                     string node = string.Join(" ", nodeparts.Skip(1));
                     string innercode;
                     beginIndex = template.IndexOf("</if>", endIndex);
-                    innercode = template.Substring(endIndex + 1, (beginIndex - endIndex) - 1);
+                    innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
 
                     string value = null;
 
-                    var selection = (from ele in parent.Fields
-                                     where ele.Key == node
-                                     select ele.Value[0]);
+                    var selection = from ele in parent.Fields
+                        where ele.Key == node
+                        select ele.Value[0];
                     if (selection.Count() > 0)
                         value = selection.Single();
                     else
@@ -207,7 +207,7 @@ namespace EDILibrary
                     }
                     beginIndex = template.IndexOf("<if", 0);
                     endIndex = template.IndexOf("</if>", beginIndex);
-                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 5).Replace(template.Substring(beginIndex, (endIndex - beginIndex) + 5), resultBuilder.ToString()) + template.Substring(endIndex + 5);
+                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 5).Replace(template.Substring(beginIndex, endIndex - beginIndex + 5), resultBuilder.ToString()) + template.Substring(endIndex + 5);
                     beginIndex = 0;
 
                 }
@@ -218,9 +218,9 @@ namespace EDILibrary
                     var innerNodeParts = node.Split(new char[] { ';' });
                     string value = null;
 
-                    var selection = (from ele in parent.Fields
-                                     where ele.Key == innerNodeParts[0]
-                                     select ele.Value[0]);
+                    var selection = from ele in parent.Fields
+                        where ele.Key == innerNodeParts[0]
+                        select ele.Value[0];
                     if (selection.Count() > 0)
                         value = selection.Single();
                     else
@@ -233,9 +233,9 @@ namespace EDILibrary
                     
                     if (!numericRegex.IsMatch(innerNodeParts[1]))
                     {
-                        selection = (from ele in parent.Fields
-                                     where ele.Key == innerNodeParts[1]
-                                     select ele.Value[0]);
+                        selection = from ele in parent.Fields
+                            where ele.Key == innerNodeParts[1]
+                            select ele.Value[0];
 
                         if (selection.Count() > 0)
                             format = selection.Single();
@@ -251,11 +251,11 @@ namespace EDILibrary
                     }
                     beginIndex = template.IndexOf("<date", 0);
                     endIndex = template.IndexOf(">", beginIndex);
-                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, (endIndex - beginIndex) + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
+                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, endIndex - beginIndex + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
                     beginIndex = 0;
 
                 }
-                else if (codeTemplate.StartsWith("<!") || (codeTemplate.StartsWith("<$")))
+                else if (codeTemplate.StartsWith("<!") || codeTemplate.StartsWith("<$"))
                 {
                     //determine segment counter
                     // do it the "dirty" way, count the segment ends from last unh
@@ -367,9 +367,9 @@ namespace EDILibrary
 
 
                         
-                            var selection = (from ele in parent.Fields
-                                     where ele.Key == code
-                                     select ele.Value[0]);
+                            var selection = from ele in parent.Fields
+                                where ele.Key == code
+                                select ele.Value[0];
                             if (selection.Count() > 0)
                             {
                                 value = selection.Single();
@@ -438,7 +438,7 @@ namespace EDILibrary
                     resultBuilder.Append(value);
                     
                     //template = template.Replace(codeTemplate, evalResult);
-                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, (endIndex - beginIndex) + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
+                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, endIndex - beginIndex + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
                 }
 
                 currentIndex = 0;
@@ -482,7 +482,7 @@ namespace EDILibrary
             {
                 content = content.Replace(":'", "'");
             }
-            while ((content.Contains("\n\n")) || (content.Contains("\r\r")) || (content.Contains("\n\r")) || (content.Contains("\r\n\r\n")) || (content.Contains("\r\n")) || content.Contains("\r\n\r\n") || (content.Contains("\r\n")) )
+            while (content.Contains("\n\n") || content.Contains("\r\r") || content.Contains("\n\r") || content.Contains("\r\n\r\n") || content.Contains("\r\n") || content.Contains("\r\n\r\n") || content.Contains("\r\n") )
              {
 				while(content.Contains("\r\n\r\n"))		 
                 {

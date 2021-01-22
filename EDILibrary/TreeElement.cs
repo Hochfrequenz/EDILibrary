@@ -8,10 +8,10 @@ namespace EDILibrary
 {
     public class TreeElement : IDisposable
     {
-        public String Name;
+        public string Name;
         public int Occurence;
-        public List<String> Edi;
-        public Dictionary<String, TreeElement> Children;
+        public List<string> Edi;
+        public Dictionary<string, TreeElement> Children;
         public TreeElement Parent;
         public bool Dirty;
         public bool Key;
@@ -115,7 +115,7 @@ namespace EDILibrary
             Occurence = 0;
             Key = false;
         }
-        public void FindElements(string name, bool recursive, ref List<TreeElement> list, int recursionDepth = Int32.MaxValue)
+        public void FindElements(string name, bool recursive, ref List<TreeElement> list, int recursionDepth = int.MaxValue)
         {
             if (Name == name)
             {
@@ -201,7 +201,7 @@ namespace EDILibrary
     }
     public class TreeHelper
     {
-        public static Dictionary<String, TreeElement> treeCopyMap = new Dictionary<String, TreeElement>();
+        public static Dictionary<string, TreeElement> treeCopyMap = new Dictionary<string, TreeElement>();
         public static TreeElement treeRoot;
         public static void RefreshDirtyFlags(TreeElement root)
         {
@@ -354,7 +354,7 @@ namespace EDILibrary
         public static string GetHash(string TextToHash)
         {
             //Prüfen ob Daten übergeben wurden.
-            if ((TextToHash == null) || (TextToHash.Length == 0))
+            if (TextToHash == null || TextToHash.Length == 0)
             {
                 return string.Empty;
             }

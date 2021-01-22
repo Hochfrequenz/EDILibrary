@@ -3,11 +3,9 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System;
-using EDILibrary.Interfaces;
 using EDILibrary;
 using System.Threading.Tasks;
 using System.Text;
-using Newtonsoft.Json.Linq;
 
 namespace EDIFileLoader
 {
@@ -66,7 +64,7 @@ namespace EDIFileLoader
             CloudBlockBlob blockBlob = _container.GetBlockBlobReference(System.IO.Path.Combine(formatPackage.Replace("/",""),fileName).Replace("\\", "/"));
             BlobRequestOptions options = new BlobRequestOptions()
             {
-                DisableContentMD5Validation = true,
+                DisableContentMD5Validation = true
             };
             string text = await blockBlob.DownloadTextAsync(System.Text.Encoding.UTF8, null,options,null);
 

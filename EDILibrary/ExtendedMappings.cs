@@ -67,10 +67,10 @@ namespace EDILibrary
 
         public void ExecuteMapping(string mappingName, IEdiObject obj, string sparte, string format)
         {
-            XElement mapping = _mappingRoot.Where(mr => mr.Attribute("Name").Value == mappingName && (mr.Attribute("format") == null || (mr.Attribute("format").Value == format))).FirstOrDefault();
+            XElement mapping = _mappingRoot.Where(mr => mr.Attribute("Name").Value == mappingName && (mr.Attribute("format") == null || mr.Attribute("format").Value == format)).FirstOrDefault();
             if (mapping != null)
             {
-                if ((mapping.Attribute("type") == null || mapping.Attribute("type").Value == "python"))
+                if (mapping.Attribute("type") == null || mapping.Attribute("type").Value == "python")
                 {
                     throw new NotImplementedException("Der .net Core-Port unterstützt kein IronPython");
                 }
@@ -169,7 +169,7 @@ namespace EDILibrary
                         sepIndex = selection.Length;
                     string segment = selection.Substring(0, sepIndex);
                     if (klammerIndex != selector.Length)
-                        path = selector.Substring(klammerIndex + 1, (selector.Length - 1) - klammerIndex - 1);
+                        path = selector.Substring(klammerIndex + 1, selector.Length - 1 - klammerIndex - 1);
                     // string[] paths = path.Split(new char[] { '^', '|' }, StringSplitOptions.RemoveEmptyEntries);
                     string path_selector = null;
                     string path_value = null;
@@ -187,7 +187,7 @@ namespace EDILibrary
                         path_selector = path.Substring(0, opIndex);
 
                         if (path.Length != sepIndex)
-                            path_value = path.Substring(opIndex + (sep_op.Length), path.Length - opIndex - (sep_op.Length));
+                            path_value = path.Substring(opIndex + sep_op.Length, path.Length - opIndex - sep_op.Length);
                         else
                         {
                             path_value = "";

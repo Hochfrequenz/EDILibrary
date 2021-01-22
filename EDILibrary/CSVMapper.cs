@@ -12,16 +12,16 @@ namespace EDILibrary
         protected void ParseStep(JObject step, StringBuilder builder)
         {
             string stepName = step.Property("name").Value.Value<string>();
-            foreach (JObject group in ((step.Property("groups").Value) as JArray))
+            foreach (JObject group in step.Property("groups").Value as JArray)
             {
                 string groupName = group.Property("key").Value.Value<string>();
                 if (group.Property("fields") != null)
                 {
-                    foreach (JObject field in ((group.Property("fields").Value) as JArray))
+                    foreach (JObject field in @group.Property("fields").Value as JArray)
                     {
                         if (field.Property("steps") != null)
                         {
-                            foreach (var subStep in ((field.Property("steps").Value) as JObject).Properties())
+                            foreach (var subStep in (field.Property("steps").Value as JObject).Properties())
                             {
                                 ParseStep(subStep.Value.Value<JObject>(), builder);
                             }
@@ -36,11 +36,11 @@ namespace EDILibrary
             }
             if (step.Property("fields") != null)
             {
-                foreach (JObject field in ((step.Property("fields").Value) as JArray))
+                foreach (JObject field in step.Property("fields").Value as JArray)
                 {
                     if (field.Property("steps") != null)
                     {
-                        foreach (var subStep in ((field.Property("steps").Value) as JObject).Properties())
+                        foreach (var subStep in (field.Property("steps").Value as JObject).Properties())
                         {
                             ParseStep(subStep.Value.Value<JObject>(), builder);
                         }
@@ -87,7 +87,7 @@ namespace EDILibrary
             StringBuilder valueBuilder = new StringBuilder();
             if (rootObject.Property("steps") != null)
             {
-                foreach (var step in ((rootObject.Property("steps").Value) as JObject).Properties())
+                foreach (var step in (rootObject.Property("steps").Value as JObject).Properties())
                 {
                     ParseStep(step.Value.Value<JObject>(), builder);
                 }

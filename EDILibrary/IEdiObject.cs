@@ -84,7 +84,7 @@ namespace EDILibrary
                 }
                 else
                 {
-                    if (!(child.Value == null || (child.Type == JTokenType.Null)))
+                    if (!(child.Value == null || child.Type == JTokenType.Null))
                         this.Fields.Add(child.Name, new List<string>() { child.Value.ToString() });
                 }
             }
