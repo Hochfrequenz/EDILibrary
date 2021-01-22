@@ -32,7 +32,7 @@ namespace EDILibrary
             {
                 Name = mr.Attribute("Name").Value,
                 Type = mr.Attribute("type") != null ? mr.Attribute("type").Value : "python",
-                Format = mr.Attribute("format")?.Value,
+                Format = mr.Attribute("format")?.Value
             }).ToList<MappingEntry>();
         }
         public void LoadMappings(string mappingXML, int iClient)

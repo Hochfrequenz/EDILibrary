@@ -168,7 +168,7 @@ namespace EDILibrary
         [Description("Referenz")]
         Referenz,
         [Description("Version")]
-        Version,
+        Version
 
 
     }
