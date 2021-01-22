@@ -13,13 +13,13 @@ namespace EDILibrary
         {
             List<string> list = new List<string>();
             int lastPos = 0;
-            int pos = s.IndexOf(seperator);
+            int pos = s.IndexOf(seperator); // warn: string.IndexOf(string) is culture-specific
             while (pos > -1)
             {
                 while (pos == lastPos)
                 {
                     lastPos += seperator.Length;
-                    pos = s.IndexOf(seperator, lastPos);
+                    pos = s.IndexOf(seperator, lastPos); // warn: string.IndexOf(string) is culture-specific
                     if (pos == -1)
                         return list;
                 }
@@ -28,7 +28,7 @@ namespace EDILibrary
                 if (tmp.Trim().Length > 0)
                     list.Add(tmp);
                 lastPos = pos + seperator.Length;
-                pos = s.IndexOf(seperator, lastPos);
+                pos = s.IndexOf(seperator, lastPos); // warn: string.IndexOf(string) is culture-specific
             }
 
             if (lastPos < s.Length)
