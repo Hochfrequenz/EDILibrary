@@ -200,7 +200,7 @@ namespace EDILibrary
             else
             {
                 templateRoot.FindElements(segment, true, ref resultList, 2);
-                if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Count() > 0 select res).Count() > 0)
+                if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Count() > 0 select res).Any())
                 {
                     if (_useCache)
                         _elementCache.Add(templateRoot, new Dictionary<string, List<string>>());

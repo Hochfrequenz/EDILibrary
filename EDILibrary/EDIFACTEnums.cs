@@ -45,7 +45,7 @@ namespace EDILibrary
                 typeof(EDIEnums).GetRuntimeField(DescriptionMap[name]).GetCustomAttributes(typeof(EDIDescriptionAttribute), false);
             if (attrs != null)
             {
-                return attrs.Count() > 0 ? ((EDIDescriptionAttribute)attrs.First()).Description : name;
+                return attrs.Any() ? ((EDIDescriptionAttribute)attrs.First()).Description : name;
             }
             return name;
 
@@ -73,13 +73,13 @@ namespace EDILibrary
                 enumValue.GetType().GetRuntimeField(name).GetCustomAttributes(typeof(EDIDescriptionAttribute), false);
             if (attrs != null)
             {
-                return attrs.Count() > 0 ? ((EDIDescriptionAttribute)attrs.First()).Description : name;
+                return attrs.Any() ? ((EDIDescriptionAttribute)attrs.First()).Description : name;
             }
             else
             {
                 attrs = (IEnumerable<Attribute>)
                 enumValue.GetType().GetRuntimeField(name).GetCustomAttributes(typeof(DescriptionAttribute), false);
-                return attrs.Count() > 0 ? ((DescriptionAttribute)attrs.First()).Description : name;
+                return attrs.Any() ? ((DescriptionAttribute)attrs.First()).Description : name;
             }
         }
         public static string GetDescription(EDIEnums enumValue)
@@ -87,7 +87,7 @@ namespace EDILibrary
             string name = enumValue.ToString();
             IEnumerable<Attribute> attrs = (IEnumerable<Attribute>)
                 enumValue.GetType().GetRuntimeField(name).GetCustomAttributes(typeof(DescriptionAttribute), false);
-            return attrs.Count() > 0 ? ((DescriptionAttribute)attrs.First()).Description : name;
+            return attrs.Any() ? ((DescriptionAttribute)attrs.First()).Description : name;
         }
     }
     public enum EDIEnums

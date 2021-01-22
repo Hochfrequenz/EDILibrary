@@ -48,7 +48,7 @@ namespace EDILibrary
         }
         public string GetMapping(string mappingName)
         {
-            XElement mapping = _mappingRoot.Where(mr => mr.Attribute("Name").Value == mappingName).FirstOrDefault();
+            XElement mapping = _mappingRoot.FirstOrDefault(mr => mr.Attribute("Name").Value == mappingName);
             if (mapping != null)
             {
                 return mapping.Value;
@@ -58,7 +58,7 @@ namespace EDILibrary
         }
         public void OverrideMapping(string mappingName, string newMapping)
         {
-            XElement mapping = _mappingRoot.Where(mr => mr.Attribute("Name").Value == mappingName).FirstOrDefault();
+            XElement mapping = _mappingRoot.FirstOrDefault(mr => mr.Attribute("Name").Value == mappingName);
             if (mapping != null)
             {
                 mapping.Value = newMapping;
@@ -67,10 +67,10 @@ namespace EDILibrary
 
         public void ExecuteMapping(string mappingName, IEdiObject obj, string sparte, string format)
         {
-            XElement mapping = _mappingRoot.Where(mr => mr.Attribute("Name").Value == mappingName && (mr.Attribute("format") == null || mr.Attribute("format").Value == format)).FirstOrDefault();
+            XElement mapping = _mappingRoot.FirstOrDefault(mr => mr.Attribute("Name").Value == mappingName && (mr.Attribute("format") == null || mr.Attribute("format").Value == format));
             if (mapping != null)
             {
-                if (mapping.Attribute("type") == null || mapping.Attribute("type").Value == "python")
+                if (mapping.Attribute("type") == null || mapping.Attribute("type")?.Value == "python")
                 {
                     throw new NotImplementedException("Der .net Core-Port unterstützt kein IronPython");
                 }
@@ -87,7 +87,7 @@ namespace EDILibrary
             //    }
             //}
             edi = edi.Replace("??", "<<").Replace("?+", "?<").Replace("?:", "?>");
-            if (pos == null || pos == "")
+            if (string.IsNullOrEmpty(pos))
                 return null;
             string[] Groups = edi.Split('+');
             string[] SubPos = pos.Split(':');

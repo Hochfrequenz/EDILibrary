@@ -151,7 +151,7 @@ namespace EDILibrary
             foreach (var prop in value.Properties())
             {
                 var deps = mappings.Where(map => FindDependentObject(map, prop.Name, out JToken propVal) != null).ToList();
-                if (deps.Count() > 0)
+                if (deps.Any())
                 {
                     foreach(var dep in deps) {
                         var retObj = FindDependentObject(dep, prop.Name, out JToken propVal);
@@ -271,7 +271,7 @@ namespace EDILibrary
             foreach (var prop in input.Properties())
             {
                 var deps = mapping.Where(map => FindObjectByKey(map, prop.Name, out JToken propVal, false) != null).ToList();
-                if (deps.Count() > 0)
+                if (deps.Any())
                 {
                     var foundObj = FindObjectByKey(deps.First(), prop.Name, out JToken propVal, false);
                     if (propVal == null) // then create new target element and recurse
@@ -290,7 +290,7 @@ namespace EDILibrary
                             if (map != null)
                                 newArray = new JArray(newArray.Union(map));
                         }
-                        if (newMappings.Count() > 0 && newArray.Count == 0)
+                        if (newMappings.Any() && newArray.Count == 0)
                         {
                             //Spezialfall für "groupBy"-Array-Objekte (z.B. Beginn der Nachricht)
                             newArray.Add(deps.First());
