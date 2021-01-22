@@ -308,7 +308,7 @@ namespace EDILibrary
                     }
                     catch (Exception)
                     {
-                   //     MessageBox.Show(e.ToString());
+                        //     MessageBox.Show(e.ToString());
                     }
                     template = template.Replace(codeTemplate, resultBuilder.ToString());
                 }
@@ -483,15 +483,15 @@ namespace EDILibrary
                 content = content.Replace(":'", "'");
             }
             while (content.Contains("\n\n") || content.Contains("\r\r") || content.Contains("\n\r") || content.Contains("\r\n\r\n") || content.Contains("\r\n") || content.Contains("\r\n\r\n") || content.Contains("\r\n") )
-             {
-				while(content.Contains("\r\n\r\n"))		 
+            {
+                while(content.Contains("\r\n\r\n"))		 
                 {
-					content = content.Replace("\r\n\r\n","\r\n");
-				}
-				while (content.Contains("\r\n"))
-				{
-					content = content.Replace("\r\n", "");
-				}
+                    content = content.Replace("\r\n\r\n","\r\n");
+                }
+                while (content.Contains("\r\n"))
+                {
+                    content = content.Replace("\r\n", "");
+                }
                 while (content.Contains("\n\n"))
                 {
                     content = content.Replace("\n\n", "\n");
@@ -512,7 +512,7 @@ namespace EDILibrary
                 {
                     content = content.Replace("\r\n", "");
                 }
-             }
+            }
             while (content.Contains("\n"))
             {
                 content = content.Replace("\n", "");

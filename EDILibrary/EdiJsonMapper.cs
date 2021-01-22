@@ -361,7 +361,7 @@ namespace EDILibrary
                                         {
                                             (newObj as IDictionary<string, object>).Add(newProp.Key, newProp.Value);
                                         }
-                                            ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newObj);
+                                        ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newObj);
                                     }
                                 }
                             }
