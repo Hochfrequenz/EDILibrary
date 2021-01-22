@@ -55,7 +55,7 @@ namespace EDILibrary
 
                             var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
                             int offset = utcOffset.ToOffset(TimeZoneInfo.Local.GetUtcOffset(utcOffset)).Offset.Hours;
-                            return date.ToLocalTime().ToString("yyyyMMddHHmm") + "+0" + offset.ToString(); ;
+                            return date.ToLocalTime().ToString("yyyyMMddHHmm") + "+0" + offset; ;
 
                         }
                         else
@@ -70,7 +70,7 @@ namespace EDILibrary
                         {
                             var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
                             int offset = utcOffset.ToOffset(TimeZoneInfo.Local.GetUtcOffset(utcOffset)).Offset.Hours;
-                            return "+0" + offset.ToString()+"00";
+                            return "+0" + offset+"00";
                         }
                         else
                         {

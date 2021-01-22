@@ -31,8 +31,8 @@ namespace EDILibrary
             child.Parent = this;
             if (child.Name.StartsWith("SG") || child.Name == "UNH")
             {
-                if (this.Children.ContainsKey(child.Name + "_" + child.Occurence.ToString()) == false)
-                    this.Children.Add(child.Name + "_" + child.Occurence.ToString(), child);
+                if (this.Children.ContainsKey(child.Name + "_" + child.Occurence) == false)
+                    this.Children.Add(child.Name + "_" + child.Occurence, child);
             }
             else
             {
@@ -68,8 +68,8 @@ namespace EDILibrary
                 {
                     if (Occurence > 0)
                     {
-                        if (this.Children.ContainsKey(newChild.Name + "_" + Occurence.ToString()) == false)
-                            this.Children.Add(newChild.Name + "_" + Occurence.ToString(), newChild);
+                        if (this.Children.ContainsKey(newChild.Name + "_" + Occurence) == false)
+                            this.Children.Add(newChild.Name + "_" + Occurence, newChild);
                     }
                     else
                     {
