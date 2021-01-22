@@ -19,7 +19,7 @@ namespace EDILibrary.Helper
                 {
                     extMapping.ExecuteMapping(map, edi, "S", fileInfo.Format);
                 }
-                catch (Exception)
+                catch (Exception) // todo: fix pokemon catching
                 {
                 }
             }
@@ -33,7 +33,7 @@ namespace EDILibrary.Helper
                 {
                     extMapping.ExecuteEDIMapping(map);
                 }
-                catch (Exception)
+                catch (Exception) // todo: fix pokemon catching
                 {
                 }
             }

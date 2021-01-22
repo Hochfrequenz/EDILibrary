@@ -202,8 +202,8 @@ namespace EDILibrary
         public static TreeElement treeRoot;
         public static void RefreshDirtyFlags(TreeElement root)
         {
-            var children = from elem in root.Children.Values where elem.Dirty && elem.Children.Count() == 0 select elem;
-            if (children.Count() == 0)
+            var children = from elem in root.Children.Values where elem.Dirty && !elem.Children.Any() select elem;
+            if (!children.Any())
                 root.Dirty = false;
             foreach (TreeElement child in root.Children.Values)
             {
