@@ -1,12 +1,8 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
 using System;
-using System.Net;
-using System.Windows;
-
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
-using System.Xml.Linq;
 using System.Linq;
 namespace EDILibrary
 {
