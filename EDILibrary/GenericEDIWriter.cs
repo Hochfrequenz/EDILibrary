@@ -11,7 +11,7 @@ namespace EDILibrary
     public class ScriptHelper
     {
         public bool useLocalTime = true;
-        public string Escape(string input)
+        public static string Escape(string input)
         {
             return input.Replace("+", "?+").Replace(":", "?:").Replace("'","?'");
         }
@@ -102,7 +102,7 @@ namespace EDILibrary
     public class GenericEDIWriter
     {
         public static ScriptHelper helper = new ScriptHelper();
-        Regex numericRegex = new Regex("^[0-9]+$");
+        Regex numericRegex = new Regex("^[0-9]+$", RegexOptions.Compiled);
         public GenericEDIWriter()
         {
             escapeMap.Add(":", "?:");
@@ -132,10 +132,10 @@ namespace EDILibrary
             StringBuilder resultBuilder = new StringBuilder();
             do
             {
-                beginIndex = template.IndexOf("<", currentIndex);
+                beginIndex = template.IndexOf("<", currentIndex);// :warn: is culture specific
                 if (beginIndex == -1)
                     continue;
-                endIndex = template.IndexOf(">", beginIndex);
+                endIndex = template.IndexOf(">", beginIndex); // :warn: is culture specific
                 string codeTemplate = template.Substring(beginIndex, endIndex - beginIndex + 1);
                 string code = codeTemplate.Substring(1, codeTemplate.Length - 2);
                 resultBuilder.Clear();
@@ -144,12 +144,12 @@ namespace EDILibrary
                     string[] nodeparts = code.Split(new[] { ' ' });
                     string node = string.Join(" ", nodeparts.Skip(1));
                     string innercode;
-                    beginIndex = template.IndexOf("</foreach " + node + ">", endIndex);
+                    beginIndex = template.IndexOf("</foreach " + node + ">", endIndex);// :warn: is culture specific
                     innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
                     var nodes = from ele in parent.SelfOrChildren
                                 where ele.Name == node
                                 select ele;
-                    if (nodes.Count() == 0) // wenn keine Treffer könnte es sich noch um eine field-Liste handeln
+                    if (!nodes.Any()) // wenn keine Treffer könnte es sich noch um eine field-Liste handeln
                     {
                         var string_nodes = from ele in parent.Fields
                                            where ele.Key == node
@@ -221,8 +221,9 @@ namespace EDILibrary
                     var selection = from ele in parent.Fields
                         where ele.Key == innerNodeParts[0]
                         select ele.Value[0];
-                    if (selection.Count() > 0)
-                        value = selection.Single();
+                    var enumerable = selection as string[] ?? selection.ToArray();
+                    if (enumerable.Any())
+                        value = enumerable.Single();
                     else
                         value = "";
 
@@ -237,7 +238,7 @@ namespace EDILibrary
                             where ele.Key == innerNodeParts[1]
                             select ele.Value[0];
 
-                        if (selection.Count() > 0)
+                        if (selection.Any())
                             format = selection.Single();
                         else
                             format = "";
@@ -247,7 +248,7 @@ namespace EDILibrary
                     }
                     if (value != null && value.Length > 0)
                     {
-                        resultBuilder.Append(helper.Escape(helper.FormatDate(value, format)));
+                        resultBuilder.Append(ScriptHelper.Escape(helper.FormatDate(value, format)));
                     }
                     beginIndex = template.IndexOf("<date", 0);
                     endIndex = template.IndexOf(">", beginIndex);
@@ -261,7 +262,7 @@ namespace EDILibrary
                     // do it the "dirty" way, count the segment ends from last unh
                     if (codeTemplate.Contains("SegmentCounter"))
                     {
-                        int segCount = template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+")).Count(c => c == "'".ToCharArray()[0]);
+                        int segCount = template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+")).Count(c => c == "'".ToCharArray()[0]); // warn: culture specific
                         //escapte ' muss ich abziehen
                         Regex r = new Regex("\\?'");
                         int deduct=r.Matches(template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+"))).Count;
@@ -370,9 +371,10 @@ namespace EDILibrary
                             var selection = from ele in parent.Fields
                                 where ele.Key == code
                                 select ele.Value[0];
-                            if (selection.Count() > 0)
+                            var enumerable = selection as string[] ?? selection.ToArray();
+                            if (enumerable.Any())
                             {
-                                value = selection.Single();
+                                value = enumerable.Single();
                             }
                             else
                                 value = "";
