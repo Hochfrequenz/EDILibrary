@@ -50,7 +50,7 @@ namespace EDILibrary
                         rootObject.Fields[field.Attribute("name").Value] = new List<string>();
                     if (value.Contains("|"))
                     {
-                        string[] subvalues = value.Split(new char[] { '|' });
+                        string[] subvalues = value.Split(new[] { '|' });
                         foreach (string val in subvalues)
                             rootObject.Fields[field.Attribute("name").Value].Add(val);
                     }
@@ -76,7 +76,7 @@ namespace EDILibrary
                     Hash = child.Attribute("hash").Value;
                 }
 
-                string refName = child.Attribute("ref").Value.Split(new char[] { '[' })[0];
+                string refName = child.Attribute("ref").Value.Split(new[] { '[' })[0];
                 List<TreeElement> childTree = new List<TreeElement>();
                 treeRoot.FindElements(refName, true, ref childTree, 1);
                 childTree = (from childElem in childTree where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList<TreeElement>();
@@ -104,17 +104,17 @@ namespace EDILibrary
             edi = edi.Replace("??", "<<").Replace("?+", "?<").Replace("?:", "?>");
             if (pos == null || pos == "")
                 return null;
-            string[] Groups = edi.Split(new string[] { "+" }, StringSplitOptions.None);
-            string[] SubPos = pos.Split(new string[] { ":" }, StringSplitOptions.None);
+            string[] Groups = edi.Split(new[] { "+" }, StringSplitOptions.None);
+            string[] SubPos = pos.Split(new[] { ":" }, StringSplitOptions.None);
             if (!edi.StartsWith(SubPos[0]))
                 return null;
             int GroupPos = int.Parse(SubPos[1]);
             if (Groups.Length <= GroupPos)
                 return null;
-            string[] SubGroups = Groups[GroupPos].Split(new string[] { ":" }, StringSplitOptions.None);
+            string[] SubGroups = Groups[GroupPos].Split(new[] { ":" }, StringSplitOptions.None);
             if (SubPos[2].Contains("("))
             {
-                string[] range = SubPos[2].Split(new string[] { "," }, StringSplitOptions.None);
+                string[] range = SubPos[2].Split(new[] { "," }, StringSplitOptions.None);
                 int start = int.Parse(range[0].Substring(1));
                 int end = int.Parse(range[1].Substring(0, range[1].Length - 1));
                 List<string> parts = new List<string>();
@@ -233,7 +233,7 @@ namespace EDILibrary
                 {
                     if (path != null)
                     {
-                        string[] paths = path.Split(new char[] { '^', '|' }, StringSplitOptions.RemoveEmptyEntries);
+                        string[] paths = path.Split(new[] { '^', '|' }, StringSplitOptions.RemoveEmptyEntries);
                         List<string> searchEdi = new List<string>();
                         string Part = "";
                         bool condition_met = true;
@@ -244,10 +244,10 @@ namespace EDILibrary
                             Part = "";
                             /* If we count more then two separators we already included the segment, so skip this*/
                             string seg_path = null;
-                            if (temp_path.Split(new char[] { ':' }).Count() > 2)
+                            if (temp_path.Split(new[] { ':' }).Count() > 2)
                             {
                                 seg_path = temp_path;
-                                TreeElement searchElement = templateRoot.FindElement(seg_path.Split(new char[] { ':' })[0], false);
+                                TreeElement searchElement = templateRoot.FindElement(seg_path.Split(new[] { ':' })[0], false);
                                 if (searchElement != null)
                                     searchEdi.AddRange(searchElement.Edi);
                             }
@@ -360,7 +360,7 @@ namespace EDILibrary
                 if (TreeHelper.GetHash(cls.ToString()) == TreeHelper.GetHash(Dokument.ToString()))
                 {
                     List<TreeElement> treeElements = new List<TreeElement>();
-                    string refName = cls.Attribute("ref").Value.Split(new char[] { '[' })[0];
+                    string refName = cls.Attribute("ref").Value.Split(new[] { '[' })[0];
                     tree.FindElements(refName, true, ref treeElements);
                     treeElements = (from childElem in treeElements where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList<TreeElement>();
                     docElement = treeElements[0];
@@ -382,15 +382,15 @@ namespace EDILibrary
             {
                 seperator = "\r\n";
             }
-            string[] lines = tree.Split(new string[] { seperator }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = tree.Split(new[] { seperator }, StringSplitOptions.RemoveEmptyEntries);
             treeRoot = new TreeElement("/[M;M]");
 
             TreeElement currentRoot = null;
             treeRoot.Parent = null;
             foreach (string line in lines)
             {
-                string[] lineParts = line.Split(new char[] { ':' });
-                string[] elementParts = lineParts[1].Split(new char[] { ',' });
+                string[] lineParts = line.Split(new[] { ':' });
+                string[] elementParts = lineParts[1].Split(new[] { ',' });
                 currentRoot = treeRoot.FindElement(lineParts[0]);
                 bool first = true;
                 foreach (string element in elementParts)
@@ -440,7 +440,7 @@ namespace EDILibrary
                 TreeElement currentTreeRoot = tree;
                 foreach (string segment in Segments)
                 {
-                    string str_segment = segment.TrimStart(new char[] { '\r', '\n', '\t' }).TrimEnd(new char[] { '\r', '\n', '\t' });
+                    string str_segment = segment.TrimStart(new[] { '\r', '\n', '\t' }).TrimEnd(new[] { '\r', '\n', '\t' });
                     TreeElement child = TreeHelper.FindEdiElement(ref currentTreeRoot, str_segment);
                     if (child != null)
                         child.AddEdi(str_segment, child);

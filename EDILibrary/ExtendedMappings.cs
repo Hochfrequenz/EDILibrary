@@ -89,17 +89,17 @@ namespace EDILibrary
             edi = edi.Replace("??", "<<").Replace("?+", "?<").Replace("?:", "?>");
             if (pos == null || pos == "")
                 return null;
-            string[] Groups = edi.Split(new char[] { '+' });
-            string[] SubPos = pos.Split(new char[] { ':' });
+            string[] Groups = edi.Split(new[] { '+' });
+            string[] SubPos = pos.Split(new[] { ':' });
             if (!edi.StartsWith(SubPos[0]))
                 return null;
             int GroupPos = int.Parse(SubPos[1]);
             if (Groups.Length <= GroupPos)
                 return null;
-            string[] SubGroups = Groups[GroupPos].Split(new char[] { ':' });
+            string[] SubGroups = Groups[GroupPos].Split(new[] { ':' });
             if (SubPos[2].Contains("("))
             {
-                string[] range = SubPos[2].Split(new char[] { ',' });
+                string[] range = SubPos[2].Split(new[] { ',' });
                 int start = int.Parse(range[0].Substring(1));
                 int end = int.Parse(range[1].Substring(0, range[1].Length - 1));
                 List<string> parts = new List<string>();
@@ -135,7 +135,7 @@ namespace EDILibrary
         public void PrepareEDIMapping(string edi)
         {
             _ediLines = new List<string>();
-            _ediLines = edi.Split(new string[] { "'" }, StringSplitOptions.None).ToList<string>();
+            _ediLines = edi.Split(new[] { "'" }, StringSplitOptions.None).ToList<string>();
         }
         public string Escape(string input)
         {
@@ -150,7 +150,7 @@ namespace EDILibrary
             {
                 if (mapping.Attribute("type") != null && mapping.Attribute("type").Value == "edi")
                 {
-                    var parts = mapping.Value.Replace("\n", "").Split(new string[] { "==" }, StringSplitOptions.RemoveEmptyEntries);
+                    var parts = mapping.Value.Replace("\n", "").Split(new[] { "==" }, StringSplitOptions.RemoveEmptyEntries);
                     var selector = parts[0].Trim();
                     var newValue = "";
                     if (parts.Count() > 1)
@@ -202,7 +202,7 @@ namespace EDILibrary
                         if (path != null)
                         {
                             var selection_path = path_selector;
-                            if (path_selector.Split(new char[] { ':' }).Count() <= 2)
+                            if (path_selector.Split(new[] { ':' }).Count() <= 2)
                             {
                                 selection_path = segment + ":" + path_selector;
                             }

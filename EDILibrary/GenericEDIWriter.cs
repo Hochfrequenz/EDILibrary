@@ -20,7 +20,7 @@ namespace EDILibrary
             DateTime date;
             bool foundDate = false;
             CultureInfo deDE = new CultureInfo("de-DE");
-            foundDate = DateTime.TryParseExact(dateString, new string[] { "yyyyMMdd", "MMdd", "yyyyMMddHHmm", "yyyyMMddHHmmss" }, deDE, DateTimeStyles.None, out date);
+            foundDate = DateTime.TryParseExact(dateString, new[] { "yyyyMMdd", "MMdd", "yyyyMMddHHmm", "yyyyMMddHHmmss" }, deDE, DateTimeStyles.None, out date);
             if (!foundDate && !DateTime.TryParse(dateString, out date))
                 return dateString;
 
@@ -141,7 +141,7 @@ namespace EDILibrary
                 resultBuilder.Clear();
                 if (codeTemplate.StartsWith("<foreach"))
                 {
-                    string[] nodeparts = code.Split(new char[] { ' ' });
+                    string[] nodeparts = code.Split(new[] { ' ' });
                     string node = string.Join(" ", nodeparts.Skip(1));
                     string innercode;
                     beginIndex = template.IndexOf("</foreach " + node + ">", endIndex);
@@ -177,12 +177,12 @@ namespace EDILibrary
                     endIndex = template.IndexOf(end, beginIndex);
 
                     template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + end.Length).Replace(template.Substring(beginIndex, endIndex - beginIndex + end.Length), resultBuilder.ToString()) + template.Substring(endIndex + end.Length);
-                    template = template.TrimEnd(new char[] { '\r', '\n', '\t' });
+                    template = template.TrimEnd(new[] { '\r', '\n', '\t' });
                     beginIndex = 0;
                 }
                 else if (codeTemplate.StartsWith("<if"))
                 {
-                    string[] nodeparts = code.Split(new char[] { ' ' });
+                    string[] nodeparts = code.Split(new[] { ' ' });
                     string node = string.Join(" ", nodeparts.Skip(1));
                     string innercode;
                     beginIndex = template.IndexOf("</if>", endIndex);
@@ -193,7 +193,7 @@ namespace EDILibrary
                     var selection = from ele in parent.Fields
                         where ele.Key == node
                         select ele.Value[0];
-                    if (selection.Count() > 0)
+                    if (selection.Any())
                         value = selection.Single();
                     else
                         value = "";
@@ -213,9 +213,9 @@ namespace EDILibrary
                 }
                 else if (codeTemplate.StartsWith("<date"))
                 {
-                    string[] nodeparts = code.Split(new char[] { ' ' });
+                    string[] nodeparts = code.Split(new[] { ' ' });
                     string node = string.Join(" ", nodeparts.Skip(1));
-                    var innerNodeParts = node.Split(new char[] { ';' });
+                    var innerNodeParts = node.Split(new[] { ';' });
                     string value = null;
 
                     var selection = from ele in parent.Fields
@@ -271,14 +271,14 @@ namespace EDILibrary
                     }
                     else if (codeTemplate.Contains("MessageNumber"))
                     {
-                        int messageCount = template.Split(new string[]{"UNH+"},StringSplitOptions.RemoveEmptyEntries).Length - 1;
+                        int messageCount = template.Split(new[]{"UNH+"},StringSplitOptions.RemoveEmptyEntries).Length - 1;
                         resultBuilder.Append(messageCount);
                     }
-                    code = code.TrimStart(new char[] { '!', '$' });
+                    code = code.TrimStart(new[] { '!', '$' });
                     // evaluate code
                     try
                     {
-                        string[] lines = code.Split(new char[] { ';' });
+                        string[] lines = code.Split(new[] { ';' });
                         /*int counter = 0;
                         
                         foreach (string line in lines)
@@ -314,7 +314,7 @@ namespace EDILibrary
                 }
                 else if (codeTemplate.StartsWith("<§"))
                 {
-                    string[] items = code.Split(new char[] { ' ' });
+                    string[] items = code.Split(new[] { ' ' });
                     string variableName = items.Skip(1).Take(1).First();
                     string item = string.Join(" ", items.Skip(2));
                     string value = null;

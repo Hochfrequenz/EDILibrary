@@ -226,7 +226,7 @@ namespace EDILibrary
             }
             else
             {
-                var splits = name.Split(new string[] { "." }, StringSplitOptions.None);
+                var splits = name.Split(new[] { "." }, StringSplitOptions.None);
                 if (target.ContainsKey(splits.First()))
                 {
                     AddProperty(target[splits.First()] as IDictionary<string, object>, string.Join(".", splits.Skip(1)), value);
@@ -421,7 +421,7 @@ namespace EDILibrary
         }
         protected void SetValue(JObject input, string path, string value)
         {
-            var splits = path.Split(new string[] { "[]." }, StringSplitOptions.None);
+            var splits = path.Split(new[] { "[]." }, StringSplitOptions.None);
             if (input.SelectToken(splits.First()) as JArray != null)
             {
                 foreach (var subObj in input.SelectToken(splits.First()) as JArray)
