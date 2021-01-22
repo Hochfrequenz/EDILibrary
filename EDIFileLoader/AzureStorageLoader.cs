@@ -62,7 +62,7 @@ namespace EDIFileLoader
                 
             }
             CloudBlockBlob blockBlob = _container.GetBlockBlobReference(System.IO.Path.Combine(formatPackage.Replace("/",""),fileName).Replace("\\", "/"));
-            BlobRequestOptions options = new BlobRequestOptions()
+            BlobRequestOptions options = new BlobRequestOptions
             {
                 DisableContentMD5Validation = true
             };

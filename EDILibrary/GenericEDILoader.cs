@@ -79,7 +79,7 @@ namespace EDILibrary
                 string refName = child.Attribute("ref").Value.Split(new[] { '[' })[0];
                 List<TreeElement> childTree = new List<TreeElement>();
                 treeRoot.FindElements(refName, true, ref childTree, 1);
-                childTree = (from childElem in childTree where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList<TreeElement>();
+                childTree = (from childElem in childTree where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList();
 
                 foreach (TreeElement childRoot in childTree)
                 {
@@ -362,7 +362,7 @@ namespace EDILibrary
                     List<TreeElement> treeElements = new List<TreeElement>();
                     string refName = cls.Attribute("ref").Value.Split(new[] { '[' })[0];
                     tree.FindElements(refName, true, ref treeElements);
-                    treeElements = (from childElem in treeElements where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList<TreeElement>();
+                    treeElements = (from childElem in treeElements where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList();
                     docElement = treeElements[0];
                 }
                 //List<TreeElement> treeElements = new List<TreeElement>();
@@ -440,7 +440,7 @@ namespace EDILibrary
                 TreeElement currentTreeRoot = tree;
                 foreach (string segment in Segments)
                 {
-                    string str_segment = segment.TrimStart(new[] { '\r', '\n', '\t' }).TrimEnd(new[] { '\r', '\n', '\t' });
+                    string str_segment = segment.TrimStart('\r', '\n', '\t').TrimEnd('\r', '\n', '\t');
                     TreeElement child = TreeHelper.FindEdiElement(ref currentTreeRoot, str_segment);
                     if (child != null)
                         child.AddEdi(str_segment, child);

@@ -416,7 +416,7 @@ namespace EDILibrary
         }
         public List<IEdiObject> Childs(string name)
         {
-            return (from child in Children where child.Name == name select child).ToList<IEdiObject>();
+            return (from child in Children where child.Name == name select child).ToList();
         }
         public IEdiObject Clone()
         {

@@ -143,7 +143,7 @@ namespace EDILibrary
             var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, out var subParent);
             IEdiObject result = IEdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
-            return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo() { Format = format, Version = version }, new List<string>(), _loader,false);
+            return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo { Format = format, Version = version }, new List<string>(), _loader,false);
 
         }   
         protected void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool includeEmptyValues)
@@ -310,7 +310,7 @@ namespace EDILibrary
                             {
                                 string format = subObj.SelectToken("_meta.format").Value<string>();
                                 //format date
-                                (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), new ScriptHelper() { useLocalTime = false }.FormatDate(prop.Value.Value<string>(), format));
+                                (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), new ScriptHelper { useLocalTime = false }.FormatDate(prop.Value.Value<string>(), format));
                             }
                             else
                             {
@@ -340,7 +340,7 @@ namespace EDILibrary
                                             else
                                             {
                                                 dynamic newObj = new ExpandoObject();
-                                                foreach (var newProp in (newSub as IDictionary<string, object>).ToList<KeyValuePair<string, object>>())
+                                                foreach (var newProp in (newSub as IDictionary<string, object>).ToList())
                                                 {
                                                     (newObj as IDictionary<string, object>).Add(newProp.Key, newProp.Value);
                                                 }
@@ -357,7 +357,7 @@ namespace EDILibrary
                                     else
                                     {
                                         dynamic newObj = new ExpandoObject();
-                                        foreach (var newProp in (newSub as IDictionary<string, object>).ToList<KeyValuePair<string, object>>())
+                                        foreach (var newProp in (newSub as IDictionary<string, object>).ToList())
                                         {
                                             (newObj as IDictionary<string, object>).Add(newProp.Key, newProp.Value);
                                         }

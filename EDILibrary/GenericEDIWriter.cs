@@ -159,7 +159,7 @@ namespace EDILibrary
                             foreach (string val in value_node)
                             {
                                 IEdiObject tempObject = new IEdiObject(node, null, val);
-                                tempObject.Fields.Add(node, new List<string>() { val });
+                                tempObject.Fields.Add(node, new List<string> { val });
                                 resultBuilder.Append(RecurseTemplate(innercode, tempObject));
 
                             }
@@ -177,7 +177,7 @@ namespace EDILibrary
                     endIndex = template.IndexOf(end, beginIndex);
 
                     template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + end.Length).Replace(template.Substring(beginIndex, endIndex - beginIndex + end.Length), resultBuilder.ToString()) + template.Substring(endIndex + end.Length);
-                    template = template.TrimEnd(new[] { '\r', '\n', '\t' });
+                    template = template.TrimEnd('\r', '\n', '\t');
                     beginIndex = 0;
                 }
                 else if (codeTemplate.StartsWith("<if"))
@@ -274,7 +274,7 @@ namespace EDILibrary
                         int messageCount = template.Split(new[]{"UNH+"},StringSplitOptions.RemoveEmptyEntries).Length - 1;
                         resultBuilder.Append(messageCount);
                     }
-                    code = code.TrimStart(new[] { '!', '$' });
+                    code = code.TrimStart('!', '$');
                     // evaluate code
                     try
                     {

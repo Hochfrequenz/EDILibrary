@@ -27,7 +27,7 @@ namespace EDILibrary
         public string Nachrichtenversion;
         public override string ToString()
         {
-            return string.Join("_", new List<string>() { Format, Referenz, Sender != null ? Sender.ToString() : "", Empfänger != null ? Empfänger.ToString() : "", DateTime.UtcNow.ToString("yyyyMMdd"), ID });
+            return string.Join("_", new List<string> { Format, Referenz, Sender != null ? Sender.ToString() : "", Empfänger != null ? Empfänger.ToString() : "", DateTime.UtcNow.ToString("yyyyMMdd"), ID });
         }
 
 
@@ -139,9 +139,9 @@ namespace EDILibrary
                 string[] UNBParts = UNB.Split(groupDelimiter.ToCharArray());
                 string[] UNHParts = UNH.Split(groupDelimiter.ToCharArray());
 
-                EDIPartner sender = new EDIPartner() { CodeList = UNBParts[2].Split(elementDelimiter.ToCharArray()).Count() > 1 ? UNBParts[2].Split(elementDelimiter.ToCharArray())[1] : "500", ID = UNBParts[2].Split(elementDelimiter.ToCharArray())[0] };
-                EDIPartner empfänger = new EDIPartner() { CodeList = UNBParts[3].Split(elementDelimiter.ToCharArray()).Count() > 1 ? UNBParts[3].Split(elementDelimiter.ToCharArray())[1] : "500", ID = UNBParts[3].Split(elementDelimiter.ToCharArray())[0] };
-                EDIFileInfo file = new EDIFileInfo()
+                EDIPartner sender = new EDIPartner { CodeList = UNBParts[2].Split(elementDelimiter.ToCharArray()).Count() > 1 ? UNBParts[2].Split(elementDelimiter.ToCharArray())[1] : "500", ID = UNBParts[2].Split(elementDelimiter.ToCharArray())[0] };
+                EDIPartner empfänger = new EDIPartner { CodeList = UNBParts[3].Split(elementDelimiter.ToCharArray()).Count() > 1 ? UNBParts[3].Split(elementDelimiter.ToCharArray())[1] : "500", ID = UNBParts[3].Split(elementDelimiter.ToCharArray())[0] };
+                EDIFileInfo file = new EDIFileInfo
                 {
                     Empfänger = empfänger,
                     Sender = sender
@@ -159,7 +159,7 @@ namespace EDILibrary
             }
             catch (Exception)
             {
-                return new EDIFileInfo() { Format = "ERROR", Referenz = Guid.NewGuid().ToString() };
+                return new EDIFileInfo { Format = "ERROR", Referenz = Guid.NewGuid().ToString() };
             }
         }
 
