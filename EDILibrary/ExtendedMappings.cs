@@ -28,7 +28,7 @@ namespace EDILibrary
         }
         public List<MappingEntry> GetListOfMappingTypes()
         {
-            return _mappingRoot.Select(mr => new MappingEntry()
+            return _mappingRoot.Select(mr => new MappingEntry
             {
                 Name = mr.Attribute("Name").Value,
                 Type = mr.Attribute("type") != null ? mr.Attribute("type").Value : "python",

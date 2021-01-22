@@ -85,7 +85,7 @@ namespace EDILibrary
                 else
                 {
                     if (!(child.Value == null || child.Type == JTokenType.Null))
-                        this.Fields.Add(child.Name, new List<string>() { child.Value.ToString() });
+                        this.Fields.Add(child.Name, new List<string> { child.Value.ToString() });
                 }
             }
 
@@ -348,11 +348,11 @@ namespace EDILibrary
         {
             if (Fields.ContainsKey(EDIEnumHelper.GetDescription(enumValue)))
             {
-                Fields[EDIEnumHelper.GetDescription(enumValue)] = new List<string>() { value };
+                Fields[EDIEnumHelper.GetDescription(enumValue)] = new List<string> { value };
             }
             else
             {
-                Fields.Add(EDIEnumHelper.GetDescription(enumValue), new List<string>() { value });
+                Fields.Add(EDIEnumHelper.GetDescription(enumValue), new List<string> { value });
             }
         }
         public IEdiObject Child(EDIEnums name, string key)
