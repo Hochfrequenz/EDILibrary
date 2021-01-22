@@ -173,7 +173,7 @@ namespace EDILibrary
                 else
                 {
                     templateRoot.FindElements(segment, true, ref resultList, 2);
-                    if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Count() > 0 select res).Count() > 0)
+                    if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Count > 0 select res).Count() > 0)
                     {
 
                         foreach (var result in resultList)
@@ -200,7 +200,7 @@ namespace EDILibrary
             else
             {
                 templateRoot.FindElements(segment, true, ref resultList, 2);
-                if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Count() > 0 select res).Any())
+                if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Count > 0 select res).Any())
                 {
                     if (_useCache)
                         _elementCache.Add(templateRoot, new Dictionary<string, List<string>>());
@@ -244,7 +244,7 @@ namespace EDILibrary
                             Part = "";
                             /* If we count more then two separators we already included the segment, so skip this*/
                             string seg_path = null;
-                            if (temp_path.Split(new[] { ':' }).Count() > 2)
+                            if (temp_path.Split(new[] { ':' }).Length > 2)
                             {
                                 seg_path = temp_path;
                                 TreeElement searchElement = templateRoot.FindElement(seg_path.Split(new[] { ':' })[0], false);

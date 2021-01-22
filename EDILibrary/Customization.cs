@@ -26,13 +26,7 @@ namespace EDILibrary
         }
         public static Customization Instance
         {
-            get
-            {
-                if (_instance == null)
-                    _instance = new Customization();
-
-                return _instance;
-            }
+            get { return _instance ?? (_instance = new Customization()); }
         }
     }
 }

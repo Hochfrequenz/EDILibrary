@@ -162,7 +162,7 @@ namespace EDILibrary
                 hasKey = true;
                 _builder.AppendLine("\"" + "Key" + "\" : \"" + cur.Key + "\"" + (i != 0 || hasClass ? "," : ""));
             }
-            if (cur.Fields.Count(f => f.Value.Count() > 1) == cur.Fields.Count && cur.Fields.Any(f => f.Value.Count() > 1)) // check for multiple values
+            if (cur.Fields.Count(f => f.Value.Count > 1) == cur.Fields.Count && cur.Fields.Any(f => f.Value.Count > 1)) // check for multiple values
             {
                 int index = 0;
                 var oldI = i;

@@ -139,14 +139,14 @@ namespace EDILibrary
                 string[] UNBParts = UNB.Split(groupDelimiter.ToCharArray());
                 string[] UNHParts = UNH.Split(groupDelimiter.ToCharArray());
 
-                EDIPartner sender = new EDIPartner { CodeList = UNBParts[2].Split(elementDelimiter.ToCharArray()).Count() > 1 ? UNBParts[2].Split(elementDelimiter.ToCharArray())[1] : "500", ID = UNBParts[2].Split(elementDelimiter.ToCharArray())[0] };
-                EDIPartner empfänger = new EDIPartner { CodeList = UNBParts[3].Split(elementDelimiter.ToCharArray()).Count() > 1 ? UNBParts[3].Split(elementDelimiter.ToCharArray())[1] : "500", ID = UNBParts[3].Split(elementDelimiter.ToCharArray())[0] };
+                EDIPartner sender = new EDIPartner { CodeList = UNBParts[2].Split(elementDelimiter.ToCharArray()).Length > 1 ? UNBParts[2].Split(elementDelimiter.ToCharArray())[1] : "500", ID = UNBParts[2].Split(elementDelimiter.ToCharArray())[0] };
+                EDIPartner empfänger = new EDIPartner { CodeList = UNBParts[3].Split(elementDelimiter.ToCharArray()).Length > 1 ? UNBParts[3].Split(elementDelimiter.ToCharArray())[1] : "500", ID = UNBParts[3].Split(elementDelimiter.ToCharArray())[0] };
                 EDIFileInfo file = new EDIFileInfo
                 {
                     Empfänger = empfänger,
                     Sender = sender
                 };
-                if (UNBParts.Count() >= 7)
+                if (UNBParts.Length >= 7)
                     file.Referenz = UNBParts[7].Split(elementDelimiter.ToCharArray())[0];
                 file.ID = UNBParts[5].Split(elementDelimiter.ToCharArray())[0];
                 file.Format = UNHParts[2].Split(elementDelimiter.ToCharArray())[0];

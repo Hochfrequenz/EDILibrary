@@ -332,7 +332,7 @@ namespace EDILibrary
                                     (returnObject as IDictionary<string, object>).Add(newPropName, new List<dynamic>());
                                     foreach (var sub in prop.Value as JArray)
                                     {
-                                        if (sub as JObject != null)
+                                        if (sub is JObject)
                                         {
                                             var newSub = CreateMsgJSON(sub as JObject, newArray, mask, out var subParent);
                                             if (!subParent)
@@ -422,9 +422,9 @@ namespace EDILibrary
         protected void SetValue(JObject input, string path, string value)
         {
             var splits = path.Split(new[] { "[]." }, StringSplitOptions.None);
-            if (input.SelectToken(splits.First()) as JArray != null)
+            if (input.SelectToken(splits.First()) is JArray)
             {
-                foreach (var subObj in input.SelectToken(splits.First()) as JArray)
+                foreach (var subObj in (JArray) input.SelectToken(splits.First()))
                 {
                     SetValue(subObj as JObject, string.Join("[].", splits.Skip(1)), value);
                 }
@@ -435,7 +435,7 @@ namespace EDILibrary
             }
             else
             {
-                if (splits.Count() > 1)
+                if (splits.Length > 1)
                 {
                     //add array
                     var newArray = new JArray

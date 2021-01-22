@@ -153,7 +153,7 @@ namespace EDILibrary
                     var parts = mapping.Value.Replace("\n", "").Split(new[] { "==" }, StringSplitOptions.RemoveEmptyEntries);
                     var selector = parts[0].Trim();
                     var newValue = "";
-                    if (parts.Count() > 1)
+                    if (parts.Length > 1)
                         newValue = parts[1].Trim();
                     if (newValue == "<zuLang>")
                     {
@@ -202,7 +202,7 @@ namespace EDILibrary
                         if (path != null)
                         {
                             var selection_path = path_selector;
-                            if (path_selector.Split(':').Count() <= 2)
+                            if (path_selector.Split(':').Length <= 2)
                             {
                                 selection_path = segment + ":" + path_selector;
                             }
