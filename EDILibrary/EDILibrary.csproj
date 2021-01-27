@@ -5,16 +5,16 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <OutputTypeEx>library</OutputTypeEx>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Description>EDI Library for german energy market (.net Core version)</Description>
+    <Description>EDI Library for german energy market (.net 5 version)</Description>
     <PackageId>EDILibrary.Core</PackageId>
     <Authors>EDILibrary.Core</Authors>
     <Company>EDILibrary.Core</Company>
     <Product>EDILibrary.Core</Product>
-    <Version>0.2.29</Version>
-    <PackageVersion>0.2.28</PackageVersion>
+    <Version>1.0.0</Version>
+    <PackageVersion>1.0.0</PackageVersion>
     <AssemblyName>EDILibrary.Core</AssemblyName>
     <RootNamespace>EDILibrary</RootNamespace>
     <IncludeSymbols>true</IncludeSymbols>
@@ -51,12 +51,12 @@
     
     <PackageReference Include="MurmurHash.NETStandard" Version="1.0.0" />
     
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.ComponentModel.Primitives" Version="4.3.0" />
-    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.0" />
+    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.0-beta-20204-02" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SourceLink.Copy.PdbFiles" Version="2.8.3" PrivateAssets="All" />

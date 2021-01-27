@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.4</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Description>EDI Library for german energy market (.netstandard 1.3 version)</Description>
+    <Description>EDI Library for german energy market (.netstandard 2.1 version)</Description>
     <PackageId>EDILibrary.Standard</PackageId>
     <Authors>EDILibrary.Standard</Authors>
     <Company>EDILibrary.Standard</Company>
     <Product>EDILibrary.Standard</Product>
-    <Version>0.0.1</Version>
+    <Version>1.0.0</Version>
     <IncludeSymbols>true</IncludeSymbols>
     <IncludeSymbols>true</IncludeSymbols>
     <!-- Optional: Declare that the Repository URL can be published to NuSpec -->
@@ -57,9 +57,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="MurmurHash.NETStandard" Version="1.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
-    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
     <PackageReference Include="System.Security.Cryptography.Primitives" Version="4.3.0" />
   </ItemGroup>
 

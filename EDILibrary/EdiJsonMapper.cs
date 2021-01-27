@@ -125,7 +125,7 @@ namespace EDILibrary
             //       throw new BadPIDException(pid);
             //    }
             string version = mappings[0]["_meta"]["version"].Value<string>();
-
+            
             JArray maskArray = new JArray();
             foreach (var step in json.Property("steps").Value)
             {
