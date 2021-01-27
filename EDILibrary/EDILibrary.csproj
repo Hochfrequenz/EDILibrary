@@ -17,12 +17,10 @@
     <PackageVersion>1.0.0</PackageVersion>
     <AssemblyName>EDILibrary.Core</AssemblyName>
     <RootNamespace>EDILibrary</RootNamespace>
-    <IncludeSymbols>true</IncludeSymbols>
-    <!-- Optional: Declare that the Repository URL can be published to NuSpec -->
+    
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
 
-    <!-- Optional: Embed source files that are not tracked by the source control manager to the PDB -->
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    
 
     <!-- Optional: Include PDB in the built .nupkg -->
     
