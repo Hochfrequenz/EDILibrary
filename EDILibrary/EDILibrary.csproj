@@ -5,16 +5,16 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <OutputTypeEx>library</OutputTypeEx>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Description>EDI Library for german energy market (.net Core version)</Description>
+    <Description>EDI Library for german energy market (.net 5 version)</Description>
     <PackageId>EDILibrary.Core</PackageId>
     <Authors>EDILibrary.Core</Authors>
     <Company>EDILibrary.Core</Company>
     <Product>EDILibrary.Core</Product>
-    <Version>0.2.29</Version>
-    <PackageVersion>0.2.28</PackageVersion>
+    <Version>1.0.0</Version>
+    <PackageVersion>1.0.0</PackageVersion>
     <AssemblyName>EDILibrary.Core</AssemblyName>
     <RootNamespace>EDILibrary</RootNamespace>
     <IncludeSymbols>true</IncludeSymbols>
