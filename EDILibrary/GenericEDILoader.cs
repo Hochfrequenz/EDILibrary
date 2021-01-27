@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using System.Xml.Linq;
 
@@ -51,7 +50,7 @@ namespace EDILibrary
                         rootObject.Fields[field.Attribute("name").Value] = new List<string>();
                     if (value.Contains("|"))
                     {
-                        string[] subvalues = value.Split(new char[] { '|' });
+                        string[] subvalues = value.Split(new[] { '|' });
                         foreach (string val in subvalues)
                             rootObject.Fields[field.Attribute("name").Value].Add(val);
                     }
@@ -77,10 +76,10 @@ namespace EDILibrary
                     Hash = child.Attribute("hash").Value;
                 }
 
-                string refName = child.Attribute("ref").Value.Split(new char[] { '[' })[0];
+                string refName = child.Attribute("ref").Value.Split(new[] { '[' })[0];
                 List<TreeElement> childTree = new List<TreeElement>();
                 treeRoot.FindElements(refName, true, ref childTree, 1);
-                childTree = (from childElem in childTree where (childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0) select childElem).ToList<TreeElement>();
+                childTree = (from childElem in childTree where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList();
 
                 foreach (TreeElement childRoot in childTree)
                 {
@@ -105,19 +104,19 @@ namespace EDILibrary
             edi = edi.Replace("??", "<<").Replace("?+", "?<").Replace("?:", "?>");
             if (pos == null || pos == "")
                 return null;
-            string[] Groups = edi.Split(new string[] { "+" }, StringSplitOptions.None);
-            string[] SubPos = pos.Split(new string[] { ":" }, StringSplitOptions.None);
+            string[] Groups = edi.Split(new[] { "+" }, StringSplitOptions.None);
+            string[] SubPos = pos.Split(new[] { ":" }, StringSplitOptions.None);
             if (!edi.StartsWith(SubPos[0]))
                 return null;
-            int GroupPos = Int32.Parse(SubPos[1]);
+            int GroupPos = int.Parse(SubPos[1]);
             if (Groups.Length <= GroupPos)
                 return null;
-            string[] SubGroups = Groups[GroupPos].Split(new string[] { ":" }, StringSplitOptions.None);
+            string[] SubGroups = Groups[GroupPos].Split(new[] { ":" }, StringSplitOptions.None);
             if (SubPos[2].Contains("("))
             {
-                string[] range = SubPos[2].Split(new string[] { "," }, StringSplitOptions.None);
-                int start = Int32.Parse(range[0].Substring(1));
-                int end = Int32.Parse(range[1].Substring(0, range[1].Length - 1));
+                string[] range = SubPos[2].Split(new[] { "," }, StringSplitOptions.None);
+                int start = int.Parse(range[0].Substring(1));
+                int end = int.Parse(range[1].Substring(0, range[1].Length - 1));
                 List<string> parts = new List<string>();
                 for (int i = start; i <= end; i++)
                 {
@@ -125,7 +124,7 @@ namespace EDILibrary
                         break;
                     parts.Add(SubGroups[i].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?"));
                 }
-                string endValue = String.Join("", parts).Trim();
+                string endValue = string.Join("", parts).Trim();
                 if (_useCache && !_valueCache.ContainsKey(edi))
                 {
                     _valueCache.Add(edi, new Dictionary<string, string>());
@@ -136,10 +135,10 @@ namespace EDILibrary
             }
             else
             {
-                int DetailPos = Int32.Parse(SubPos[2]);
+                int DetailPos = int.Parse(SubPos[2]);
                 if (SubGroups.Length <= DetailPos)
                     return null;
-                String result = SubGroups[DetailPos].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?");
+                string result = SubGroups[DetailPos].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?");
                 if (!_valueCache.ContainsKey(edi))
                 {
                     _valueCache.Add(edi, new Dictionary<string, string>());
@@ -162,7 +161,7 @@ namespace EDILibrary
                 sepIndex = selection.Length;
             string segment = selection.Substring(0, sepIndex);
             if (klammerIndex != selector.Length)
-                path = selector.Substring(klammerIndex + 1, (selector.Length - 1) - klammerIndex - 1);
+                path = selector.Substring(klammerIndex + 1, selector.Length - 1 - klammerIndex - 1);
             List<TreeElement> resultList = new List<TreeElement>();
             List<string> resultEDI = new List<string>();
             if (_useCache && _elementCache.ContainsKey(templateRoot))
@@ -174,7 +173,7 @@ namespace EDILibrary
                 else
                 {
                     templateRoot.FindElements(segment, true, ref resultList, 2);
-                    if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Count() > 0 select res).Count() > 0)
+                    if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Count > 0 select res).Count() > 0)
                     {
 
                         foreach (var result in resultList)
@@ -201,7 +200,7 @@ namespace EDILibrary
             else
             {
                 templateRoot.FindElements(segment, true, ref resultList, 2);
-                if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Count() > 0 select res).Count() > 0)
+                if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Count > 0 select res).Any())
                 {
                     if (_useCache)
                         _elementCache.Add(templateRoot, new Dictionary<string, List<string>>());
@@ -234,7 +233,7 @@ namespace EDILibrary
                 {
                     if (path != null)
                     {
-                        string[] paths = path.Split(new char[] { '^', '|' }, StringSplitOptions.RemoveEmptyEntries);
+                        string[] paths = path.Split(new[] { '^', '|' }, StringSplitOptions.RemoveEmptyEntries);
                         List<string> searchEdi = new List<string>();
                         string Part = "";
                         bool condition_met = true;
@@ -245,10 +244,10 @@ namespace EDILibrary
                             Part = "";
                             /* If we count more then two separators we already included the segment, so skip this*/
                             string seg_path = null;
-                            if (temp_path.Split(new char[] { ':' }).Count() > 2)
+                            if (temp_path.Split(new[] { ':' }).Length > 2)
                             {
                                 seg_path = temp_path;
-                                TreeElement searchElement = templateRoot.FindElement(seg_path.Split(new char[] { ':' })[0], false);
+                                TreeElement searchElement = templateRoot.FindElement(seg_path.Split(new[] { ':' })[0], false);
                                 if (searchElement != null)
                                     searchEdi.AddRange(searchElement.Edi);
                             }
@@ -269,7 +268,7 @@ namespace EDILibrary
                             string path_selector = seg_path.Substring(0, opIndex);
                             string path_value = null;
                             if (seg_path.Length != sepIndex)
-                                path_value = seg_path.Substring(opIndex + (sep_op.Length), seg_path.Length - opIndex - (sep_op.Length));
+                                path_value = seg_path.Substring(opIndex + sep_op.Length, seg_path.Length - opIndex - sep_op.Length);
                             else
                             {
                                 path_value = "";
@@ -298,7 +297,7 @@ namespace EDILibrary
                                     }
                                 }
                             }
-                            if (String.IsNullOrWhiteSpace(Part) == false)
+                            if (string.IsNullOrWhiteSpace(Part) == false)
                             {
                                 if (path.Contains('|'))
                                 {
@@ -329,7 +328,7 @@ namespace EDILibrary
                     }
                 }
                 if (ResultParts.Count > 0)
-                    return String.Join("|", ResultParts);
+                    return string.Join("|", ResultParts);
                 else
                     return null;
             }
@@ -361,9 +360,9 @@ namespace EDILibrary
                 if (TreeHelper.GetHash(cls.ToString()) == TreeHelper.GetHash(Dokument.ToString()))
                 {
                     List<TreeElement> treeElements = new List<TreeElement>();
-                    string refName = cls.Attribute("ref").Value.Split(new char[] { '[' })[0];
+                    string refName = cls.Attribute("ref").Value.Split(new[] { '[' })[0];
                     tree.FindElements(refName, true, ref treeElements);
-                    treeElements = (from childElem in treeElements where (childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0) select childElem).ToList<TreeElement>();
+                    treeElements = (from childElem in treeElements where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList();
                     docElement = treeElements[0];
                 }
                 //List<TreeElement> treeElements = new List<TreeElement>();
@@ -378,20 +377,20 @@ namespace EDILibrary
         public TreeElement LoadTree(string tree)
         {
             TreeElement treeRoot;
-            String seperator = "\n";
+            string seperator = "\n";
             if (tree.IndexOf("\r\n") > -1)
             {
                 seperator = "\r\n";
             }
-            string[] lines = tree.Split(new string[] { seperator }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = tree.Split(new[] { seperator }, StringSplitOptions.RemoveEmptyEntries);
             treeRoot = new TreeElement("/[M;M]");
 
             TreeElement currentRoot = null;
             treeRoot.Parent = null;
             foreach (string line in lines)
             {
-                string[] lineParts = line.Split(new char[] { ':' });
-                string[] elementParts = lineParts[1].Split(new char[] { ',' });
+                string[] lineParts = line.Split(new[] { ':' });
+                string[] elementParts = lineParts[1].Split(new[] { ',' });
                 currentRoot = treeRoot.FindElement(lineParts[0]);
                 bool first = true;
                 foreach (string element in elementParts)
@@ -439,9 +438,9 @@ namespace EDILibrary
             {
                 TreeHelper.treeRoot = null;
                 TreeElement currentTreeRoot = tree;
-                foreach (String segment in Segments)
+                foreach (string segment in Segments)
                 {
-                    string str_segment = segment.TrimStart(new char[] { '\r', '\n', '\t' }).TrimEnd(new char[] { '\r', '\n', '\t' });
+                    string str_segment = segment.TrimStart('\r', '\n', '\t').TrimEnd('\r', '\n', '\t');
                     TreeElement child = TreeHelper.FindEdiElement(ref currentTreeRoot, str_segment);
                     if (child != null)
                         child.AddEdi(str_segment, child);

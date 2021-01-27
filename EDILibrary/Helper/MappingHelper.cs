@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
 using System;
 using System.Collections.Generic;
-using EDILibrary;
 using EDILibrary.Interfaces;
 using System.Threading.Tasks;
 
@@ -20,7 +19,7 @@ namespace EDILibrary.Helper
                 {
                     extMapping.ExecuteMapping(map, edi, "S", fileInfo.Format);
                 }
-                catch (Exception)
+                catch (Exception) // todo: fix pokemon catching
                 {
                 }
             }
@@ -34,7 +33,7 @@ namespace EDILibrary.Helper
                 {
                     extMapping.ExecuteEDIMapping(map);
                 }
-                catch (Exception)
+                catch (Exception) // todo: fix pokemon catching
                 {
                 }
             }

@@ -79,13 +79,13 @@ namespace EDILibrary
                         IEdiObject childNode = new IEdiObject(child.Name, null, GenerateKey(child.Name));
                         childNode.ParseJSON(childValue);
                         if (childNode.Fields.Count > 0 || childNode.Children.Count > 0)
-                            this.AddChild(childNode);
+                            AddChild(childNode);
                     }
                 }
                 else
                 {
-                    if (!(child.Value == null || (child.Type == JTokenType.Null)))
-                        this.Fields.Add(child.Name, new List<string>() { child.Value.ToString() });
+                    if (!(child.Value == null || child.Type == JTokenType.Null))
+                        Fields.Add(child.Name, new List<string> { child.Value.ToString() });
                 }
             }
 
@@ -100,21 +100,21 @@ namespace EDILibrary
         }
         public bool IsEqual(IEdiObject comp)
         {
-            if (this.Name != comp.Name)
+            if (Name != comp.Name)
                 return false;
-            if (this.Fields.Count != comp.Fields.Count)
+            if (Fields.Count != comp.Fields.Count)
                 return false;
-            if (this.Children.Count != comp.Children.Count)
+            if (Children.Count != comp.Children.Count)
                 return false;
-            foreach (var child in this.Children)
+            foreach (var child in Children)
             {
-                var compChild = comp.Children.Where(ch => ch.Name == child.Name && ch.Key == child.Key).FirstOrDefault();
+                var compChild = comp.Children.FirstOrDefault(ch => ch.Name == child.Name && ch.Key == child.Key);
                 if (compChild == null)
                     return false;
                 if (!child.IsEqual(compChild))
                     return false;
             }
-            foreach (var field in this.Fields)
+            foreach (var field in Fields)
             {
                 var compField = comp.Fields[field.Key];
                 if (compField == null)
@@ -138,7 +138,7 @@ namespace EDILibrary
             {
                 XElement f = new XElement("Field");
                 f.SetAttributeValue("name", field.Key);
-                f.Value = String.Join("|", field.Value);
+                f.Value = string.Join("|", field.Value);
                 elem.Add(f);
             }
             foreach (var cl in child.Children)
@@ -162,11 +162,11 @@ namespace EDILibrary
                 hasKey = true;
                 _builder.AppendLine("\"" + "Key" + "\" : \"" + cur.Key + "\"" + (i != 0 || hasClass ? "," : ""));
             }
-            if (cur.Fields.Where(f => f.Value.Count() > 1).Count() == cur.Fields.Count && cur.Fields.Where(f => f.Value.Count() > 1).Count() >0) // check for multiple values
+            if (cur.Fields.Count(f => f.Value.Count > 1) == cur.Fields.Count && cur.Fields.Any(f => f.Value.Count > 1)) // check for multiple values
             {
                 int index = 0;
                 var oldI = i;
-                while (index < cur.Fields.Where(f => f.Value.Count > 1).First().Value.Count)
+                while (index < cur.Fields.First(f => f.Value.Count > 1).Value.Count)
                 {
                     foreach (var elem in cur.Fields)
                     {
@@ -175,7 +175,7 @@ namespace EDILibrary
 
                     }
                     i = oldI;
-                    if (index + 1 < cur.Fields.Where(f => f.Value.Count > 1).First().Value.Count)
+                    if (index + 1 < cur.Fields.First(f => f.Value.Count > 1).Value.Count)
                         _builder.AppendLine("},{");
                     index++;
                 }
@@ -235,8 +235,8 @@ namespace EDILibrary
         {
             bool hasKey = false;
 
-            int i = cur.Descendants("Field").Where(d => d.Parent == cur).Count();
-            bool hasClass = cur.Descendants("Class").Where(d => d.Parent == cur).Count() > 0;
+            int i = cur.Descendants("Field").Count(d => d.Parent == cur);
+            bool hasClass = cur.Descendants("Class").Any(d => d.Parent == cur);
             if (cur.Attribute("key") != null)
             {
                 hasKey = true;
@@ -248,8 +248,8 @@ namespace EDILibrary
                 _builder.AppendLine("\"" + elem.Attribute("name").Value + "\" : \"" + elem.Value + "\"" + (i != 0 || hasClass ? "," : ""));
 
             }
-            int j = cur.Descendants("Class").Where(d => d.Parent == cur).Count();
-            if (j == 0 && cur.Descendants("Field").Where(d => d.Parent == cur).Count() == 0) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
+            int j = cur.Descendants("Class").Count(d => d.Parent == cur);
+            if (j == 0 && cur.Descendants("Field").All(d => d.Parent != cur)) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
             {
                 if (!hasKey)
                 {
@@ -348,11 +348,11 @@ namespace EDILibrary
         {
             if (Fields.ContainsKey(EDIEnumHelper.GetDescription(enumValue)))
             {
-                Fields[EDIEnumHelper.GetDescription(enumValue)] = new List<string>() { value };
+                Fields[EDIEnumHelper.GetDescription(enumValue)] = new List<string> { value };
             }
             else
             {
-                Fields.Add(EDIEnumHelper.GetDescription(enumValue), new List<string>() { value });
+                Fields.Add(EDIEnumHelper.GetDescription(enumValue), new List<string> { value });
             }
         }
         public IEdiObject Child(EDIEnums name, string key)
@@ -376,7 +376,7 @@ namespace EDILibrary
             if (child == null)
                 return;
             child.Parent = this;
-            this.Children.Add(child);
+            Children.Add(child);
         }
         public bool ContainsChild(EDIEnums name, string key)
         {
@@ -396,7 +396,7 @@ namespace EDILibrary
         }
         public void RemoveField(string name)
         {
-            this.Fields.Remove(name);
+            Fields.Remove(name);
         }
         public void RemoveChilds(EDIEnums name)
         {
@@ -416,16 +416,16 @@ namespace EDILibrary
         }
         public List<IEdiObject> Childs(string name)
         {
-            return (from child in Children where child.Name == name select child).ToList<IEdiObject>();
+            return (from child in Children where child.Name == name select child).ToList();
         }
         public IEdiObject Clone()
         {
-            IEdiObject clone = new IEdiObject(this.Name, null, this.Key);
-            foreach (var child in this.Children)
+            IEdiObject clone = new IEdiObject(Name, null, Key);
+            foreach (var child in Children)
             {
                 clone.AddChild(child.Clone());
             }
-            foreach (var field in this.Fields)
+            foreach (var field in Fields)
             {
                 clone.Fields.Add(field.Key, new List<string>(field.Value));
             }

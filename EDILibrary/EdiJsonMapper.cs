@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Text.RegularExpressions;
@@ -40,7 +39,7 @@ namespace EDILibrary
             var edi_string = EDIHelper.NormalizeEDIHeader(edi);
             string treeString = await _loader.LoadEDITemplate(edi_info, "tree");
             string templateString = await _loader.LoadEDITemplate(edi_info, "template");
-            EDILibrary.GenericEDILoader loader = new GenericEDILoader();
+            GenericEDILoader loader = new GenericEDILoader();
             XElement template = loader.LoadTemplate(templateString);
             TreeElement tree = loader.LoadTree(treeString);
             var edi_tree = loader.LoadEDI(edi_string, tree);
@@ -144,7 +143,7 @@ namespace EDILibrary
             var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, out var subParent);
             IEdiObject result = IEdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
-            return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo() { Format = format, Version = version }, new List<string>(), _loader,false);
+            return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo { Format = format, Version = version }, new List<string>(), _loader,false);
 
         }   
         protected void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool includeEmptyValues)
@@ -152,7 +151,7 @@ namespace EDILibrary
             foreach (var prop in value.Properties())
             {
                 var deps = mappings.Where(map => FindDependentObject(map, prop.Name, out JToken propVal) != null).ToList();
-                if (deps.Count() > 0)
+                if (deps.Any())
                 {
                     foreach(var dep in deps) {
                         var retObj = FindDependentObject(dep, prop.Name, out JToken propVal);
@@ -169,13 +168,13 @@ namespace EDILibrary
                                 foreach (var entry in prop.Value as JArray)
                                 {
                                     dynamic subObj = new ExpandoObject();
-                                    ParseObject(entry as JObject, subObj as IDictionary<string, object>, ((JArray)propVal), includeEmptyValues);
+                                    ParseObject(entry as JObject, subObj as IDictionary<string, object>, (JArray)propVal, includeEmptyValues);
                                     obj.Add(subObj);
                                 }
                             }
                             else
                             {
-                                ParseObject(prop.Value as JObject, obj as IDictionary<string, object>, ((JArray)propVal), includeEmptyValues);
+                                ParseObject(prop.Value as JObject, obj as IDictionary<string, object>, (JArray)propVal, includeEmptyValues);
                             }
 
                             target.Add(((JObject)dep).Property("key").Value.Value<string>(), obj);
@@ -211,7 +210,7 @@ namespace EDILibrary
                             }
                             else
                             {
-                                if (!String.IsNullOrEmpty(prop.Value.Value<string>()))
+                                if (!string.IsNullOrEmpty(prop.Value.Value<string>()))
                                     AddProperty(target, ((JValue)propVal).Value<string>(), prop.Value);
                             }
                         }
@@ -227,16 +226,16 @@ namespace EDILibrary
             }
             else
             {
-                var splits = name.Split(new string[] { "." }, StringSplitOptions.None);
+                var splits = name.Split(new[] { "." }, StringSplitOptions.None);
                 if (target.ContainsKey(splits.First()))
                 {
-                    AddProperty(target[splits.First()] as IDictionary<string, object>, String.Join(".", splits.Skip(1)), value);
+                    AddProperty(target[splits.First()] as IDictionary<string, object>, string.Join(".", splits.Skip(1)), value);
                 }
                 else
                 {
                     var newObj = new ExpandoObject();
                     target.Add(splits.First(), newObj);
-                    AddProperty(target[splits.First()] as IDictionary<string, object>, String.Join(".", splits.Skip(1)), value);
+                    AddProperty(target[splits.First()] as IDictionary<string, object>, string.Join(".", splits.Skip(1)), value);
                 }
             }
         }
@@ -272,26 +271,26 @@ namespace EDILibrary
             foreach (var prop in input.Properties())
             {
                 var deps = mapping.Where(map => FindObjectByKey(map, prop.Name, out JToken propVal, false) != null).ToList();
-                if (deps.Count() > 0)
+                if (deps.Any())
                 {
                     var foundObj = FindObjectByKey(deps.First(), prop.Name, out JToken propVal, false);
                     if (propVal == null) // then create new target element and recurse
                     {
 
-                        var newMappings = (((deps.First() as JObject).Property("requires").Value as JArray).Select(req =>
+                        var newMappings = ((deps.First() as JObject).Property("requires").Value as JArray).Select(req =>
                         {
-                            if ((((req as JObject).Properties().FirstOrDefault() as JProperty)?.Value as JArray) != null)
-                                return (((req as JObject).Properties().FirstOrDefault() as JProperty)?.Value as JArray);
+                            if (((req as JObject).Properties().FirstOrDefault() as JProperty)?.Value as JArray != null)
+                                return ((req as JObject).Properties().FirstOrDefault() as JProperty)?.Value as JArray;
                             else
                                 return null;
-                        })).ToArray();
+                        }).ToArray();
                         JArray newArray = new JArray();
                         foreach (var map in newMappings)
                         {
                             if (map != null)
                                 newArray = new JArray(newArray.Union(map));
                         }
-                        if (newMappings.Count() > 0 && newArray.Count == 0)
+                        if (newMappings.Any() && newArray.Count == 0)
                         {
                             //Spezialfall für "groupBy"-Array-Objekte (z.B. Beginn der Nachricht)
                             newArray.Add(deps.First());
@@ -300,7 +299,7 @@ namespace EDILibrary
                             if (prop.Value.GetType() == typeof(JObject))
                                 continue;
                             var newSub = CreateMsgJSON((prop.Value as JArray)[0] as JObject, newArray, mask, out var subParent);
-                            foreach (KeyValuePair<string, object> subProp in (newSub as IDictionary<string, object>))
+                            foreach (KeyValuePair<string, object> subProp in newSub as IDictionary<string, object>)
                                 (returnObject as IDictionary<string, object>).Add(subProp.Key, subProp.Value);
                             continue;
                         }
@@ -311,7 +310,7 @@ namespace EDILibrary
                             {
                                 string format = subObj.SelectToken("_meta.format").Value<string>();
                                 //format date
-                                (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), new ScriptHelper() { useLocalTime = false }.FormatDate(prop.Value.Value<string>(), format));
+                                (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), new ScriptHelper { useLocalTime = false }.FormatDate(prop.Value.Value<string>(), format));
                             }
                             else
                             {
@@ -333,7 +332,7 @@ namespace EDILibrary
                                     (returnObject as IDictionary<string, object>).Add(newPropName, new List<dynamic>());
                                     foreach (var sub in prop.Value as JArray)
                                     {
-                                        if (sub as JObject != null)
+                                        if (sub is JObject)
                                         {
                                             var newSub = CreateMsgJSON(sub as JObject, newArray, mask, out var subParent);
                                             if (!subParent)
@@ -341,7 +340,7 @@ namespace EDILibrary
                                             else
                                             {
                                                 dynamic newObj = new ExpandoObject();
-                                                foreach (var newProp in (newSub as IDictionary<string, object>).ToList<KeyValuePair<string, object>>())
+                                                foreach (var newProp in (newSub as IDictionary<string, object>).ToList())
                                                 {
                                                     (newObj as IDictionary<string, object>).Add(newProp.Key, newProp.Value);
                                                 }
@@ -358,11 +357,11 @@ namespace EDILibrary
                                     else
                                     {
                                         dynamic newObj = new ExpandoObject();
-                                        foreach (var newProp in (newSub as IDictionary<string, object>).ToList<KeyValuePair<string, object>>())
+                                        foreach (var newProp in (newSub as IDictionary<string, object>).ToList())
                                         {
                                             (newObj as IDictionary<string, object>).Add(newProp.Key, newProp.Value);
                                         }
-                                            ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newObj);
+                                        ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newObj);
                                     }
                                 }
                             }
@@ -382,7 +381,7 @@ namespace EDILibrary
                             foreach (var dep in deps)
                             {
                                 FindObjectByKey(dep, prop.Name, out JToken newVal, false);
-                                var valPath = dep[newVal.Value<String>()].Value<String>();
+                                var valPath = dep[newVal.Value<string>()].Value<string>();
                                 var pathParts = valPath.Split('.');
                                 //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
                                 createInParent = true;
@@ -395,7 +394,7 @@ namespace EDILibrary
                             foreach (var dep in deps)
                             {
                                 FindObjectByKey(dep, prop.Name, out JToken newVal, false);
-                                var valPath = dep[newVal.Value<String>()].Value<String>();
+                                var valPath = dep[newVal.Value<string>()].Value<string>();
                                 var pathParts = valPath.Split('.');
                                 if (pathParts.Length > 1)
                                 {
@@ -422,12 +421,12 @@ namespace EDILibrary
         }
         protected void SetValue(JObject input, string path, string value)
         {
-            var splits = path.Split(new string[] { "[]." }, StringSplitOptions.None);
-            if (input.SelectToken(splits.First()) as JArray != null)
+            var splits = path.Split(new[] { "[]." }, StringSplitOptions.None);
+            if (input.SelectToken(splits.First()) is JArray)
             {
-                foreach (var subObj in input.SelectToken(splits.First()) as JArray)
+                foreach (var subObj in (JArray) input.SelectToken(splits.First()))
                 {
-                    SetValue(subObj as JObject, String.Join("[].", splits.Skip(1)), value);
+                    SetValue(subObj as JObject, string.Join("[].", splits.Skip(1)), value);
                 }
             }
             else if (input.SelectToken(splits.First()) != null)
@@ -436,14 +435,14 @@ namespace EDILibrary
             }
             else
             {
-                if (splits.Count() > 1)
+                if (splits.Length > 1)
                 {
                     //add array
                     var newArray = new JArray
                     {
                         new JObject()
                     };
-                    SetValue(newArray.First as JObject, String.Join("[].", splits.Skip(1)), value);
+                    SetValue(newArray.First as JObject, string.Join("[].", splits.Skip(1)), value);
                     //unescape name
                     var unescapedName = splits.First().Replace("['", "").Replace("']", "");
                     input.Add(unescapedName, newArray);

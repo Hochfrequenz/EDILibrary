@@ -1,21 +1,17 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
 using System;
-using System.Net;
-using System.Windows;
-
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
-using System.Xml.Linq;
 using System.Linq;
 namespace EDILibrary
 {
     public class TreeElement : IDisposable
     {
-        public String Name;
+        public string Name;
         public int Occurence;
-        public List<String> Edi;
-        public Dictionary<String, TreeElement> Children;
+        public List<string> Edi;
+        public Dictionary<string, TreeElement> Children;
         public TreeElement Parent;
         public bool Dirty;
         public bool Key;
@@ -35,33 +31,33 @@ namespace EDILibrary
             child.Parent = this;
             if (child.Name.StartsWith("SG") || child.Name == "UNH")
             {
-                if (this.Children.ContainsKey(child.Name + "_" + child.Occurence.ToString()) == false)
-                    this.Children.Add(child.Name + "_" + child.Occurence.ToString(), child);
+                if (Children.ContainsKey(child.Name + "_" + child.Occurence) == false)
+                    Children.Add(child.Name + "_" + child.Occurence, child);
             }
             else
             {
-                if (this.Children.ContainsKey(child.Name) == false)
-                    this.Children.Add(child.Name, child);
+                if (Children.ContainsKey(child.Name) == false)
+                    Children.Add(child.Name, child);
             }
         }
         public TreeElement AddEdi(string edi, TreeElement currentRoot)
         {
 
             Edi.Add(edi);
-            return this.Parent;
+            return Parent;
 
         }
         public TreeElement(TreeElement old)
         {
-            this.Name = old.Name;
+            Name = old.Name;
 
-            this.Children = new Dictionary<string, TreeElement>();
-            this.Parent = old.Parent;
-            this.Key = old.Key;
-            this.CONTRL_Status = old.CONTRL_Status;
-            this.APERAK_Status = old.APERAK_Status;
-            this.CONTRL_Check_String = old.CONTRL_Check_String;
-            this.APERAK_Check_String = old.APERAK_Check_String;
+            Children = new Dictionary<string, TreeElement>();
+            Parent = old.Parent;
+            Key = old.Key;
+            CONTRL_Status = old.CONTRL_Status;
+            APERAK_Status = old.APERAK_Status;
+            CONTRL_Check_String = old.CONTRL_Check_String;
+            APERAK_Check_String = old.APERAK_Check_String;
             foreach (TreeElement child in old.Children.Values)
             {
                 TreeElement newChild = new TreeElement(child)
@@ -72,25 +68,25 @@ namespace EDILibrary
                 {
                     if (Occurence > 0)
                     {
-                        if (this.Children.ContainsKey(newChild.Name + "_" + Occurence.ToString()) == false)
-                            this.Children.Add(newChild.Name + "_" + Occurence.ToString(), newChild);
+                        if (Children.ContainsKey(newChild.Name + "_" + Occurence) == false)
+                            Children.Add(newChild.Name + "_" + Occurence, newChild);
                     }
                     else
                     {
-                        if (this.Children.ContainsKey(newChild.Name) == false)
-                            this.Children.Add(newChild.Name, newChild);
+                        if (Children.ContainsKey(newChild.Name) == false)
+                            Children.Add(newChild.Name, newChild);
                     }
                 }
                 else
                 {
-                    if (this.Children.ContainsKey(newChild.Name) == false)
-                        this.Children.Add(newChild.Name, newChild);
+                    if (Children.ContainsKey(newChild.Name) == false)
+                        Children.Add(newChild.Name, newChild);
                 }
 
             }
-            this.Occurence = old.Occurence + 1;
+            Occurence = old.Occurence + 1;
             Edi = new List<string>();
-            this.Dirty = old.Dirty;
+            Dirty = old.Dirty;
         }
         public TreeElement(string name, int lineCounter = -1)
         {
@@ -119,7 +115,7 @@ namespace EDILibrary
             Occurence = 0;
             Key = false;
         }
-        public void FindElements(string name, bool recursive, ref List<TreeElement> list, int recursionDepth = Int32.MaxValue)
+        public void FindElements(string name, bool recursive, ref List<TreeElement> list, int recursionDepth = int.MaxValue)
         {
             if (Name == name)
             {
@@ -162,11 +158,8 @@ namespace EDILibrary
             return;
             // }
         }
-        public TreeElement FindElement(string name)
-        {
-            return FindElement(name, true);
-        }
-        public TreeElement FindElement(string name, bool recursive)
+
+        public TreeElement FindElement(string name, bool recursive = true)
         {
             if (Name == name)
                 return this;
@@ -205,12 +198,12 @@ namespace EDILibrary
     }
     public class TreeHelper
     {
-        public static Dictionary<String, TreeElement> treeCopyMap = new Dictionary<String, TreeElement>();
+        public static Dictionary<string, TreeElement> treeCopyMap = new Dictionary<string, TreeElement>();
         public static TreeElement treeRoot;
         public static void RefreshDirtyFlags(TreeElement root)
         {
-            var children = from elem in root.Children.Values where elem.Dirty && elem.Children.Count() == 0 select elem;
-            if (children.Count() == 0)
+            var children = from elem in root.Children.Values where elem.Dirty && !elem.Children.Any() select elem;
+            if (!children.Any())
                 root.Dirty = false;
             foreach (TreeElement child in root.Children.Values)
             {
@@ -358,7 +351,7 @@ namespace EDILibrary
         public static string GetHash(string TextToHash)
         {
             //Prüfen ob Daten übergeben wurden.
-            if ((TextToHash == null) || (TextToHash.Length == 0))
+            if (string.IsNullOrEmpty(TextToHash))
             {
                 return string.Empty;
             }
@@ -370,7 +363,7 @@ namespace EDILibrary
             byte[] textToHash = UE.GetBytes(TextToHash);
             byte[] result = hash.ComputeHash(textToHash);
 
-            return System.BitConverter.ToString(result);
+            return BitConverter.ToString(result);
         }
         public static bool CleanTree(TreeElement ele)
         {

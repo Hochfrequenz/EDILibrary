@@ -1,8 +1,6 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
-using System;
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace EDILibrary
 {
@@ -13,7 +11,7 @@ namespace EDILibrary
     public class Customization
     {
 
-        protected static Customization _instance = null;
+        protected static Customization _instance;
         protected Dictionary<CustomizingOptions, object> _parameters = new Dictionary<CustomizingOptions, object>();
         public object this[CustomizingOptions index]
         {
@@ -28,13 +26,7 @@ namespace EDILibrary
         }
         public static Customization Instance
         {
-            get
-            {
-                if (_instance == null)
-                    _instance = new Customization();
-
-                return _instance;
-            }
+            get { return _instance ?? (_instance = new Customization()); }
         }
     }
 }

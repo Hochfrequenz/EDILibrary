@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Xml.Linq;
 using System.Text.RegularExpressions;
 using System.Globalization;
 
@@ -12,16 +11,16 @@ namespace EDILibrary
     public class ScriptHelper
     {
         public bool useLocalTime = true;
-        public String Escape(string input)
+        public static string Escape(string input)
         {
             return input.Replace("+", "?+").Replace(":", "?:").Replace("'","?'");
         }
-        public String FormatDate(String dateString, String format)
+        public string FormatDate(string dateString, string format)
         {
             DateTime date;
             bool foundDate = false;
             CultureInfo deDE = new CultureInfo("de-DE");
-            foundDate = DateTime.TryParseExact(dateString, new string[] { "yyyyMMdd", "MMdd", "yyyyMMddHHmm", "yyyyMMddHHmmss" }, deDE, DateTimeStyles.None, out date);
+            foundDate = DateTime.TryParseExact(dateString, new[] { "yyyyMMdd", "MMdd", "yyyyMMddHHmm", "yyyyMMddHHmmss" }, deDE, DateTimeStyles.None, out date);
             if (!foundDate && !DateTime.TryParse(dateString, out date))
                 return dateString;
 
@@ -56,7 +55,7 @@ namespace EDILibrary
 
                             var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
                             int offset = utcOffset.ToOffset(TimeZoneInfo.Local.GetUtcOffset(utcOffset)).Offset.Hours;
-                            return date.ToLocalTime().ToString("yyyyMMddHHmm") + "+0" + offset.ToString(); ;
+                            return date.ToLocalTime().ToString("yyyyMMddHHmm") + "+0" + offset; ;
 
                         }
                         else
@@ -71,7 +70,7 @@ namespace EDILibrary
                         {
                             var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
                             int offset = utcOffset.ToOffset(TimeZoneInfo.Local.GetUtcOffset(utcOffset)).Offset.Hours;
-                            return "+0" + offset.ToString()+"00";
+                            return "+0" + offset+"00";
                         }
                         else
                         {
@@ -103,7 +102,7 @@ namespace EDILibrary
     public class GenericEDIWriter
     {
         public static ScriptHelper helper = new ScriptHelper();
-        Regex numericRegex = new Regex("^[0-9]+$");
+        Regex numericRegex = new Regex("^[0-9]+$", RegexOptions.Compiled);
         public GenericEDIWriter()
         {
             escapeMap.Add(":", "?:");
@@ -125,7 +124,7 @@ namespace EDILibrary
             }
             return value;
         }
-        String RecurseTemplate(string template, IEdiObject parent)
+        string RecurseTemplate(string template, IEdiObject parent)
         {
             int currentIndex = 0;
             int beginIndex = 0;
@@ -133,24 +132,24 @@ namespace EDILibrary
             StringBuilder resultBuilder = new StringBuilder();
             do
             {
-                beginIndex = template.IndexOf("<", currentIndex);
+                beginIndex = template.IndexOf("<", currentIndex);// :warn: is culture specific
                 if (beginIndex == -1)
                     continue;
-                endIndex = template.IndexOf(">", beginIndex);
-                string codeTemplate = template.Substring(beginIndex, (endIndex - beginIndex) + 1);
+                endIndex = template.IndexOf(">", beginIndex); // :warn: is culture specific
+                string codeTemplate = template.Substring(beginIndex, endIndex - beginIndex + 1);
                 string code = codeTemplate.Substring(1, codeTemplate.Length - 2);
                 resultBuilder.Clear();
                 if (codeTemplate.StartsWith("<foreach"))
                 {
-                    string[] nodeparts = code.Split(new char[] { ' ' });
-                    string node = String.Join(" ", nodeparts.Skip(1));
+                    string[] nodeparts = code.Split(new[] { ' ' });
+                    string node = string.Join(" ", nodeparts.Skip(1));
                     string innercode;
-                    beginIndex = template.IndexOf("</foreach " + node + ">", endIndex);
-                    innercode = template.Substring(endIndex + 1, (beginIndex - endIndex) - 1);
+                    beginIndex = template.IndexOf("</foreach " + node + ">", endIndex);// :warn: is culture specific
+                    innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
                     var nodes = from ele in parent.SelfOrChildren
                                 where ele.Name == node
                                 select ele;
-                    if (nodes.Count() == 0) // wenn keine Treffer könnte es sich noch um eine field-Liste handeln
+                    if (!nodes.Any()) // wenn keine Treffer könnte es sich noch um eine field-Liste handeln
                     {
                         var string_nodes = from ele in parent.Fields
                                            where ele.Key == node
@@ -160,7 +159,7 @@ namespace EDILibrary
                             foreach (string val in value_node)
                             {
                                 IEdiObject tempObject = new IEdiObject(node, null, val);
-                                tempObject.Fields.Add(node, new List<string>() { val });
+                                tempObject.Fields.Add(node, new List<string> { val });
                                 resultBuilder.Append(RecurseTemplate(innercode, tempObject));
 
                             }
@@ -171,30 +170,30 @@ namespace EDILibrary
                     int max = nodes.Count();
                     foreach (var subnode in nodes)
                     {
-                        resultBuilder.Append(RecurseTemplate(innercode, subnode) + ((i != max) ? "\r\n" : ""));
+                        resultBuilder.Append(RecurseTemplate(innercode, subnode) + (i != max ? "\r\n" : ""));
                     }
                     beginIndex = template.IndexOf("<foreach", 0);
                     string end = "</foreach " + node + ">";
                     endIndex = template.IndexOf(end, beginIndex);
 
-                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + end.Length).Replace(template.Substring(beginIndex, (endIndex - beginIndex) + end.Length), resultBuilder.ToString()) + template.Substring(endIndex + end.Length);
-                    template = template.TrimEnd(new char[] { '\r', '\n', '\t' });
+                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + end.Length).Replace(template.Substring(beginIndex, endIndex - beginIndex + end.Length), resultBuilder.ToString()) + template.Substring(endIndex + end.Length);
+                    template = template.TrimEnd('\r', '\n', '\t');
                     beginIndex = 0;
                 }
                 else if (codeTemplate.StartsWith("<if"))
                 {
-                    string[] nodeparts = code.Split(new char[] { ' ' });
-                    string node = String.Join(" ", nodeparts.Skip(1));
+                    string[] nodeparts = code.Split(new[] { ' ' });
+                    string node = string.Join(" ", nodeparts.Skip(1));
                     string innercode;
                     beginIndex = template.IndexOf("</if>", endIndex);
-                    innercode = template.Substring(endIndex + 1, (beginIndex - endIndex) - 1);
+                    innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
 
                     string value = null;
 
-                    var selection = (from ele in parent.Fields
-                                     where ele.Key == node
-                                     select ele.Value[0]);
-                    if (selection.Count() > 0)
+                    var selection = from ele in parent.Fields
+                        where ele.Key == node
+                        select ele.Value[0];
+                    if (selection.Any())
                         value = selection.Single();
                     else
                         value = "";
@@ -208,22 +207,23 @@ namespace EDILibrary
                     }
                     beginIndex = template.IndexOf("<if", 0);
                     endIndex = template.IndexOf("</if>", beginIndex);
-                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 5).Replace(template.Substring(beginIndex, (endIndex - beginIndex) + 5), resultBuilder.ToString()) + template.Substring(endIndex + 5);
+                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 5).Replace(template.Substring(beginIndex, endIndex - beginIndex + 5), resultBuilder.ToString()) + template.Substring(endIndex + 5);
                     beginIndex = 0;
 
                 }
                 else if (codeTemplate.StartsWith("<date"))
                 {
-                    string[] nodeparts = code.Split(new char[] { ' ' });
-                    string node = String.Join(" ", nodeparts.Skip(1));
-                    var innerNodeParts = node.Split(new char[] { ';' });
+                    string[] nodeparts = code.Split(new[] { ' ' });
+                    string node = string.Join(" ", nodeparts.Skip(1));
+                    var innerNodeParts = node.Split(new[] { ';' });
                     string value = null;
 
-                    var selection = (from ele in parent.Fields
-                                     where ele.Key == innerNodeParts[0]
-                                     select ele.Value[0]);
-                    if (selection.Count() > 0)
-                        value = selection.Single();
+                    var selection = from ele in parent.Fields
+                        where ele.Key == innerNodeParts[0]
+                        select ele.Value[0];
+                    var enumerable = selection as string[] ?? selection.ToArray();
+                    if (enumerable.Any())
+                        value = enumerable.Single();
                     else
                         value = "";
 
@@ -234,11 +234,11 @@ namespace EDILibrary
                     
                     if (!numericRegex.IsMatch(innerNodeParts[1]))
                     {
-                        selection = (from ele in parent.Fields
-                                     where ele.Key == innerNodeParts[1]
-                                     select ele.Value[0]);
+                        selection = from ele in parent.Fields
+                            where ele.Key == innerNodeParts[1]
+                            select ele.Value[0];
 
-                        if (selection.Count() > 0)
+                        if (selection.Any())
                             format = selection.Single();
                         else
                             format = "";
@@ -248,21 +248,21 @@ namespace EDILibrary
                     }
                     if (value != null && value.Length > 0)
                     {
-                        resultBuilder.Append(helper.Escape(helper.FormatDate(value, format)));
+                        resultBuilder.Append(ScriptHelper.Escape(helper.FormatDate(value, format)));
                     }
                     beginIndex = template.IndexOf("<date", 0);
                     endIndex = template.IndexOf(">", beginIndex);
-                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, (endIndex - beginIndex) + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
+                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, endIndex - beginIndex + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
                     beginIndex = 0;
 
                 }
-                else if (codeTemplate.StartsWith("<!") || (codeTemplate.StartsWith("<$")))
+                else if (codeTemplate.StartsWith("<!") || codeTemplate.StartsWith("<$"))
                 {
                     //determine segment counter
                     // do it the "dirty" way, count the segment ends from last unh
                     if (codeTemplate.Contains("SegmentCounter"))
                     {
-                        int segCount = template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+")).Count(c => c == "'".ToCharArray()[0]);
+                        int segCount = template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+")).Count(c => c == "'".ToCharArray()[0]); // warn: culture specific
                         //escapte ' muss ich abziehen
                         Regex r = new Regex("\\?'");
                         int deduct=r.Matches(template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+"))).Count;
@@ -272,14 +272,14 @@ namespace EDILibrary
                     }
                     else if (codeTemplate.Contains("MessageNumber"))
                     {
-                        int messageCount = template.Split(new string[]{"UNH+"},StringSplitOptions.RemoveEmptyEntries).Length - 1;
+                        int messageCount = template.Split(new[]{"UNH+"},StringSplitOptions.RemoveEmptyEntries).Length - 1;
                         resultBuilder.Append(messageCount);
                     }
-                    code = code.TrimStart(new char[] { '!', '$' });
+                    code = code.TrimStart('!', '$');
                     // evaluate code
                     try
                     {
-                        String[] lines = code.Split(new char[] { ';' });
+                        string[] lines = code.Split(new[] { ';' });
                         /*int counter = 0;
                         
                         foreach (string line in lines)
@@ -309,15 +309,15 @@ namespace EDILibrary
                     }
                     catch (Exception)
                     {
-                   //     MessageBox.Show(e.ToString());
+                        //     MessageBox.Show(e.ToString());
                     }
                     template = template.Replace(codeTemplate, resultBuilder.ToString());
                 }
                 else if (codeTemplate.StartsWith("<§"))
                 {
-                    String[] items = code.Split(new char[] { ' ' });
+                    string[] items = code.Split(new[] { ' ' });
                     string variableName = items.Skip(1).Take(1).First();
-                    string item = String.Join(" ", items.Skip(2));
+                    string item = string.Join(" ", items.Skip(2));
                     string value = null;
                     try
                     {
@@ -368,12 +368,13 @@ namespace EDILibrary
 
 
                         
-                            var selection = (from ele in parent.Fields
-                                     where ele.Key == code
-                                     select ele.Value[0]);
-                            if (selection.Count() > 0)
+                            var selection = from ele in parent.Fields
+                                where ele.Key == code
+                                select ele.Value[0];
+                            var enumerable = selection as string[] ?? selection.ToArray();
+                            if (enumerable.Any())
                             {
-                                value = selection.Single();
+                                value = enumerable.Single();
                             }
                             else
                                 value = "";
@@ -389,7 +390,7 @@ namespace EDILibrary
                         if (value == null)
                             value = "";
                         string temp_value =value;
-                        int laenge = Int32.Parse(length);
+                        int laenge = int.Parse(length);
                         if (max_count != null) // gleiche Längen
                         {
                             while (temp_value.Length > laenge)
@@ -401,7 +402,7 @@ namespace EDILibrary
                             }
                             parts.Add(temp_value);
                             // Auffüllen auf Maximalanzahl, da sonst Konstellationen wie Nachname::Vorname nicht möglich sind
-                            while (parts.Count < Int32.Parse(max_count))
+                            while (parts.Count < int.Parse(max_count))
                             {
                                 parts.Add("");
                             }
@@ -411,7 +412,7 @@ namespace EDILibrary
                             int count = fieldLengths.Length;
                             while (fieldLengths.Length > 0)
                             {
-                                laenge = Int32.Parse(fieldLengths.First());
+                                laenge = int.Parse(fieldLengths.First());
                                 fieldLengths = fieldLengths.Skip(1).ToArray();
                                 if(temp_value.Length> laenge)
                                 {
@@ -432,14 +433,14 @@ namespace EDILibrary
                         }
                         // Bei leerem Vornamen muss trotzdem ein Doppelpunkt drin sein.
                         //if((from string s in parts where s!="" select s).Count()>0)
-                            value = string.Join(":", parts.Take(Int32.Parse(max_count)));
+                            value = string.Join(":", parts.Take(int.Parse(max_count)));
                        
                     }
                     
                     resultBuilder.Append(value);
                     
                     //template = template.Replace(codeTemplate, evalResult);
-                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, (endIndex - beginIndex) + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
+                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, endIndex - beginIndex + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
                 }
 
                 currentIndex = 0;
@@ -452,7 +453,7 @@ namespace EDILibrary
         {
             
         }
-        public String CompileTemplate(String template, IEdiObject sourceRoot)
+        public string CompileTemplate(string template, IEdiObject sourceRoot)
         {
             
             string result = RecurseTemplate(template, sourceRoot);
@@ -483,16 +484,16 @@ namespace EDILibrary
             {
                 content = content.Replace(":'", "'");
             }
-            while ((content.Contains("\n\n")) || (content.Contains("\r\r")) || (content.Contains("\n\r")) || (content.Contains("\r\n\r\n")) || (content.Contains("\r\n")) || content.Contains("\r\n\r\n") || (content.Contains("\r\n")) )
-             {
-				while(content.Contains("\r\n\r\n"))		 
+            while (content.Contains("\n\n") || content.Contains("\r\r") || content.Contains("\n\r") || content.Contains("\r\n\r\n") || content.Contains("\r\n") || content.Contains("\r\n\r\n") || content.Contains("\r\n") )
+            {
+                while(content.Contains("\r\n\r\n"))		 
                 {
-					content = content.Replace("\r\n\r\n","\r\n");
-				}
-				while (content.Contains("\r\n"))
-				{
-					content = content.Replace("\r\n", "");
-				}
+                    content = content.Replace("\r\n\r\n","\r\n");
+                }
+                while (content.Contains("\r\n"))
+                {
+                    content = content.Replace("\r\n", "");
+                }
                 while (content.Contains("\n\n"))
                 {
                     content = content.Replace("\n\n", "\n");
@@ -513,7 +514,7 @@ namespace EDILibrary
                 {
                     content = content.Replace("\r\n", "");
                 }
-             }
+            }
             while (content.Contains("\n"))
             {
                 content = content.Replace("\n", "");

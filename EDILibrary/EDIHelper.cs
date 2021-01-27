@@ -27,7 +27,7 @@ namespace EDILibrary
         public string Nachrichtenversion;
         public override string ToString()
         {
-            return String.Join("_", new List<string>() { Format, Referenz, Sender != null ? Sender.ToString() : "", Empfänger != null ? Empfänger.ToString() : "", DateTime.UtcNow.ToString("yyyyMMdd"), ID });
+            return string.Join("_", new List<string> { Format, Referenz, Sender != null ? Sender.ToString() : "", Empfänger != null ? Empfänger.ToString() : "", DateTime.UtcNow.ToString("yyyyMMdd"), ID });
         }
 
 
@@ -133,20 +133,20 @@ namespace EDILibrary
                 }
 
                 string message = edi.Substring(UNAoffset + segDelimiterLength, edi.Length - (UNAoffset + segDelimiterLength));
-                String[] Segments = message.LowMemSplit(segmentDelimiter).Take(2).ToArray();
+                string[] Segments = message.LowMemSplit(segmentDelimiter).Take(2).ToArray();
                 string UNB = Segments[0];
                 string UNH = Segments[1];
                 string[] UNBParts = UNB.Split(groupDelimiter.ToCharArray());
                 string[] UNHParts = UNH.Split(groupDelimiter.ToCharArray());
 
-                EDIPartner sender = new EDIPartner() { CodeList = UNBParts[2].Split(elementDelimiter.ToCharArray()).Count() > 1 ? UNBParts[2].Split(elementDelimiter.ToCharArray())[1] : "500", ID = UNBParts[2].Split(elementDelimiter.ToCharArray())[0] };
-                EDIPartner empfänger = new EDIPartner() { CodeList = UNBParts[3].Split(elementDelimiter.ToCharArray()).Count() > 1 ? UNBParts[3].Split(elementDelimiter.ToCharArray())[1] : "500", ID = UNBParts[3].Split(elementDelimiter.ToCharArray())[0] };
-                EDIFileInfo file = new EDIFileInfo()
+                EDIPartner sender = new EDIPartner { CodeList = UNBParts[2].Split(elementDelimiter.ToCharArray()).Length > 1 ? UNBParts[2].Split(elementDelimiter.ToCharArray())[1] : "500", ID = UNBParts[2].Split(elementDelimiter.ToCharArray())[0] };
+                EDIPartner empfänger = new EDIPartner { CodeList = UNBParts[3].Split(elementDelimiter.ToCharArray()).Length > 1 ? UNBParts[3].Split(elementDelimiter.ToCharArray())[1] : "500", ID = UNBParts[3].Split(elementDelimiter.ToCharArray())[0] };
+                EDIFileInfo file = new EDIFileInfo
                 {
                     Empfänger = empfänger,
                     Sender = sender
                 };
-                if (UNBParts.Count() >= 7)
+                if (UNBParts.Length >= 7)
                     file.Referenz = UNBParts[7].Split(elementDelimiter.ToCharArray())[0];
                 file.ID = UNBParts[5].Split(elementDelimiter.ToCharArray())[0];
                 file.Format = UNHParts[2].Split(elementDelimiter.ToCharArray())[0];
@@ -159,7 +159,7 @@ namespace EDILibrary
             }
             catch (Exception)
             {
-                return new EDIFileInfo() { Format = "ERROR", Referenz = Guid.NewGuid().ToString() };
+                return new EDIFileInfo { Format = "ERROR", Referenz = Guid.NewGuid().ToString() };
             }
         }
 

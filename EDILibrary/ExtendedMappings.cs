@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
 
 namespace EDILibrary
@@ -16,7 +15,7 @@ namespace EDILibrary
     public class ExtendedMappings
     {
         
-        public readonly String _zuLang = null;
+        public readonly string _zuLang;
         protected List<XElement> _mappingRoot = new List<XElement>();
 
         public ExtendedMappings()
@@ -25,16 +24,16 @@ namespace EDILibrary
         }
         public List<string> GetListOfMappings()
         {
-            return _mappingRoot.Select(mr => mr.Attribute("Name").Value).ToList<string>();
+            return _mappingRoot.Select(mr => mr.Attribute("Name").Value).ToList();
         }
         public List<MappingEntry> GetListOfMappingTypes()
         {
-            return _mappingRoot.Select(mr => new MappingEntry()
+            return _mappingRoot.Select(mr => new MappingEntry
             {
                 Name = mr.Attribute("Name").Value,
                 Type = mr.Attribute("type") != null ? mr.Attribute("type").Value : "python",
-                Format = mr.Attribute("format")?.Value,
-            }).ToList<MappingEntry>();
+                Format = mr.Attribute("format")?.Value
+            }).ToList();
         }
         public void LoadMappings(string mappingXML, int iClient)
         {
@@ -42,14 +41,14 @@ namespace EDILibrary
         }
         public void LoadMappings(string mappingXML)
         {
-            if (String.IsNullOrEmpty(mappingXML))
+            if (string.IsNullOrEmpty(mappingXML))
                 return;
             _mappingRoot = XElement.Parse(mappingXML).Descendants("Mapping").ToList();
 
         }
         public string GetMapping(string mappingName)
         {
-            XElement mapping = _mappingRoot.Where(mr => mr.Attribute("Name").Value == mappingName).FirstOrDefault();
+            XElement mapping = _mappingRoot.FirstOrDefault(mr => mr.Attribute("Name").Value == mappingName);
             if (mapping != null)
             {
                 return mapping.Value;
@@ -59,7 +58,7 @@ namespace EDILibrary
         }
         public void OverrideMapping(string mappingName, string newMapping)
         {
-            XElement mapping = _mappingRoot.Where(mr => mr.Attribute("Name").Value == mappingName).FirstOrDefault();
+            XElement mapping = _mappingRoot.FirstOrDefault(mr => mr.Attribute("Name").Value == mappingName);
             if (mapping != null)
             {
                 mapping.Value = newMapping;
@@ -68,16 +67,16 @@ namespace EDILibrary
 
         public void ExecuteMapping(string mappingName, IEdiObject obj, string sparte, string format)
         {
-            XElement mapping = _mappingRoot.Where(mr => mr.Attribute("Name").Value == mappingName && (mr.Attribute("format") == null || (mr.Attribute("format").Value == format))).FirstOrDefault();
+            XElement mapping = _mappingRoot.FirstOrDefault(mr => mr.Attribute("Name").Value == mappingName && (mr.Attribute("format") == null || mr.Attribute("format").Value == format));
             if (mapping != null)
             {
-                if ((mapping.Attribute("type") == null || mapping.Attribute("type").Value == "python"))
+                if (mapping.Attribute("type") == null || mapping.Attribute("type")?.Value == "python")
                 {
                     throw new NotImplementedException("Der .net Core-Port unterstützt kein IronPython");
                 }
             }
         }
-        protected List<string> _ediLines = null;
+        protected List<string> _ediLines;
         protected string GetValue(string pos, string edi)
         {
             //if (_valueCache.ContainsKey(edi))
@@ -88,21 +87,21 @@ namespace EDILibrary
             //    }
             //}
             edi = edi.Replace("??", "<<").Replace("?+", "?<").Replace("?:", "?>");
-            if (pos == null || pos == "")
+            if (string.IsNullOrEmpty(pos))
                 return null;
-            string[] Groups = edi.Split(new char[] { '+' });
-            string[] SubPos = pos.Split(new char[] { ':' });
+            string[] Groups = edi.Split('+');
+            string[] SubPos = pos.Split(':');
             if (!edi.StartsWith(SubPos[0]))
                 return null;
-            int GroupPos = Int32.Parse(SubPos[1]);
+            int GroupPos = int.Parse(SubPos[1]);
             if (Groups.Length <= GroupPos)
                 return null;
-            string[] SubGroups = Groups[GroupPos].Split(new char[] { ':' });
+            string[] SubGroups = Groups[GroupPos].Split(':');
             if (SubPos[2].Contains("("))
             {
-                string[] range = SubPos[2].Split(new char[] { ',' });
-                int start = Int32.Parse(range[0].Substring(1));
-                int end = Int32.Parse(range[1].Substring(0, range[1].Length - 1));
+                string[] range = SubPos[2].Split(',');
+                int start = int.Parse(range[0].Substring(1));
+                int end = int.Parse(range[1].Substring(0, range[1].Length - 1));
                 List<string> parts = new List<string>();
                 for (int i = start; i <= end; i++)
                 {
@@ -111,7 +110,7 @@ namespace EDILibrary
                     parts.Add(SubGroups[i].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?"));
                 }
                 //Abweichend zur Behandlung im EDIReader bleiben hier die :-Trennzeichen erhalten um eine korrekte Ersetzung sicherzustellen
-                string endValue = String.Join(":", parts).Trim();
+                string endValue = string.Join(":", parts).Trim();
                 //if (!_valueCache.ContainsKey(edi))
                 //{
                 //    _valueCache.Add(edi, new Dictionary<string, string>());
@@ -121,10 +120,10 @@ namespace EDILibrary
             }
             else
             {
-                int DetailPos = Int32.Parse(SubPos[2]);
+                int DetailPos = int.Parse(SubPos[2]);
                 if (SubGroups.Length <= DetailPos)
                     return null;
-                String result = SubGroups[DetailPos].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?");
+                string result = SubGroups[DetailPos].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?");
                 //if (!_valueCache.ContainsKey(edi))
                 //{
                 //    _valueCache.Add(edi, new Dictionary<string, string>());
@@ -136,9 +135,9 @@ namespace EDILibrary
         public void PrepareEDIMapping(string edi)
         {
             _ediLines = new List<string>();
-            _ediLines = edi.Split(new string[] { "'" }, StringSplitOptions.None).ToList<string>();
+            _ediLines = edi.Split(new[] { "'" }, StringSplitOptions.None).ToList();
         }
-        public String Escape(string input)
+        public string Escape(string input)
         {
             return input.Replace("+", "?+").Replace(":", "?:").Replace("'", "?'");
         }
@@ -151,10 +150,10 @@ namespace EDILibrary
             {
                 if (mapping.Attribute("type") != null && mapping.Attribute("type").Value == "edi")
                 {
-                    var parts = mapping.Value.Replace("\n", "").Split(new string[] { "==" }, StringSplitOptions.RemoveEmptyEntries);
+                    var parts = mapping.Value.Replace("\n", "").Split(new[] { "==" }, StringSplitOptions.RemoveEmptyEntries);
                     var selector = parts[0].Trim();
                     var newValue = "";
-                    if (parts.Count() > 1)
+                    if (parts.Length > 1)
                         newValue = parts[1].Trim();
                     if (newValue == "<zuLang>")
                     {
@@ -170,7 +169,7 @@ namespace EDILibrary
                         sepIndex = selection.Length;
                     string segment = selection.Substring(0, sepIndex);
                     if (klammerIndex != selector.Length)
-                        path = selector.Substring(klammerIndex + 1, (selector.Length - 1) - klammerIndex - 1);
+                        path = selector.Substring(klammerIndex + 1, selector.Length - 1 - klammerIndex - 1);
                     // string[] paths = path.Split(new char[] { '^', '|' }, StringSplitOptions.RemoveEmptyEntries);
                     string path_selector = null;
                     string path_value = null;
@@ -188,7 +187,7 @@ namespace EDILibrary
                         path_selector = path.Substring(0, opIndex);
 
                         if (path.Length != sepIndex)
-                            path_value = path.Substring(opIndex + (sep_op.Length), path.Length - opIndex - (sep_op.Length));
+                            path_value = path.Substring(opIndex + sep_op.Length, path.Length - opIndex - sep_op.Length);
                         else
                         {
                             path_value = "";
@@ -203,7 +202,7 @@ namespace EDILibrary
                         if (path != null)
                         {
                             var selection_path = path_selector;
-                            if (path_selector.Split(new char[] { ':' }).Count() <= 2)
+                            if (path_selector.Split(':').Length <= 2)
                             {
                                 selection_path = segment + ":" + path_selector;
                             }
@@ -230,7 +229,7 @@ namespace EDILibrary
         }
         public string GetFinalEDIMapping()
         {
-            return String.Join("'", _ediLines);
+            return string.Join("'", _ediLines);
         }
     }
 }
