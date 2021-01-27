@@ -1,16 +1,13 @@
-﻿using Microsoft.WindowsAzure.Storage.Table;
+﻿
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EDIFileLoader
 {
-    public class FormatPackage : TableEntity
+    public class FormatPackage
     {
         public FormatPackage(string format, string version)
         {
-            this.PartitionKey = format;
-            this.RowKey = version;
+
         }
 
         public FormatPackage() { }
