@@ -18,8 +18,6 @@
     
 
     
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <PackageProjectUrl>https://github.com/Hochfrequenz/EDILibrary</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Hochfrequenz/EDILibrary</RepositoryUrl>
 
   </PropertyGroup>
