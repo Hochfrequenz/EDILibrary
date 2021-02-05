@@ -38,7 +38,7 @@ namespace EDIFileLoader
 
             string text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
             string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
-            if (text.StartsWith(_byteOrderMarkUtf8))
+            if (text.StartsWith(_byteOrderMarkUtf8) && text[0] == _byteOrderMarkUtf8[0])
             {
                 text = text.Remove(0, _byteOrderMarkUtf8.Length);
             }
