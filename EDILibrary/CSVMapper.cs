@@ -140,7 +140,7 @@ namespace EDILibrary
         public List<string> CreateJSONFromCSV(string csv)
         {
             //first split header line from content lines
-            var lines = csv.LowMemSplit("\r\n"); // todo: make this more lenient to also accept  LF line endings.
+            var lines = csv.LowMemSplit(Environment.NewLine);
             var segments = lines[0].Split(new[] { ";" }, StringSplitOptions.None);
             List<string> returnList = new List<string>();
             foreach (var line in lines.Skip(1))
