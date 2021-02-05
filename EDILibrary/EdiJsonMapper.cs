@@ -1,15 +1,17 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
 using EDILibrary.Exceptions;
 using EDILibrary.Helper;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using System.Text.RegularExpressions;
 
 namespace EDILibrary
 {
@@ -33,7 +35,7 @@ namespace EDILibrary
         {
             return (await ParseToJsonWithVersion(edi, packageVersion, includeEmptyValues)).EDI;
         }
-            public async Task<JsonResult> ParseToJsonWithVersion(string edi, string packageVersion, string includeEmptyValues = null)
+        public async Task<JsonResult> ParseToJsonWithVersion(string edi, string packageVersion, string includeEmptyValues = null)
         {
             var edi_info = EDIHelper.GetEDIFileInfo(edi);
             var edi_string = EDIHelper.NormalizeEDIHeader(edi);
@@ -54,7 +56,7 @@ namespace EDILibrary
             else
             {
                 //The template loader can try to read the package from the format and version (and the right table)
-                package = edi_info.Format + "|" + edi_info.Version;          
+                package = edi_info.Format + "|" + edi_info.Version;
             }
             //mapping laden
             JArray mappings = null;
@@ -96,6 +98,7 @@ namespace EDILibrary
                 case "35": format = "REQOTE"; break;
                 case "15": format = "QUOTES"; break;
                 case "23": format = "INSRPT"; break;
+                case "25": format = "UTILTS"; break;
                 case "99": format = "APERAK"; break;
             }
             string package = null;
@@ -125,7 +128,7 @@ namespace EDILibrary
             //       throw new BadPIDException(pid);
             //    }
             string version = mappings[0]["_meta"]["version"].Value<string>();
-            
+
             JArray maskArray = new JArray();
             foreach (var step in json.Property("steps").Value)
             {
@@ -143,9 +146,9 @@ namespace EDILibrary
             var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, out var subParent);
             IEdiObject result = IEdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
-            return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo { Format = format, Version = version }, new List<string>(), _loader,false);
+            return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo { Format = format, Version = version }, new List<string>(), _loader, false);
 
-        }   
+        }
         protected void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool includeEmptyValues)
         {
             foreach (var prop in value.Properties())
@@ -153,7 +156,8 @@ namespace EDILibrary
                 var deps = mappings.Where(map => FindDependentObject(map, prop.Name, out JToken propVal) != null).ToList();
                 if (deps.Any())
                 {
-                    foreach(var dep in deps) {
+                    foreach (var dep in deps)
+                    {
                         var retObj = FindDependentObject(dep, prop.Name, out JToken propVal);
                         var superValue = ((JProperty)retObj.First).Value.Value<string>();
                         var superKey = ((JProperty)retObj.First).Name;
@@ -263,7 +267,7 @@ namespace EDILibrary
         }
         protected dynamic CreateMsgJSON(JObject input, JArray mapping, JArray mask, out bool createInParent)
         {
-            
+
             createInParent = false;
             if (input == null)
                 return null;
@@ -424,7 +428,7 @@ namespace EDILibrary
             var splits = path.Split(new[] { "[]." }, StringSplitOptions.None);
             if (input.SelectToken(splits.First()) is JArray)
             {
-                foreach (var subObj in (JArray) input.SelectToken(splits.First()))
+                foreach (var subObj in (JArray)input.SelectToken(splits.First()))
                 {
                     SetValue(subObj as JObject, string.Join("[].", splits.Skip(1)), value);
                 }
