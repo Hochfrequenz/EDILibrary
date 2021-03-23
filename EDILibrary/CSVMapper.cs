@@ -109,7 +109,7 @@ namespace EDILibrary
                     ParseProperty(prop, "", builder, valueBuilder);
                 }
             }
-            return builder.ToString().TrimEnd(';') + "\r\n" + valueBuilder.ToString().TrimEnd(';');
+            return builder.ToString().TrimEnd(';') + Environment.NewLine + valueBuilder.ToString().TrimEnd(';');
         }
         protected void BuildObjectFromSegment(string segment, string value, JObject localRoot)
         {
