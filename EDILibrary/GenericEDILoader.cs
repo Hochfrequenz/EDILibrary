@@ -378,9 +378,9 @@ namespace EDILibrary
         {
             TreeElement treeRoot;
             string seperator = "\n";
-            if (tree.IndexOf("\r\n") > -1)
+            if (tree.IndexOf(Environment.NewLine) > -1)
             {
-                seperator = "\r\n";
+                seperator = Environment.NewLine;
             }
             string[] lines = tree.Split(new[] { seperator }, StringSplitOptions.RemoveEmptyEntries);
             treeRoot = new TreeElement("/[M;M]");
@@ -426,8 +426,8 @@ namespace EDILibrary
                 groupDelimiter = UNA.Substring(4, 1);
                 segmentDelimiter = UNA.Substring(8, 1);
                 segDelimiterLength = segmentDelimiter.Length;
-                if (segmentDelimiter == "\r" && edi.IndexOf("\r\n") > -1)
-                    segmentDelimiter = "\r\n";
+                if (segmentDelimiter == "\r" && edi.IndexOf(Environment.NewLine) > -1)
+                    segmentDelimiter = Environment.NewLine;
             }
 
             string message = edi.Substring(UNAoffset + segDelimiterLength, edi.Length - (UNAoffset + segDelimiterLength));

@@ -170,7 +170,7 @@ namespace EDILibrary
                     int max = nodes.Count();
                     foreach (var subnode in nodes)
                     {
-                        resultBuilder.Append(RecurseTemplate(innercode, subnode) + (i != max ? "\r\n" : ""));
+                        resultBuilder.Append(RecurseTemplate(innercode, subnode) + (i != max ? Environment.NewLine : ""));
                     }
                     beginIndex = template.IndexOf("<foreach", 0);
                     string end = "</foreach " + node + ">";
@@ -484,15 +484,15 @@ namespace EDILibrary
             {
                 content = content.Replace(":'", "'");
             }
-            while (content.Contains("\n\n") || content.Contains("\r\r") || content.Contains("\n\r") || content.Contains("\r\n\r\n") || content.Contains("\r\n") || content.Contains("\r\n\r\n") || content.Contains("\r\n") )
+            while (content.Contains("\n\n") || content.Contains("\r\r") || content.Contains("\n\r") || content.Contains("\r\n\r\n") || content.Contains(Environment.NewLine) || content.Contains("\r\n\r\n") || content.Contains(Environment.NewLine) )
             {
                 while(content.Contains("\r\n\r\n"))		 
                 {
-                    content = content.Replace("\r\n\r\n","\r\n");
+                    content = content.Replace("\r\n\r\n",Environment.NewLine);
                 }
-                while (content.Contains("\r\n"))
+                while (content.Contains(Environment.NewLine))
                 {
-                    content = content.Replace("\r\n", "");
+                    content = content.Replace(Environment.NewLine, "");
                 }
                 while (content.Contains("\n\n"))
                 {
@@ -504,15 +504,15 @@ namespace EDILibrary
                 }
                 while (content.Contains("\n\r"))
                 {
-                    content = content.Replace("\n\r", "\r\n");
+                    content = content.Replace("\n\r", Environment.NewLine);
                 }
                 while (content.Contains("\r\n\r\n"))
                 {
-                    content = content.Replace("\r\n\r\n", "\r\n");
+                    content = content.Replace("\r\n\r\n", Environment.NewLine);
                 }
-                while (content.Contains("\r\n"))
+                while (content.Contains(Environment.NewLine))
                 {
-                    content = content.Replace("\r\n", "");
+                    content = content.Replace(Environment.NewLine, "");
                 }
             }
             while (content.Contains("\n"))
