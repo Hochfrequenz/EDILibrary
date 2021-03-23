@@ -81,7 +81,7 @@ namespace EDILibrary
                 escapeChar = UNA.Substring(6, 1);
                 segmentDelimiter = UNA.Substring(8, 1);
                 if (segmentDelimiter == "\r")
-                    segmentDelimiter = "\r\n";
+                    segmentDelimiter = Environment.NewLine;
             }
             string message = edi.Substring(UNAoffset + segmentDelimiter.Length, edi.Length - (UNAoffset + segmentDelimiter.Length));
             if (escapeChar != "?")
@@ -128,8 +128,8 @@ namespace EDILibrary
                     groupDelimiter = UNA.Substring(4, 1);
                     segmentDelimiter = UNA.Substring(8, 1);
                     segDelimiterLength = segmentDelimiter.Length;
-                    if (segmentDelimiter == "\r" && edi.IndexOf("\r\n") > -1)
-                        segmentDelimiter = "\r\n";
+                    if (segmentDelimiter == "\r" && edi.IndexOf(Environment.NewLine) > -1)
+                        segmentDelimiter = Environment.NewLine;
                 }
 
                 string message = edi.Substring(UNAoffset + segDelimiterLength, edi.Length - (UNAoffset + segDelimiterLength));
