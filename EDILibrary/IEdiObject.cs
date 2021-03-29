@@ -91,9 +91,9 @@ namespace EDILibrary
                         foreach (var childprop in (child.Value as JObject).Properties())
                         {
                             //only allow one nest level, so only strings allowed here
-                            if (childprop.Value != null && (childprop.Type == JTokenType.String || childprop.Type == JTokenType.Integer))
+                            if (childprop.Value != null && (childprop.Value.Type == JTokenType.String || childprop.Value.Type == JTokenType.Integer))
                             {
-                                Fields.Add(child.Name + "." + childprop.Name, new List<string> { child.Value.ToString() });
+                                Fields.Add(child.Name + "." + childprop.Name, new List<string> { childprop.Value.Value<string>() });
                             }
                         }
                     }
