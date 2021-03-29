@@ -1,12 +1,13 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Linq;
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 namespace EDILibrary
 {
     [DataContract]
@@ -84,6 +85,18 @@ namespace EDILibrary
                 }
                 else
                 {
+                    if (child.Value != null && child.Type == JTokenType.Object)
+                    {
+                        //go through the child properties and dot "." them together
+                        foreach (var childprop in (child as JObject).Properties())
+                        {
+                            //only allow one nest level, so only strings allowed here
+                            if (childprop.Value != null && (childprop.Type == JTokenType.String || childprop.Type == JTokenType.Integer))
+                            {
+                                Fields.Add(child.Name + "." + childprop.Name, new List<string> { child.Value.ToString() });
+                            }
+                        }
+                    }
                     if (!(child.Value == null || child.Type == JTokenType.Null))
                         Fields.Add(child.Name, new List<string> { child.Value.ToString() });
                 }
