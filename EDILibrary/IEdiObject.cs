@@ -85,7 +85,7 @@ namespace EDILibrary
                 }
                 else
                 {
-                    if (child.Value != null && child.Type == JTokenType.Object)
+                    if (child.Value != null && child.value is JObject)
                     {
                         //go through the child properties and dot "." them together
                         foreach (var childprop in (child as JObject).Properties())
@@ -97,7 +97,7 @@ namespace EDILibrary
                             }
                         }
                     }
-                    if (!(child.Value == null || child.Type == JTokenType.Null))
+                    else if (!(child.Value == null || child.Type == JTokenType.Null))
                         Fields.Add(child.Name, new List<string> { child.Value.ToString() });
                 }
             }
