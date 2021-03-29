@@ -85,10 +85,10 @@ namespace EDILibrary
                 }
                 else
                 {
-                    if (child.Value != null && child.value is JObject)
+                    if (child.Value != null && child.Value is JObject)
                     {
                         //go through the child properties and dot "." them together
-                        foreach (var childprop in (child as JObject).Properties())
+                        foreach (var childprop in (child.Value as JObject).Properties())
                         {
                             //only allow one nest level, so only strings allowed here
                             if (childprop.Value != null && (childprop.Type == JTokenType.String || childprop.Type == JTokenType.Integer))
