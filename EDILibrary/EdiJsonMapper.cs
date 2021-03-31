@@ -80,7 +80,7 @@ namespace EDILibrary
             result.Receiver = edi_info.Empfänger.ID;
             return result;
         }
-        public async Task<string> CreateFromJson(string jsonInput, string pid, string formatPackage = null)
+        public async Task<string> CreateFromJson(string jsonInput, string pid, string formatPackage = null, bool convertFromUTC = false)
         {
             string format = "ERROR";
             //format is derived from the pid
@@ -143,7 +143,7 @@ namespace EDILibrary
                 }
                 //maskArray.Merge(((step as JObject)?.Property("fields").Value as JObject).Properties(), new JsonMergeSettings() { MergeArrayHandling = MergeArrayHandling.Union });
             }
-            var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, out var subParent);
+            var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, out var subParent, convertFromUTC);
             IEdiObject result = IEdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
             return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo { Format = format, Version = version }, new List<string>(), _loader, false);
@@ -265,7 +265,7 @@ namespace EDILibrary
             }
             return false;
         }
-        protected dynamic CreateMsgJSON(JObject input, JArray mapping, JArray mask, out bool createInParent)
+        protected dynamic CreateMsgJSON(JObject input, JArray mapping, JArray mask, out bool createInParent, bool convertFromUTC = false)
         {
 
             createInParent = false;
@@ -302,7 +302,7 @@ namespace EDILibrary
                             // war früher ein JObject, daher hier die Ausnahme abfangen
                             if (prop.Value.GetType() == typeof(JObject))
                                 continue;
-                            var newSub = CreateMsgJSON((prop.Value as JArray)[0] as JObject, newArray, mask, out var subParent);
+                            var newSub = CreateMsgJSON((prop.Value as JArray)[0] as JObject, newArray, mask, out var subParent, convertFromUTC);
                             foreach (KeyValuePair<string, object> subProp in newSub as IDictionary<string, object>)
                                 (returnObject as IDictionary<string, object>).Add(subProp.Key, subProp.Value);
                             continue;
@@ -314,7 +314,7 @@ namespace EDILibrary
                             {
                                 string format = subObj.SelectToken("_meta.format").Value<string>();
                                 //format date
-                                (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), new ScriptHelper { useLocalTime = false }.FormatDate(prop.Value.Value<string>(), format));
+                                (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), new ScriptHelper { useLocalTime = convertFromUTC }.FormatDate(prop.Value.Value<string>(), format));
                             }
                             else
                             {
@@ -338,7 +338,7 @@ namespace EDILibrary
                                     {
                                         if (sub is JObject)
                                         {
-                                            var newSub = CreateMsgJSON(sub as JObject, newArray, mask, out var subParent);
+                                            var newSub = CreateMsgJSON(sub as JObject, newArray, mask, out var subParent, convertFromUTC);
                                             if (!subParent)
                                                 ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newSub);
                                             else
@@ -355,7 +355,7 @@ namespace EDILibrary
                                 }
                                 else
                                 {
-                                    var newSub = CreateMsgJSON(prop.Value as JObject, newArray, mask, out var subParent);
+                                    var newSub = CreateMsgJSON(prop.Value as JObject, newArray, mask, out var subParent, convertFromUTC);
                                     if (!subParent)
                                         (returnObject as IDictionary<string, object>).Add(newPropName, newSub);
                                     else
