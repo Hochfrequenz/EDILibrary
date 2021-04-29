@@ -36,7 +36,7 @@ namespace EDIFileLoader
         }
         public async Task PreloadCache()
         {
-            await foreach (var prefixPage in _container.GetBlobsByHierarchyAsync(Azure.Storage.Blobs.Models.BlobTraits.Metadata, Azure.Storage.Blobs.Models.BlobStates.None).AsPages())
+            await foreach (var prefixPage in _container.GetBlobsByHierarchyAsync(Azure.Storage.Blobs.Models.BlobTraits.Metadata, Azure.Storage.Blobs.Models.BlobStates.None, "/").AsPages())
             {
                 foreach (var prefix in prefixPage.Values)
                 {
