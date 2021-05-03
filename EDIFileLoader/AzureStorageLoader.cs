@@ -24,7 +24,7 @@ namespace EDIFileLoader
         protected BlobServiceClient _blobClient;
         protected BlobContainerClient _container;
 
-        protected ConcurrentDictionary<string, Dictionary<string, string>> Cache { get; set; } = new Dictionary<string, Dictionary<string, string>>();
+        protected ConcurrentDictionary<string, Dictionary<string, string>> Cache { get; set; } = new ConcurrentDictionary<string, Dictionary<string, string>>();
         public AzureStorageLoader(string accountName, string accountKey, string containerName, string connectionString)
         {
             _accountKey = accountKey;
