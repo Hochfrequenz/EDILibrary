@@ -5,6 +5,7 @@ using Azure.Storage.Blobs;
 using EDILibrary;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -23,7 +24,7 @@ namespace EDIFileLoader
         protected BlobServiceClient _blobClient;
         protected BlobContainerClient _container;
 
-        protected Dictionary<string, Dictionary<string, string>> Cache { get; set; } = new Dictionary<string, Dictionary<string, string>>();
+        protected ConcurrentDictionary<string, Dictionary<string, string>> Cache { get; set; } = new Dictionary<string, Dictionary<string, string>>();
         public AzureStorageLoader(string accountName, string accountKey, string containerName, string connectionString)
         {
             _accountKey = accountKey;
@@ -36,33 +37,39 @@ namespace EDIFileLoader
         }
         public async Task PreloadCache()
         {
+            ConcurrentBag<Task> tasks = new ConcurrentBag<Task>();
             await foreach (var prefixPage in _container.GetBlobsByHierarchyAsync(Azure.Storage.Blobs.Models.BlobTraits.Metadata, Azure.Storage.Blobs.Models.BlobStates.None, "/").AsPages())
             {
+
                 foreach (var prefix in prefixPage.Values)
                 {
-                    if (prefix.IsPrefix)
+                    tasks.Add(Task.Run(async () =>
                     {
-                        Cache.Add(prefix.Prefix.TrimEnd('/'), new Dictionary<string, string>());
-                        await foreach (var blobPage in _container.GetBlobsByHierarchyAsync(Azure.Storage.Blobs.Models.BlobTraits.Metadata, Azure.Storage.Blobs.Models.BlobStates.None, null, prefix.Prefix).AsPages())
+                        if (prefix.IsPrefix)
                         {
-                            foreach (var blob in blobPage.Values)
+                            Cache.TryAdd(prefix.Prefix.TrimEnd('/'), new Dictionary<string, string>());
+                            await foreach (var blobPage in _container.GetBlobsByHierarchyAsync(Azure.Storage.Blobs.Models.BlobTraits.Metadata, Azure.Storage.Blobs.Models.BlobStates.None, null, prefix.Prefix).AsPages())
                             {
-                                if (blob.IsBlob)
+                                foreach (var blob in blobPage.Values)
                                 {
-                                    var blockBlob = _container.GetBlobClient(blob.Blob.Name);
-                                    string text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
-                                    string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
-                                    if (text.StartsWith(_byteOrderMarkUtf8) && text[0] == _byteOrderMarkUtf8[0])
+                                    if (blob.IsBlob)
                                     {
-                                        text = text.Remove(0, _byteOrderMarkUtf8.Length);
+                                        var blockBlob = _container.GetBlobClient(blob.Blob.Name);
+                                        string text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
+                                        string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
+                                        if (text.StartsWith(_byteOrderMarkUtf8) && text[0] == _byteOrderMarkUtf8[0])
+                                        {
+                                            text = text.Remove(0, _byteOrderMarkUtf8.Length);
+                                        }
+                                        Cache[prefix.Prefix.TrimEnd('/')].TryAdd(blob.Blob.Name, text);
                                     }
-                                    Cache[prefix.Prefix.TrimEnd('/')].TryAdd(blob.Blob.Name, text);
                                 }
                             }
                         }
-                    }
+                    }));
                 }
             }
+            await Task.WhenAll(tasks);
         }
         public async Task<string> LoadEDITemplate(EDIFileInfo info, string type)
         {
@@ -70,7 +77,7 @@ namespace EDIFileLoader
             {
                 try
                 {
-                    return Cache["edi"][Path.Combine("edi", info.Format, info.Format + info.Version + "." + type)];
+                    return Cache["edi"][Path.Combine("edi", info.Format, info.Format + info.Version + "." + type).Replace("\\", "/")];
                 }
                 catch (Exception)
                 {
