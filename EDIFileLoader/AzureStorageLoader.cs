@@ -43,7 +43,7 @@ namespace EDIFileLoader
                     if (prefix.IsPrefix)
                     {
                         Cache.Add(prefix.Prefix, new Dictionary<string, string>());
-                        await foreach (var blobPage in _container.GetBlobsByHierarchyAsync(Azure.Storage.Blobs.Models.BlobTraits.Metadata, Azure.Storage.Blobs.Models.BlobStates.None, prefix.Prefix).AsPages())
+                        await foreach (var blobPage in _container.GetBlobsByHierarchyAsync(Azure.Storage.Blobs.Models.BlobTraits.Metadata, Azure.Storage.Blobs.Models.BlobStates.None, null, prefix.Prefix).AsPages())
                         {
                             foreach (var blob in blobPage.Values)
                             {
