@@ -56,7 +56,7 @@ namespace EDIFileLoader
                                     {
                                         text = text.Remove(0, _byteOrderMarkUtf8.Length);
                                     }
-                                    Cache[prefix.Prefix].TryAdd(blob.Blob.Name, text);
+                                    Cache[prefix.Prefix.TrimEnd('/')].TryAdd(blob.Blob.Name, text);
                                 }
                             }
                         }
@@ -74,7 +74,7 @@ namespace EDIFileLoader
                 }
                 catch (Exception)
                 {
-                    return null;
+
                 }
             }
             var blockBlob = _container.GetBlobClient(Path.Combine("edi", info.Format, info.Format + info.Version + "." + type));
@@ -101,7 +101,7 @@ namespace EDIFileLoader
                 }
                 catch (Exception)
                 {
-                    return null;
+
                 }
             }
             var blockBlob = _container.GetBlobClient(System.IO.Path.Combine(formatPackage.Replace("/", ""), fileName).Replace("\\", "/"));
