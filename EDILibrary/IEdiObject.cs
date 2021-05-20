@@ -163,6 +163,10 @@ namespace EDILibrary
                 elem.Add(ch);
             }
         }
+        protected string escapeSpecialChars(string value)
+        {
+            return value.Replace("\"", "\\\"");
+        }
         protected StringBuilder _builder;
         protected void RecurseJSON(IEdiObject cur)
         {
@@ -184,7 +188,7 @@ namespace EDILibrary
                     foreach (var elem in cur.Fields)
                     {
                         i--;
-                        _builder.AppendLine("\"" + elem.Key + "\" : \"" + elem.Value.ElementAt(index) + "\"" + (i != 0 || hasClass ? "," : ""));
+                        _builder.AppendLine("\"" + elem.Key + "\" : \"" + escapeSpecialChars(elem.Value.ElementAt(index)) + "\"" + (i != 0 || hasClass ? "," : ""));
 
                     }
                     i = oldI;
