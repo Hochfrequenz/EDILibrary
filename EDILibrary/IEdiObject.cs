@@ -202,7 +202,7 @@ namespace EDILibrary
                 foreach (var elem in cur.Fields)
                 {
                     i--;
-                    _builder.AppendLine("\"" + elem.Key + "\" : \"" + elem.Value.FirstOrDefault() + "\"" + (i != 0 || hasClass ? "," : ""));
+                    _builder.AppendLine("\"" + elem.Key + "\" : \"" + escapeSpecialChars(elem.Value.FirstOrDefault()) + "\"" + (i != 0 || hasClass ? "," : ""));
 
                 }
             }
