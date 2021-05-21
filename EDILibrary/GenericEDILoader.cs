@@ -1,8 +1,8 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace EDILibrary
@@ -337,7 +337,7 @@ namespace EDILibrary
         }
         public XElement LoadTemplate(string template)
         {
-            
+
             StringReader reader = new StringReader(template);
 
             XElement root = XElement.Load(reader);
@@ -433,14 +433,13 @@ namespace EDILibrary
             string message = edi.Substring(UNAoffset + segDelimiterLength, edi.Length - (UNAoffset + segDelimiterLength));
             message = message.Replace("?'", "?$");
             message = message.Replace("\"", "\\\"");
-            var Segments = message.LowMemSplit(segmentDelimiter);
             if (tree != null)
             {
                 TreeHelper.treeRoot = null;
                 TreeElement currentTreeRoot = tree;
-                foreach (string segment in Segments)
+                foreach (var segment in message.SplitLines(segmentDelimiter.First()))
                 {
-                    string str_segment = segment.TrimStart('\r', '\n', '\t').TrimEnd('\r', '\n', '\t');
+                    string str_segment = segment.Line.ToString().TrimStart('\r', '\n', '\t').TrimEnd('\r', '\n', '\t');
                     TreeElement child = TreeHelper.FindEdiElement(ref currentTreeRoot, str_segment);
                     if (child != null)
                         child.AddEdi(str_segment, child);

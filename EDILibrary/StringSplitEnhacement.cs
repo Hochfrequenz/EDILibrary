@@ -42,7 +42,7 @@ namespace EDILibrary
             return list;
         }
 
-        public static LineSplitEnumerator Split(this string str, char separator)
+        public static LineSplitEnumerator SplitLines(this string str, char separator)
         {
             // LineSplitEnumerator is a struct so there is no allocation here
             return new LineSplitEnumerator(str.AsSpan(), separator);
