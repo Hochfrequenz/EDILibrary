@@ -72,12 +72,14 @@ namespace EDILibrary
 
             var resultDict = resultObject as IDictionary<string, object>;
             ParseObject(jsonResult, resultObject as IDictionary<string, object>, mappings, includeEmptyValues != null);
-            JsonResult result = new JsonResult();
-            result.EDI = JsonConvert.SerializeObject(resultObject);
-            result.Format = edi_info.Format;
-            result.Version = edi_info.Version;
-            result.Sender = edi_info.Sender.ID;
-            result.Receiver = edi_info.Empfänger.ID;
+            JsonResult result = new JsonResult
+            {
+                EDI = JsonConvert.SerializeObject(resultObject),
+                Format = edi_info.Format,
+                Version = edi_info.Version,
+                Sender = edi_info.Sender.ID,
+                Receiver = edi_info.Empfänger.ID
+            };
             return result;
         }
         public async Task<string> CreateFromJson(string jsonInput, string pid, string formatPackage = null, bool convertFromUTC = false)
