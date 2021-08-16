@@ -6,9 +6,16 @@ using System.Text;
 
 namespace EDILibrary
 {
+    /// <summary>
+    /// an EDIFACT specific Market Partner / Marktteilnehmer
+    /// </summary>
     public class EDIPartner
     {
+        /// <summary>
+        /// 13 digit ID
+        /// </summary>
         public string ID;
+
         public string CodeList;
         public string Rolle;
         public override string ToString()
@@ -83,51 +90,61 @@ namespace EDILibrary
             return text;
         }
 
+        private const string defaultElementDelimiter = ":";
+        private const string defaultGroupDelimiter = "+";
+        private const string defaultSegmentDelimiter = "'";
+        private const string defaultDecimalChar = ".";
+        private const string defaultEscapeChar = "?";
 
         public static string NormalizeEDIHeader(string edi)
         {
             if (edi == null)
                 return null;
             edi = RemoveBOM(edi);
-            string elementDelimiter = ":";
-            string groupDelimiter = "+";
-            string segmentDelimiter = "'";
-            string decimalChar = ".";
-            string escapeChar = "?";
-            int UNAoffset = -1;
+            string elementDelimiter, escapeChar, groupDelimiter, segmentDelimiter, decimalChar;
+            int unaOffset;
             if (edi.StartsWith("UNA"))
             {
-                string UNA = edi.Substring(0, 9);
-                UNAoffset = 8;
-                elementDelimiter = UNA.Substring(3, 1);
-                groupDelimiter = UNA.Substring(4, 1);
-                decimalChar = UNA.Substring(5, 1);
-                escapeChar = UNA.Substring(6, 1);
-                segmentDelimiter = UNA.Substring(8, 1);
+                var una = edi.Substring(0, 9);
+                unaOffset = 8;
+                elementDelimiter = una.Substring(3, 1);
+                groupDelimiter = una.Substring(4, 1);
+                decimalChar = una.Substring(5, 1);
+                escapeChar = una.Substring(6, 1);
+                segmentDelimiter = una.Substring(8, 1);
                 if (segmentDelimiter == "\r")
                     segmentDelimiter = Environment.NewLine;
             }
-            string message = edi.Substring(UNAoffset + segmentDelimiter.Length, edi.Length - (UNAoffset + segmentDelimiter.Length));
-            if (escapeChar != "?")
+            else
             {
-                if (elementDelimiter != ":")
+                unaOffset = -1;
+                elementDelimiter = defaultElementDelimiter;
+                groupDelimiter = defaultGroupDelimiter;
+                segmentDelimiter = defaultSegmentDelimiter;
+                decimalChar = defaultDecimalChar;
+                escapeChar = defaultEscapeChar;
+            }
+            var message = edi.Substring(unaOffset + segmentDelimiter.Length, edi.Length - (unaOffset + segmentDelimiter.Length));
+            if (escapeChar != defaultEscapeChar)
+            {
+                if (elementDelimiter != defaultElementDelimiter)
                 {
                     message = message.Replace(escapeChar + ":", "?:");
                 }
-                if (groupDelimiter != "+")
+                if (groupDelimiter != defaultGroupDelimiter)
                 {
                     message = message.Replace(escapeChar + "+", "?+");
                 }
-                if (decimalChar != ".")
+                if (decimalChar != defaultDecimalChar)
                 {
                     message = message.Replace(escapeChar + ".", "?.");
                 }
             }
-            if (decimalChar != ".")
+            if (decimalChar != defaultDecimalChar)
             {
                 message = message.Replace(decimalChar, ".");
             }
-            return "UNA:+.? '" + message;
+            return $"UNA{defaultElementDelimiter}{defaultGroupDelimiter}{defaultDecimalChar}{defaultEscapeChar} {defaultSegmentDelimiter}{message}";
         }
 
         public static EDIFileInfo GetEDIFileInfo(string edi)
