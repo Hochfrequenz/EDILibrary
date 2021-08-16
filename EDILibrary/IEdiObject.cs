@@ -111,7 +111,7 @@ namespace EDILibrary
             root.ParseJSON(doc);
             return root;
         }
-        
+
         public override string ToString()
         {
             return Name + "  " + Key;
