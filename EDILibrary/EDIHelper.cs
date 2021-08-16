@@ -50,16 +50,23 @@ namespace EDILibrary
 
 
         }
+        
+        /// <summary>
+        /// attempts to remove a leading byte order mark
+        /// </summary>
+        /// <remarks>actually removes the first character whenever it is not "U" :D</remarks>
+        /// <param name="edi">an edifact string</param>
+        /// <returns>sanitized string</returns>
         public static string RemoveBOM(string edi)
         {
             if (edi[0] != 'U')
                 return edi.Substring(1);
             else return edi;
         }
+        
+        
         public static string NormalizeEDIHeader(string edi)
         {
-
-
             if (edi == null)
                 return null;
             edi = RemoveBOM(edi);
@@ -71,8 +78,6 @@ namespace EDILibrary
             int UNAoffset = -1;
             if (edi.StartsWith("UNA"))
             {
-
-
                 string UNA = edi.Substring(0, 9);
                 UNAoffset = 8;
                 elementDelimiter = UNA.Substring(3, 1);
@@ -103,9 +108,9 @@ namespace EDILibrary
             {
                 message = message.Replace(decimalChar, ".");
             }
-
             return "UNA:+.? '" + message;
         }
+        
         public static EDIFileInfo GetEDIFileInfo(string edi)
         {
             if (edi == null)
@@ -120,8 +125,6 @@ namespace EDILibrary
                 int segDelimiterLength = 1;
                 if (edi.StartsWith("UNA"))
                 {
-
-
                     string UNA = edi.Substring(0, 9);
                     UNAoffset = 8;
                     elementDelimiter = UNA.Substring(3, 1);
@@ -153,8 +156,6 @@ namespace EDILibrary
                 file.Version = UNHParts[2].Split(elementDelimiter.ToCharArray())[4];
                 file.Freigabenummer = UNHParts[2].Split(elementDelimiter.ToCharArray())[2];
                 file.Nachrichtenversion = UNHParts[2].Split(elementDelimiter.ToCharArray())[1];
-
-
                 return file;
             }
             catch (Exception)
