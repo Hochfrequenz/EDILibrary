@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <Compile Include="..\EDILibrary\CSVMapper.cs" Link="CSVMapper.cs" />
-    <Compile Include="..\EDILibrary\Customization.cs" Link="Customization.cs" />
     <Compile Include="..\EDILibrary\EDIFACTEnums.cs" Link="EDIFACTEnums.cs" />
     <Compile Include="..\EDILibrary\EDIHelper.cs" Link="EDIHelper.cs" />
     <Compile Include="..\EDILibrary\EdiJsonMapper.cs" Link="EdiJsonMapper.cs" />
