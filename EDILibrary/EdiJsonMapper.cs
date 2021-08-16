@@ -37,7 +37,7 @@ namespace EDILibrary
         }
         public async Task<JsonResult> ParseToJsonWithVersion(string edi, string packageVersion, string includeEmptyValues = null)
         {
-            var edi_info = EDIHelper.GetEDIFileInfo(edi.Substring(0, Math.Min(1000, edi.Length)));
+            var edi_info = EDIHelper.GetEdiFileInfo(edi.Substring(0, Math.Min(1000, edi.Length)));
             var edi_string = EDIHelper.NormalizeEDIHeader(edi);
             string treeString = await _loader.LoadEDITemplate(edi_info, "tree");
             string templateString = await _loader.LoadEDITemplate(edi_info, "template");

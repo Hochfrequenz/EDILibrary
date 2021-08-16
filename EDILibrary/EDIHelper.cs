@@ -1,4 +1,5 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace EDILibrary
     /// <summary>
     /// an EDIFACT specific Market Partner / Marktteilnehmer
     /// </summary>
-    public class EDIPartner
+    public class EDIPartner : IEquatable<EDIPartner>
     {
         /// <summary>
         /// 13 digit ID
@@ -18,12 +19,34 @@ namespace EDILibrary
 
         public string CodeList;
         public string Rolle;
+
         public override string ToString()
         {
             return ID;
         }
+
+        public bool Equals(EDIPartner other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return ID == other.ID && CodeList == other.CodeList && Rolle == other.Rolle;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((EDIPartner)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(ID, CodeList, Rolle);
+        }
     }
-    public class EDIFileInfo
+
+    public class EDIFileInfo : IEquatable<EDIFileInfo>
     {
         public string Version;
         public string Format;
@@ -33,19 +56,44 @@ namespace EDILibrary
         public string Referenz;
         public string Freigabenummer;
         public string Nachrichtenversion;
+
         public override string ToString()
         {
-            return string.Join("_", new List<string> { Format, Referenz, Sender != null ? Sender.ToString() : "", Empfänger != null ? Empfänger.ToString() : "", DateTime.UtcNow.ToString("yyyyMMdd"), ID });
+            return string.Join("_",
+                new List<string>
+                {
+                    Format, Referenz, Sender != null ? Sender.ToString() : "", Empfänger != null ? Empfänger.ToString() : "", DateTime.UtcNow.ToString("yyyyMMdd"), ID
+                });
         }
 
+        public bool Equals(EDIFileInfo other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Version == other.Version && Format == other.Format && Equals(Sender, other.Sender) && Equals(Empfänger, other.Empfänger) && ID == other.ID &&
+                   Referenz == other.Referenz && Freigabenummer == other.Freigabenummer && Nachrichtenversion == other.Nachrichtenversion;
+        }
 
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((EDIFileInfo)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Version, Format, Sender, Empfänger, ID, Referenz, Freigabenummer, Nachrichtenversion);
+        }
     }
+
     public partial class EDIHelper
     {
-
         public class FormatNotSupportedException : Exception
         {
             protected EDIFileInfo _info;
+
             public FormatNotSupportedException(EDIFileInfo info)
             {
                 _info = info;
@@ -87,6 +135,7 @@ namespace EDILibrary
             {
                 return text.Remove(0, ByteOrderMarkUtf8.Length);
             }
+
             return text;
         }
 
@@ -96,102 +145,124 @@ namespace EDILibrary
         private const string defaultDecimalChar = ".";
         private const string defaultEscapeChar = "?";
 
+        /// <summary>
+        /// a record to hold information about edifact delimiters and separator chars
+        /// </summary>
+        internal record EdifactSpecialChars
+        {
+            public string ElementDelimiter { get; set; }
+            public string GroupDelimiter { get; set; }
+            public string SegmentDelimiter { get; set; }
+            public string DecimalChar { get; set; }
+            public string EscapeChar { get; set; }
+            public int UnaOffset { get; set; }
+        }
+
+        internal static EdifactSpecialChars GetSpecialChars(string edi)
+        {
+            if (edi.StartsWith("UNA"))
+            {
+                var una = edi.Substring(0, 9);
+                var segmentDelimiter = una.Substring(8, 1);
+                return new EdifactSpecialChars
+                {
+                    UnaOffset = 8,
+                    ElementDelimiter = una.Substring(3, 1),
+                    GroupDelimiter = una.Substring(4, 1),
+                    DecimalChar = una.Substring(5, 1),
+                    EscapeChar = una.Substring(6, 1),
+                    SegmentDelimiter = segmentDelimiter == "\r" ? Environment.NewLine : segmentDelimiter
+                };
+            }
+
+            return new EdifactSpecialChars
+            {
+                ElementDelimiter = defaultElementDelimiter,
+                GroupDelimiter = defaultGroupDelimiter,
+                UnaOffset = -1,
+                SegmentDelimiter = defaultSegmentDelimiter,
+                DecimalChar = defaultDecimalChar,
+                EscapeChar = defaultEscapeChar
+            };
+        }
+
+        private static string GetActualMessage(string edi, EdifactSpecialChars specialChars)
+        {
+            return edi.Substring(specialChars.UnaOffset + specialChars.SegmentDelimiter.Length, edi.Length - (specialChars.UnaOffset + specialChars.SegmentDelimiter.Length));
+        }
+
         public static string NormalizeEDIHeader(string edi)
         {
             if (edi == null)
                 return null;
             edi = RemoveBOM(edi);
-            string elementDelimiter, escapeChar, groupDelimiter, segmentDelimiter, decimalChar;
-            int unaOffset;
-            if (edi.StartsWith("UNA"))
+            var specialChars = GetSpecialChars(edi);
+            var message = GetActualMessage(edi, specialChars);
+            if (specialChars.EscapeChar != defaultEscapeChar)
             {
-                var una = edi.Substring(0, 9);
-                unaOffset = 8;
-                elementDelimiter = una.Substring(3, 1);
-                groupDelimiter = una.Substring(4, 1);
-                decimalChar = una.Substring(5, 1);
-                escapeChar = una.Substring(6, 1);
-                segmentDelimiter = una.Substring(8, 1);
-                if (segmentDelimiter == "\r")
-                    segmentDelimiter = Environment.NewLine;
-            }
-            else
-            {
-                unaOffset = -1;
-                elementDelimiter = defaultElementDelimiter;
-                groupDelimiter = defaultGroupDelimiter;
-                segmentDelimiter = defaultSegmentDelimiter;
-                decimalChar = defaultDecimalChar;
-                escapeChar = defaultEscapeChar;
-            }
-            var message = edi.Substring(unaOffset + segmentDelimiter.Length, edi.Length - (unaOffset + segmentDelimiter.Length));
-            if (escapeChar != defaultEscapeChar)
-            {
-                if (elementDelimiter != defaultElementDelimiter)
+                if (specialChars.ElementDelimiter != defaultElementDelimiter)
                 {
-                    message = message.Replace(escapeChar + ":", "?:");
+                    message = message.Replace(specialChars.EscapeChar + ":", "?:");
                 }
-                if (groupDelimiter != defaultGroupDelimiter)
+
+                if (specialChars.GroupDelimiter != defaultGroupDelimiter)
                 {
-                    message = message.Replace(escapeChar + "+", "?+");
+                    message = message.Replace(specialChars.EscapeChar + "+", "?+");
                 }
-                if (decimalChar != defaultDecimalChar)
+
+                if (specialChars.DecimalChar != defaultDecimalChar)
                 {
-                    message = message.Replace(escapeChar + ".", "?.");
+                    message = message.Replace(specialChars.EscapeChar + ".", "?.");
                 }
             }
-            if (decimalChar != defaultDecimalChar)
+
+            if (specialChars.DecimalChar != defaultDecimalChar)
             {
-                message = message.Replace(decimalChar, ".");
+                message = message.Replace(specialChars.DecimalChar, ".");
             }
+
             return $"UNA{defaultElementDelimiter}{defaultGroupDelimiter}{defaultDecimalChar}{defaultEscapeChar} {defaultSegmentDelimiter}{message}";
         }
 
-        public static EDIFileInfo GetEDIFileInfo(string edi)
+        public static EDIFileInfo GetEdiFileInfo(string edi)
         {
             if (edi == null)
                 return null;
             try
             {
                 edi = RemoveBOM(edi);
-                string elementDelimiter = ":";
-                string groupDelimiter = "+";
-                string segmentDelimiter = "'";
-                int UNAoffset = -1;
-                int segDelimiterLength = 1;
-                if (edi.StartsWith("UNA"))
+                var specialChars = GetSpecialChars(edi);
+                var message = GetActualMessage(edi, specialChars);
+                string[] segments = message.LowMemSplit(specialChars.SegmentDelimiter).Take(2).ToArray();
+                string unb = segments[0];
+                string unh = segments[1];
+                string[] unbParts = unb.Split(specialChars.GroupDelimiter.ToCharArray());
+                string[] unhParts = unh.Split(specialChars.GroupDelimiter.ToCharArray());
+
+                EDIPartner sender = new EDIPartner
                 {
-                    string UNA = edi.Substring(0, 9);
-                    UNAoffset = 8;
-                    elementDelimiter = UNA.Substring(3, 1);
-                    groupDelimiter = UNA.Substring(4, 1);
-                    segmentDelimiter = UNA.Substring(8, 1);
-                    segDelimiterLength = segmentDelimiter.Length;
-                    if (segmentDelimiter == "\r" && edi.IndexOf(Environment.NewLine) > -1)
-                        segmentDelimiter = Environment.NewLine;
-                }
-
-                string message = edi.Substring(UNAoffset + segDelimiterLength, edi.Length - (UNAoffset + segDelimiterLength));
-                string[] Segments = message.LowMemSplit(segmentDelimiter).Take(2).ToArray();
-                string UNB = Segments[0];
-                string UNH = Segments[1];
-                string[] UNBParts = UNB.Split(groupDelimiter.ToCharArray());
-                string[] UNHParts = UNH.Split(groupDelimiter.ToCharArray());
-
-                EDIPartner sender = new EDIPartner { CodeList = UNBParts[2].Split(elementDelimiter.ToCharArray()).Length > 1 ? UNBParts[2].Split(elementDelimiter.ToCharArray())[1] : "500", ID = UNBParts[2].Split(elementDelimiter.ToCharArray())[0] };
-                EDIPartner empfänger = new EDIPartner { CodeList = UNBParts[3].Split(elementDelimiter.ToCharArray()).Length > 1 ? UNBParts[3].Split(elementDelimiter.ToCharArray())[1] : "500", ID = UNBParts[3].Split(elementDelimiter.ToCharArray())[0] };
+                    CodeList =
+                        unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray()).Length > 1 ? unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[1] : "500",
+                    ID = unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]
+                };
+                EDIPartner empfänger = new EDIPartner
+                {
+                    CodeList =
+                        unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray()).Length > 1 ? unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray())[1] : "500",
+                    ID = unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray())[0]
+                };
                 EDIFileInfo file = new EDIFileInfo
                 {
                     Empfänger = empfänger,
                     Sender = sender
                 };
-                if (UNBParts.Length >= 7)
-                    file.Referenz = UNBParts[7].Split(elementDelimiter.ToCharArray())[0];
-                file.ID = UNBParts[5].Split(elementDelimiter.ToCharArray())[0];
-                file.Format = UNHParts[2].Split(elementDelimiter.ToCharArray())[0];
-                file.Version = UNHParts[2].Split(elementDelimiter.ToCharArray())[4];
-                file.Freigabenummer = UNHParts[2].Split(elementDelimiter.ToCharArray())[2];
-                file.Nachrichtenversion = UNHParts[2].Split(elementDelimiter.ToCharArray())[1];
+                if (unbParts.Length >= 7)
+                    file.Referenz = unbParts[7].Split(specialChars.ElementDelimiter.ToCharArray())[0];
+                file.ID = unbParts[5].Split(specialChars.ElementDelimiter.ToCharArray())[0];
+                file.Format = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0];
+                file.Version = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[4];
+                file.Freigabenummer = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[2];
+                file.Nachrichtenversion = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[1];
                 return file;
             }
             catch (Exception)
@@ -199,6 +270,5 @@ namespace EDILibrary
                 return new EDIFileInfo { Format = "ERROR", Referenz = Guid.NewGuid().ToString() };
             }
         }
-
     }
 }
