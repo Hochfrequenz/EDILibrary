@@ -84,26 +84,26 @@ namespace EDILibrary
         }
         public async Task<string> CreateFromJson(string jsonInput, string pid, string formatPackage = null, bool convertFromUTC = false)
         {
-            string format = "ERROR";
             //format is derived from the pid
-            switch (pid.Substring(0, 2))
+            string format = pid.Substring(0, 2) switch
             {
-                case "11": format = "UTILMD"; break;
-                case "13": format = "MSCONS"; break;
-                case "17": format = "ORDERS"; break;
-                case "19": format = "ORDRSP"; break;
-                case "21": format = "IFTSTA"; break;
-                case "70": format = "SSQNOT"; break;
-                case "31": format = "INVOIC"; break;
-                case "33": format = "REMADV"; break;
-                case "27": format = "PRICAT"; break;
-                case "35": format = "REQOTE"; break;
-                case "15": format = "QUOTES"; break;
-                case "23": format = "INSRPT"; break;
-                case "25": format = "UTILTS"; break;
-                case "99": format = "APERAK"; break;
-            }
-            string package = null;
+                "11" => "UTILMD",
+                "13" => "MSCONS",
+                "17" => "ORDERS",
+                "19" => "ORDRSP",
+                "21" => "IFTSTA",
+                "70" => "SSQNOT",
+                "31" => "INVOIC",
+                "33" => "REMADV",
+                "27" => "PRICAT",
+                "35" => "REQOTE",
+                "15" => "QUOTES",
+                "23" => "INSRPT",
+                "25" => "UTILTS",
+                "99" => "APERAK",
+                _ => "ERROR"
+            };
+            string package;
             if (formatPackage != null)
             {
                 package = formatPackage;

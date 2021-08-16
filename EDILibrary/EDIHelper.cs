@@ -90,21 +90,6 @@ namespace EDILibrary
 
     public partial class EDIHelper
     {
-        public class FormatNotSupportedException : Exception
-        {
-            protected EDIFileInfo _info;
-
-            public FormatNotSupportedException(EDIFileInfo info)
-            {
-                _info = info;
-            }
-
-            public override string ToString()
-            {
-                return "Die Dateien zum Format " + _info.Format + " " + _info.Version + " konnten nicht geladen werden.";
-            }
-        }
-
         /// <summary>
         /// attempts to remove a leading byte order mark
         /// </summary>
