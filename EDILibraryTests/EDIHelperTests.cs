@@ -13,13 +13,20 @@ namespace EDILibraryTests
         /// Tests <see cref="EDIHelper.RemoveBOM"/>
         /// </summary>
         [TestMethod]
-        [DataRow("UNHfoo bar asd", "UNHfoo bar asd")]
-        [DataRow("\xFEFFUNH foo bar asd", "UNH foo bar asd")]
-        // [DataRow("asdUNH foo bar asd", "asdUNH foo bar asd")] // todo: the method is crocked
-        public void TestRemoveBOM(string raw, string expectedResult)
+        [DataRow("UNHfoo bar asd", "UNHfoo bar asd", true)]
+        [DataRow("\xFEFFUNH foo bar asd", "UNH foo bar asd", true)]
+        [DataRow("asdUNH foo bar asd", "asdUNH foo bar asd", false)]
+        [DataRow("", "", false)]
+        [DataRow(null, null, false)]
+        public void TestRemoveBOM(string raw, string expectedResult, bool legacySupported)
         {
-            var actual = EDIHelper.RemoveBOM(raw);
+            var actual = EDIHelper.RemoveByteOrderMark(raw);
             Assert.AreEqual(expectedResult, actual);
+            if (legacySupported)
+            {
+                var actualLegacy = EDIHelper.RemoveBOM(raw);
+                Assert.AreEqual(expectedResult, actualLegacy);
+            }
         }
     }
 }

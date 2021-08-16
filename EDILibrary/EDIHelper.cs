@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace EDILibrary
 {
@@ -47,24 +48,42 @@ namespace EDILibrary
             {
                 return "Die Dateien zum Format " + _info.Format + " " + _info.Version + " konnten nicht geladen werden.";
             }
-
-
         }
-        
+
         /// <summary>
         /// attempts to remove a leading byte order mark
         /// </summary>
         /// <remarks>actually removes the first character whenever it is not "U" :D</remarks>
         /// <param name="edi">an edifact string</param>
         /// <returns>sanitized string</returns>
+        /// <see cref="RemoveByteOrderMark"/>
+        [Obsolete("Use 'RemoveByteOrderMark' instead")]
         public static string RemoveBOM(string edi)
         {
+            // for a better implementation use RemoveByteOrderMark
             if (edi[0] != 'U')
                 return edi.Substring(1);
             else return edi;
         }
-        
-        
+
+        private static readonly string ByteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
+
+        /// <summary>
+        /// Removes a byte order mark from <paramref name="text"/>
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns>null if <paramref name="text"/> is null; BOM sanitized string other wise</returns>
+        public static string RemoveByteOrderMark(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return text;
+            if (text.StartsWith(ByteOrderMarkUtf8) && text[0] == ByteOrderMarkUtf8[0])
+            {
+                return text.Remove(0, ByteOrderMarkUtf8.Length);
+            }
+            return text;
+        }
+
+
         public static string NormalizeEDIHeader(string edi)
         {
             if (edi == null)
@@ -110,7 +129,7 @@ namespace EDILibrary
             }
             return "UNA:+.? '" + message;
         }
-        
+
         public static EDIFileInfo GetEDIFileInfo(string edi)
         {
             if (edi == null)
