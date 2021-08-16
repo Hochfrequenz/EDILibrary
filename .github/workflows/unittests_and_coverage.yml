@@ -1,0 +1,30 @@
+name: Unittests and Coverage
+
+on: [push, pull_request]
+
+jobs:
+  unittest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@master
+        with:
+          dotnet-version: 5.0.100
+      - name: Run Tests
+        run: dotnet test --configuration Release
+  coverage:
+    needs: unittest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@master
+        with:
+          dotnet-version: 5.0.100
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Install coverlet.msbuild in EDILibraryTests
+        run: dotnet add package coverlet.msbuild
+      - name: Measure Test Coverage
+        run: dotnet test /p:Threshold=1 /p:Include=\"[*]EDILibrary.*\" /p:ThresholdType=line /p:CollectCoverage=true /p:SkipAutoProps=true /p:CoverletOutputFormat=lcov --configuration Release
