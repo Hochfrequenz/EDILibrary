@@ -116,7 +116,7 @@ namespace EDILibrary
         {
             return Name + "  " + Key;
         }
-        protected void Recurse(XElement elem, IEdiObject child)
+        protected static void Recurse(XElement elem, IEdiObject child)
         {
             foreach (var field in child.Fields)
             {
@@ -134,7 +134,7 @@ namespace EDILibrary
                 elem.Add(ch);
             }
         }
-        protected string escapeSpecialChars(string value)
+        protected static string escapeSpecialChars(string value)
         {
             return value.Replace("\"", "\\\"");
         }
