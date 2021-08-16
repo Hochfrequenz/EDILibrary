@@ -86,7 +86,7 @@ namespace EDILibrary.Generatoren
                         extensionSafe = string.Join(".", escaped);
                     }
                 }
-                else if(extension != null)
+                else if (extension != null)
                 {
                     if (extension.Contains('['))
                     {

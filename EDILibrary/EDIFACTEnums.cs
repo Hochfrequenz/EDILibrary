@@ -15,7 +15,7 @@ namespace EDILibrary
         }
         public string Description { get; set; }
     }
-    public class EDIDescriptionAttribute :Attribute
+    public class EDIDescriptionAttribute : Attribute
     {
         public EDIDescriptionAttribute(string desc)
         {
@@ -34,7 +34,7 @@ namespace EDILibrary
                 FieldInfo[] fields = typeof(EDIEnums).GetRuntimeFields().ToArray();
                 foreach (FieldInfo field in fields)
                 {
-                    object att = field.GetCustomAttributes(typeof(DescriptionAttribute),false).FirstOrDefault();
+                    object att = field.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault();
                     if (att != null)
                     {
                         DescriptionMap[(att as DescriptionAttribute).Description] = field.Name;
@@ -63,7 +63,7 @@ namespace EDILibrary
             {
                 attrs = (IEnumerable<Attribute>)
                 enumValue.GetType().GetRuntimeField(name).GetCustomAttributes(typeof(DescriptionAttribute), false);
-                return attrs.Count() > 0 ? "FEHLER:"+((DescriptionAttribute)attrs.First()).Description : "FEHLER:"+name;
+                return attrs.Count() > 0 ? "FEHLER:" + ((DescriptionAttribute)attrs.First()).Description : "FEHLER:" + name;
             }
         }
         public static string GetEDIDescription(EDIEnums enumValue)
