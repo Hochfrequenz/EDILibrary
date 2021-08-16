@@ -14,7 +14,7 @@ namespace EDILibrary
     }
     public class ExtendedMappings
     {
-        
+
         public readonly string _zuLang;
         protected List<XElement> _mappingRoot = new List<XElement>();
 

@@ -6,14 +6,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
 
-namespace EDILibrary 
+namespace EDILibrary
 {
     public class ScriptHelper
     {
         public bool useLocalTime = true;
         public static string Escape(string input)
         {
-            return input.Replace("+", "?+").Replace(":", "?:").Replace("'","?'");
+            return input.Replace("+", "?+").Replace(":", "?:").Replace("'", "?'");
         }
         public string FormatDate(string dateString, string format)
         {
@@ -70,7 +70,7 @@ namespace EDILibrary
                         {
                             var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
                             int offset = utcOffset.ToOffset(TimeZoneInfo.Local.GetUtcOffset(utcOffset)).Offset.Hours;
-                            return "+0" + offset+"00";
+                            return "+0" + offset + "00";
                         }
                         else
                         {
@@ -117,8 +117,8 @@ namespace EDILibrary
         protected Dictionary<string, string> escapeMap = new Dictionary<string, string>();
         protected string EscapeValue(string value)
         {
-            
-            foreach(KeyValuePair<string,string> pair in escapeMap)
+
+            foreach (KeyValuePair<string, string> pair in escapeMap)
             {
                 value = value.Replace(pair.Key, pair.Value);
             }
@@ -191,8 +191,8 @@ namespace EDILibrary
                     string value = null;
 
                     var selection = from ele in parent.Fields
-                        where ele.Key == node
-                        select ele.Value[0];
+                                    where ele.Key == node
+                                    select ele.Value[0];
                     if (selection.Any())
                         value = selection.Single();
                     else
@@ -219,8 +219,8 @@ namespace EDILibrary
                     string value = null;
 
                     var selection = from ele in parent.Fields
-                        where ele.Key == innerNodeParts[0]
-                        select ele.Value[0];
+                                    where ele.Key == innerNodeParts[0]
+                                    select ele.Value[0];
                     var enumerable = selection as string[] ?? selection.ToArray();
                     if (enumerable.Any())
                         value = enumerable.Single();
@@ -231,12 +231,12 @@ namespace EDILibrary
                         value = value.Trim();
 
                     string format = innerNodeParts[1];
-                    
+
                     if (!numericRegex.IsMatch(innerNodeParts[1]))
                     {
                         selection = from ele in parent.Fields
-                            where ele.Key == innerNodeParts[1]
-                            select ele.Value[0];
+                                    where ele.Key == innerNodeParts[1]
+                                    select ele.Value[0];
 
                         if (selection.Any())
                             format = selection.Single();
@@ -265,14 +265,14 @@ namespace EDILibrary
                         int segCount = template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+")).Count(c => c == "'".ToCharArray()[0]); // warn: culture specific
                         //escapte ' muss ich abziehen
                         Regex r = new Regex("\\?'");
-                        int deduct=r.Matches(template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+"))).Count;
+                        int deduct = r.Matches(template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+"))).Count;
                         segCount -= deduct;
                         resultBuilder.Append(segCount);
-                        
+
                     }
                     else if (codeTemplate.Contains("MessageNumber"))
                     {
-                        int messageCount = template.Split(new[]{"UNH+"},StringSplitOptions.RemoveEmptyEntries).Length - 1;
+                        int messageCount = template.Split(new[] { "UNH+" }, StringSplitOptions.RemoveEmptyEntries).Length - 1;
                         resultBuilder.Append(messageCount);
                     }
                     code = code.TrimStart('!', '$');
@@ -338,7 +338,7 @@ namespace EDILibrary
                     string length = null;
                     string max_count = null;
                     string[] fieldLengths = null;
-                    if(code.Contains("["))
+                    if (code.Contains("["))
                     {
                         string[] code_parts = code.Split("[".ToCharArray());
                         code = code_parts[0];
@@ -353,10 +353,10 @@ namespace EDILibrary
                         else if (code_parts[1].Contains(';'))
                         {
                             fieldLengths = code_parts[1].Split(",".ToCharArray());
-                           
+
                         }
                     }
-                    if (code == parent.Name+":Key")
+                    if (code == parent.Name + ":Key")
                     {
                         if (parent.Field("Key") != null)
                             value = parent.Field("Key");
@@ -367,29 +367,29 @@ namespace EDILibrary
                     {
 
 
-                        
-                            var selection = from ele in parent.Fields
-                                where ele.Key == code
-                                select ele.Value[0];
-                            var enumerable = selection as string[] ?? selection.ToArray();
-                            if (enumerable.Any())
-                            {
-                                value = enumerable.Single();
-                            }
-                            else
-                                value = "";
 
-                            if (value != null)
-                                value = EscapeValue(value.Trim());
-                        
-                        
+                        var selection = from ele in parent.Fields
+                                        where ele.Key == code
+                                        select ele.Value[0];
+                        var enumerable = selection as string[] ?? selection.ToArray();
+                        if (enumerable.Any())
+                        {
+                            value = enumerable.Single();
+                        }
+                        else
+                            value = "";
+
+                        if (value != null)
+                            value = EscapeValue(value.Trim());
+
+
                     }
                     if (length != null)
                     {
                         List<string> parts = new List<string>();
                         if (value == null)
                             value = "";
-                        string temp_value =value;
+                        string temp_value = value;
                         int laenge = int.Parse(length);
                         if (max_count != null) // gleiche Längen
                         {
@@ -414,7 +414,7 @@ namespace EDILibrary
                             {
                                 laenge = int.Parse(fieldLengths.First());
                                 fieldLengths = fieldLengths.Skip(1).ToArray();
-                                if(temp_value.Length> laenge)
+                                if (temp_value.Length > laenge)
                                 {
                                     string temp = temp_value.Substring(0, laenge);
                                     parts.Add(temp);
@@ -424,7 +424,7 @@ namespace EDILibrary
                                 {
                                     parts.Add(temp_value);
                                 }
-                                
+
                             }
                             while (parts.Count < count)
                             {
@@ -433,12 +433,12 @@ namespace EDILibrary
                         }
                         // Bei leerem Vornamen muss trotzdem ein Doppelpunkt drin sein.
                         //if((from string s in parts where s!="" select s).Count()>0)
-                            value = string.Join(":", parts.Take(int.Parse(max_count)));
-                       
+                        value = string.Join(":", parts.Take(int.Parse(max_count)));
+
                     }
-                    
+
                     resultBuilder.Append(value);
-                    
+
                     //template = template.Replace(codeTemplate, evalResult);
                     template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, endIndex - beginIndex + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
                 }
@@ -451,11 +451,11 @@ namespace EDILibrary
         }
         public static void Preinitialize()
         {
-            
+
         }
         public string CompileTemplate(string template, IEdiObject sourceRoot)
         {
-            
+
             string result = RecurseTemplate(template, sourceRoot);
             string UNA = result.Substring(0, 8);
             string content = result.Substring(8);
@@ -463,14 +463,6 @@ namespace EDILibrary
             while (content.Contains(":+"))
             {
                 content = content.Replace(":+", "+");
-            }
-            while (content.Contains(":'"))
-            {
-                content = content.Replace(":'", "'");
-            }
-            while(content.Contains("+'"))
-            {
-               content= content.Replace("+'","'");
             }
             while (content.Contains(":'"))
             {
@@ -484,11 +476,19 @@ namespace EDILibrary
             {
                 content = content.Replace(":'", "'");
             }
-            while (content.Contains("\n\n") || content.Contains("\r\r") || content.Contains("\n\r") || content.Contains("\r\n\r\n") || content.Contains(Environment.NewLine) || content.Contains("\r\n\r\n") || content.Contains(Environment.NewLine) )
+            while (content.Contains("+'"))
             {
-                while(content.Contains("\r\n\r\n"))		 
+                content = content.Replace("+'", "'");
+            }
+            while (content.Contains(":'"))
+            {
+                content = content.Replace(":'", "'");
+            }
+            while (content.Contains("\n\n") || content.Contains("\r\r") || content.Contains("\n\r") || content.Contains("\r\n\r\n") || content.Contains(Environment.NewLine) || content.Contains("\r\n\r\n") || content.Contains(Environment.NewLine))
+            {
+                while (content.Contains("\r\n\r\n"))
                 {
-                    content = content.Replace("\r\n\r\n",Environment.NewLine);
+                    content = content.Replace("\r\n\r\n", Environment.NewLine);
                 }
                 while (content.Contains(Environment.NewLine))
                 {
@@ -520,7 +520,7 @@ namespace EDILibrary
                 content = content.Replace("\n", "");
             }
             content = content.Replace("?<", "?+").Replace("?>", "?:");
-            return UNA+content;
+            return UNA + content;
         }
     }
 }

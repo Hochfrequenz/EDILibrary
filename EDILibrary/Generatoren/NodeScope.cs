@@ -7,7 +7,7 @@ namespace EDILibrary.Generatoren
     public class NodeScope : INodeScope
     {
 
-        public NodeScope(string node,int counter,int maxCounter)
+        public NodeScope(string node, int counter, int maxCounter)
         {
             Node = node;
             Counter = counter;
@@ -52,7 +52,7 @@ namespace EDILibrary.Generatoren
 
         public bool MoveNext()
         {
-            if (Counter < MaxCounter-1)
+            if (Counter < MaxCounter - 1)
             {
                 Counter++;
                 return true;
