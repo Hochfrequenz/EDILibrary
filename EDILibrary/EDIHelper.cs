@@ -118,7 +118,7 @@ namespace EDILibrary
             // for a better implementation use RemoveByteOrderMark
             if (edi[0] != 'U')
                 return edi.Substring(1);
-            else return edi;
+            return edi;
         }
 
         private static readonly string ByteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
@@ -139,16 +139,16 @@ namespace EDILibrary
             return text;
         }
 
-        private const string defaultElementDelimiter = ":";
-        private const string defaultGroupDelimiter = "+";
-        private const string defaultSegmentDelimiter = "'";
-        private const string defaultDecimalChar = ".";
-        private const string defaultEscapeChar = "?";
+        private const string DefaultElementDelimiter = ":";
+        private const string DefaultGroupDelimiter = "+";
+        private const string DefaultSegmentDelimiter = "'";
+        private const string DefaultDecimalChar = ".";
+        private const string DefaultEscapeChar = "?";
 
         /// <summary>
         /// a record to hold information about edifact delimiters and separator chars
         /// </summary>
-        internal record EdifactSpecialChars
+        internal class EdifactSpecialChars // todo use record in .net5
         {
             public string ElementDelimiter { get; set; }
             public string GroupDelimiter { get; set; }
@@ -158,11 +158,11 @@ namespace EDILibrary
             public int UnaOffset { get; set; }
         }
 
-        internal static EdifactSpecialChars GetSpecialChars(string edi)
+        private static EdifactSpecialChars GetSpecialChars(string edi)
         {
             if (edi.StartsWith("UNA"))
             {
-                var una = edi.Substring(0, 9);
+                var una = edi[..9];
                 var segmentDelimiter = una.Substring(8, 1);
                 return new EdifactSpecialChars
                 {
@@ -177,12 +177,12 @@ namespace EDILibrary
 
             return new EdifactSpecialChars
             {
-                ElementDelimiter = defaultElementDelimiter,
-                GroupDelimiter = defaultGroupDelimiter,
                 UnaOffset = -1,
-                SegmentDelimiter = defaultSegmentDelimiter,
-                DecimalChar = defaultDecimalChar,
-                EscapeChar = defaultEscapeChar
+                ElementDelimiter = DefaultElementDelimiter,
+                GroupDelimiter = DefaultGroupDelimiter,
+                SegmentDelimiter = DefaultSegmentDelimiter,
+                DecimalChar = DefaultDecimalChar,
+                EscapeChar = DefaultEscapeChar
             };
         }
 
@@ -191,6 +191,11 @@ namespace EDILibrary
             return edi.Substring(specialChars.UnaOffset + specialChars.SegmentDelimiter.Length, edi.Length - (specialChars.UnaOffset + specialChars.SegmentDelimiter.Length));
         }
 
+        /// <summary>
+        /// bring the <paramref name="edi"/> to a normalized format using the default delimiters
+        /// </summary>
+        /// <param name="edi"></param>
+        /// <returns></returns>
         public static string NormalizeEDIHeader(string edi)
         {
             if (edi == null)
@@ -198,30 +203,30 @@ namespace EDILibrary
             edi = RemoveBOM(edi);
             var specialChars = GetSpecialChars(edi);
             var message = GetActualMessage(edi, specialChars);
-            if (specialChars.EscapeChar != defaultEscapeChar)
+            if (specialChars.EscapeChar != DefaultEscapeChar)
             {
-                if (specialChars.ElementDelimiter != defaultElementDelimiter)
+                if (specialChars.ElementDelimiter != DefaultElementDelimiter)
                 {
                     message = message.Replace(specialChars.EscapeChar + ":", "?:");
                 }
 
-                if (specialChars.GroupDelimiter != defaultGroupDelimiter)
+                if (specialChars.GroupDelimiter != DefaultGroupDelimiter)
                 {
                     message = message.Replace(specialChars.EscapeChar + "+", "?+");
                 }
 
-                if (specialChars.DecimalChar != defaultDecimalChar)
+                if (specialChars.DecimalChar != DefaultDecimalChar)
                 {
                     message = message.Replace(specialChars.EscapeChar + ".", "?.");
                 }
             }
 
-            if (specialChars.DecimalChar != defaultDecimalChar)
+            if (specialChars.DecimalChar != DefaultDecimalChar)
             {
                 message = message.Replace(specialChars.DecimalChar, ".");
             }
 
-            return $"UNA{defaultElementDelimiter}{defaultGroupDelimiter}{defaultDecimalChar}{defaultEscapeChar} {defaultSegmentDelimiter}{message}";
+            return $"UNA{DefaultElementDelimiter}{DefaultGroupDelimiter}{DefaultDecimalChar}{DefaultEscapeChar} {DefaultSegmentDelimiter}{message}";
         }
 
         public static EDIFileInfo GetEdiFileInfo(string edi)
