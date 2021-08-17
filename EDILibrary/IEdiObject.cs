@@ -111,36 +111,7 @@ namespace EDILibrary
             root.ParseJSON(doc);
             return root;
         }
-        public bool IsEqual(IEdiObject comp)
-        {
-            if (Name != comp.Name)
-                return false;
-            if (Fields.Count != comp.Fields.Count)
-                return false;
-            if (Children.Count != comp.Children.Count)
-                return false;
-            foreach (var child in Children)
-            {
-                var compChild = comp.Children.FirstOrDefault(ch => ch.Name == child.Name && ch.Key == child.Key);
-                if (compChild == null)
-                    return false;
-                if (!child.IsEqual(compChild))
-                    return false;
-            }
-            foreach (var field in Fields)
-            {
-                var compField = comp.Fields[field.Key];
-                if (compField == null)
-                    return false;
-                else
-                {
-                    if (field.Key != "Dokumentendatum")
-                        if (compField.First() != field.Value.First())
-                            return false;
-                }
-            }
-            return true;
-        }
+
         public override string ToString()
         {
             return Name + "  " + Key;

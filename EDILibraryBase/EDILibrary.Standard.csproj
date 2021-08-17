@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <Compile Include="..\EDILibrary\CSVMapper.cs" Link="CSVMapper.cs" />
-    <Compile Include="..\EDILibrary\Customization.cs" Link="Customization.cs" />
     <Compile Include="..\EDILibrary\EDIFACTEnums.cs" Link="EDIFACTEnums.cs" />
     <Compile Include="..\EDILibrary\EDIHelper.cs" Link="EDIHelper.cs" />
     <Compile Include="..\EDILibrary\EdiJsonMapper.cs" Link="EdiJsonMapper.cs" />
@@ -34,10 +33,6 @@
     <Compile Include="..\EDILibrary\GenericEDIWriter.cs" Link="GenericEDIWriter.cs" />
     <Compile Include="..\EDILibrary\Helper\MappingHelper.cs" Link="Helper\MappingHelper.cs" />
     <Compile Include="..\EDILibrary\IEdiObject.cs" Link="IEdiObject.cs" />
-    <Compile Include="..\EDILibrary\Interfaces\IAPERAKExtensionPoint.cs" Link="Interfaces\IAPERAKExtensionPoint.cs" />
-    <Compile Include="..\EDILibrary\Interfaces\IExtendedCheck.cs" Link="Interfaces\IExtendedCheck.cs" />
-    <Compile Include="..\EDILibrary\Interfaces\IGeneratorResolver.cs" Link="Interfaces\IGeneratorResolver.cs" />
-    <Compile Include="..\EDILibrary\Interfaces\INodeScope.cs" Link="Interfaces\INodeScope.cs" />
     <Compile Include="..\EDILibrary\Interfaces\ITemplateLoader.cs" Link="Interfaces\ITemplateLoader.cs" />
     <Compile Include="..\EDILibrary\PathSelection.cs" Link="PathSelection.cs" />
     <Compile Include="..\EDILibrary\StringSplitEnhacement.cs" Link="StringSplitEnhacement.cs" />

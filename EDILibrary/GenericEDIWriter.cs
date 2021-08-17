@@ -246,7 +246,7 @@ namespace EDILibrary
                         if (format != null)
                             format = EscapeValue(format.Trim());
                     }
-                    if (value != null && value.Length > 0)
+                    if (!string.IsNullOrEmpty(value))
                     {
                         resultBuilder.Append(ScriptHelper.Escape(helper.FormatDate(value, format)));
                     }

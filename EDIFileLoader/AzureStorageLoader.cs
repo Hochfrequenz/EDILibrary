@@ -56,11 +56,7 @@ namespace EDIFileLoader
                                     {
                                         var blockBlob = _container.GetBlobClient(blob.Blob.Name);
                                         string text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
-                                        string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
-                                        if (text.StartsWith(_byteOrderMarkUtf8) && text[0] == _byteOrderMarkUtf8[0])
-                                        {
-                                            text = text.Remove(0, _byteOrderMarkUtf8.Length);
-                                        }
+                                        text = EDIHelper.RemoveByteOrderMark(text);
                                         Cache[prefix.Prefix.TrimEnd('/')].TryAdd(blob.Blob.Name, text);
                                     }
                                 }
@@ -81,17 +77,13 @@ namespace EDIFileLoader
                 }
                 catch (Exception)
                 {
-
+                    // todo: no pokemon-catcher
                 }
             }
             var blockBlob = _container.GetBlobClient(Path.Combine("edi", info.Format, info.Format + info.Version + "." + type));
 
             string text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
-            string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
-            if (text.StartsWith(_byteOrderMarkUtf8) && text[0] == _byteOrderMarkUtf8[0])
-            {
-                text = text.Remove(0, _byteOrderMarkUtf8.Length);
-            }
+            text = EDIHelper.RemoveByteOrderMark(text);
             return text;
         }
         public Task<string> LoadJSONTemplate(string fileName)
@@ -108,20 +100,14 @@ namespace EDIFileLoader
                 }
                 catch (Exception)
                 {
-
+                    // todo: no pokemon-catcher
                 }
             }
             var blockBlob = _container.GetBlobClient(System.IO.Path.Combine(formatPackage.Replace("/", ""), fileName).Replace("\\", "/"));
 
             string text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
-            byte[] preamble = Encoding.UTF8.GetPreamble();
-            string _byteOrderMarkUtf8 = Encoding.UTF8.GetString(preamble);
-            if (text.StartsWith(_byteOrderMarkUtf8) && Encoding.UTF8.GetBytes(text)[0] == preamble[0])
-            {
-                text = text.Remove(0, _byteOrderMarkUtf8.Length);
-            }
+            text = EDIHelper.RemoveByteOrderMark(text);
             return text;
-
         }
     }
 }

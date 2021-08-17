@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EDILibrary.Standard", "EDIL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EDIFileLoader.Core", "EDIFileLoader.Standard\EDIFileLoader.Core.csproj", "{200AF4EC-CCFD-4C60-908E-CD2E618608A9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EDILibraryTests", "EDILibraryTests\EDILibraryTests.csproj", "{9FB46FD5-D2EE-4641-8CF6-2EAD187BF83D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{200AF4EC-CCFD-4C60-908E-CD2E618608A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{200AF4EC-CCFD-4C60-908E-CD2E618608A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{200AF4EC-CCFD-4C60-908E-CD2E618608A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FB46FD5-D2EE-4641-8CF6-2EAD187BF83D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FB46FD5-D2EE-4641-8CF6-2EAD187BF83D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FB46FD5-D2EE-4641-8CF6-2EAD187BF83D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FB46FD5-D2EE-4641-8CF6-2EAD187BF83D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
