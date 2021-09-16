@@ -48,8 +48,14 @@ namespace EDILibrary
 
     public class EDIFileInfo : IEquatable<EDIFileInfo>
     {
+        /// <summary>
+        /// e.g. 5.2h
+        /// </summary>
         public string Version;
-        public string Format;
+        /// <summary>
+        /// EDIFACT format if set. Null in case of error (formerly: "ERROR")
+        /// </summary>
+        public EdifactFormat? Format;
         public EDIPartner Sender;
         public EDIPartner Empfänger;
         public string ID;
@@ -62,7 +68,7 @@ namespace EDILibrary
             return string.Join("_",
                 new List<string>
                 {
-                    Format, Referenz, Sender != null ? Sender.ToString() : "", Empfänger != null ? Empfänger.ToString() : "", DateTime.UtcNow.ToString("yyyyMMdd"), ID
+                    this.Format.ToString(), Referenz, Sender != null ? Sender.ToString() : "", Empfänger != null ? Empfänger.ToString() : "", DateTime.UtcNow.ToString("yyyyMMdd"), ID
                 });
         }
 
@@ -70,7 +76,7 @@ namespace EDILibrary
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Version == other.Version && Format == other.Format && Equals(Sender, other.Sender) && Equals(Empfänger, other.Empfänger) && ID == other.ID &&
+            return Version == other.Version && this.Format == other.Format && Equals(Sender, other.Sender) && Equals(Empfänger, other.Empfänger) && ID == other.ID &&
                    Referenz == other.Referenz && Freigabenummer == other.Freigabenummer && Nachrichtenversion == other.Nachrichtenversion;
         }
 
@@ -244,20 +250,24 @@ namespace EDILibrary
                 EDIFileInfo file = new EDIFileInfo
                 {
                     Empfänger = empfänger,
-                    Sender = sender
+                    Sender = sender,
+                    ID = unbParts[5].Split(specialChars.ElementDelimiter.ToCharArray())[0],
+                    Format = Enum.Parse<EdifactFormat>(unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]),
+                    Version = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[4],
+                    Freigabenummer = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[2],
+                    Nachrichtenversion = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[1]
                 };
                 if (unbParts.Length >= 7)
                     file.Referenz = unbParts[7].Split(specialChars.ElementDelimiter.ToCharArray())[0];
-                file.ID = unbParts[5].Split(specialChars.ElementDelimiter.ToCharArray())[0];
-                file.Format = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0];
-                file.Version = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[4];
-                file.Freigabenummer = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[2];
-                file.Nachrichtenversion = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[1];
                 return file;
             }
             catch (Exception)
             {
-                return new EDIFileInfo { Format = "ERROR", Referenz = Guid.NewGuid().ToString() };
+                return new EDIFileInfo
+                {
+                    Format = null,
+                    Referenz = Guid.NewGuid().ToString()
+                };
             }
         }
     }
