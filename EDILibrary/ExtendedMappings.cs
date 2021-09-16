@@ -65,9 +65,9 @@ namespace EDILibrary
             }
         }
 
-        public void ExecuteMapping(string mappingName, IEdiObject obj, string sparte, string format)
+        public void ExecuteMapping(string mappingName, IEdiObject obj, string sparte, EdifactFormat? format)
         {
-            XElement mapping = _mappingRoot.FirstOrDefault(mr => mr.Attribute("Name").Value == mappingName && (mr.Attribute("format") == null || mr.Attribute("format").Value == format));
+            XElement mapping = _mappingRoot.FirstOrDefault(mr => mr.Attribute("Name").Value == mappingName && (mr.Attribute("format") == null || Enum.Parse<EdifactFormat>(mr.Attribute("format").Value) == format));
             if (mapping != null)
             {
                 if (mapping.Attribute("type") == null || mapping.Attribute("type")?.Value == "python")

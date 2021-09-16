@@ -26,7 +26,10 @@ namespace EDILibrary
         public struct JsonResult
         {
             public string EDI;
-            public string Format;
+            public EdifactFormat? Format;
+            /// <summary>
+            /// e.g. 5.2h
+            /// </summary>
             public string Version;
             public string Sender;
             public string Receiver;
@@ -59,14 +62,14 @@ namespace EDILibrary
                 package = edi_info.Format + "|" + edi_info.Version;
             }
             //mapping laden
-            JArray mappings = null;
+            JArray mappings;
             try
             {
                 mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, edi_info.Format + ".json"));
             }
             catch (Exception e)
             {
-                throw new BadFormatException(edi_info.Format, edi_info.Version);
+                throw new BadFormatException(edi_info.Format, edi_info.Version, e);
             }
             dynamic resultObject = new ExpandoObject();
 
@@ -82,36 +85,17 @@ namespace EDILibrary
             };
             return result;
         }
-        public async Task<string> CreateFromJson(string jsonInput, string pid, string formatPackage = null, bool convertFromUTC = false)
+
+        [Obsolete("Use strongly typed overload instead.")]
+        public async Task<string> CreateFromJson(string jsonInput, string pid, string formatPackage, bool convertFromUTC = false)
         {
-            //format is derived from the pid
-            string format = pid.Substring(0, 2) switch
-            {
-                "11" => "UTILMD",
-                "13" => "MSCONS",
-                "17" => "ORDERS",
-                "19" => "ORDRSP",
-                "21" => "IFTSTA",
-                "70" => "SSQNOT",
-                "31" => "INVOIC",
-                "33" => "REMADV",
-                "27" => "PRICAT",
-                "35" => "REQOTE",
-                "15" => "QUOTES",
-                "23" => "INSRPT",
-                "25" => "UTILTS",
-                "99" => "APERAK",
-                _ => "ERROR"
-            };
-            string package;
-            if (formatPackage != null)
-            {
-                package = formatPackage;
-            }
-            else
-            {
-                throw new Exception("FormatPackage must be specified");
-            }
+            return await CreateFromJson(jsonInput, pid, formatPackage.ToEdifactFormatVersion(), convertFromUTC);
+        }
+
+        public async Task<string> CreateFromJson(string jsonInput, string pid, EdifactFormatVersion formatPackage, bool convertFromUTC = false)
+        {
+            var format = EdifactFormatHelper.FromPruefidentifikator(pid);
+            var package = formatPackage;
             var json = JsonConvert.DeserializeObject<JObject>(await _loader.LoadJSONTemplate(package, $"{pid}.json"));
             var inputJson = JsonConvert.DeserializeObject<JObject>(jsonInput);
             JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, format + ".json"));
@@ -129,7 +113,7 @@ namespace EDILibrary
             //    {
             //       throw new BadPIDException(pid);
             //    }
-            string version = mappings[0]["_meta"]["version"].Value<string>();
+            var version = mappings[0]["_meta"]["version"].Value<string>();
 
             JArray maskArray = new JArray();
             foreach (var step in json.Property("steps").Value)
@@ -148,7 +132,11 @@ namespace EDILibrary
             var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, out var subParent, convertFromUTC);
             IEdiObject result = IEdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
-            return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo { Format = format, Version = version }, new List<string>(), _loader, convertFromUTC);
+            return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo
+            {
+                Format = format,
+                Version = version,
+            }, new List<string>(), _loader, convertFromUTC);
 
         }
         protected void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool includeEmptyValues)

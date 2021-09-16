@@ -73,14 +73,14 @@ namespace EDIFileLoader
             {
                 try
                 {
-                    return Cache["edi"][Path.Combine("edi", info.Format, info.Format + info.Version + "." + type).Replace("\\", "/")];
+                    return Cache["edi"][Path.Combine("edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type).Replace("\\", "/")];
                 }
                 catch (Exception)
                 {
                     // todo: no pokemon-catcher
                 }
             }
-            var blockBlob = _container.GetBlobClient(Path.Combine("edi", info.Format, info.Format + info.Version + "." + type));
+            var blockBlob = _container.GetBlobClient(Path.Combine("edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type));
 
             string text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
             text = EDIHelper.RemoveByteOrderMark(text);
@@ -90,20 +90,27 @@ namespace EDIFileLoader
         {
             throw new NotSupportedException();
         }
+
+        [Obsolete("Use strongly typed version instead.")]
         public async Task<string> LoadJSONTemplate(string formatPackage, string fileName)
+        {
+            return await LoadJSONTemplate(formatPackage.ToEdifactFormatVersion(), fileName);
+        }
+
+        public async Task<string> LoadJSONTemplate(EdifactFormatVersion formatPackage, string fileName)
         {
             if (Cache != null)
             {
                 try
                 {
-                    return Cache["edi"][Path.Combine(formatPackage.Replace("/", ""), fileName.Replace("\\", "/"))];
+                    return Cache["edi"][Path.Combine(formatPackage.ToLegacyVersionString().Replace("/", ""), fileName.Replace("\\", "/"))];
                 }
                 catch (Exception)
                 {
                     // todo: no pokemon-catcher
                 }
             }
-            var blockBlob = _container.GetBlobClient(System.IO.Path.Combine(formatPackage.Replace("/", ""), fileName).Replace("\\", "/"));
+            var blockBlob = _container.GetBlobClient(System.IO.Path.Combine(formatPackage.ToLegacyVersionString().Replace("/", ""), fileName).Replace("\\", "/"));
 
             string text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
             text = EDIHelper.RemoveByteOrderMark(text);

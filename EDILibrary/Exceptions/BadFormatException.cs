@@ -8,21 +8,21 @@ namespace EDILibrary.Exceptions
     /// <seealso cref="BadPIDException"/>
     public class BadFormatException : Exception
     {
-        private string _format;
+        private EdifactFormat? _format;
+        /// <summary>
+        /// e.g. 5.2h
+        /// </summary>
         private string _version;
 
-        /// <inheritdoc />
-        public override string Message => $"Format {_format} in version {_version} could not be found";
-
-        /// <summary>
-        /// Initialize the Exception by providing both the (stringly typed) format and the version.
-        /// </summary>
-        /// <param name="format"></param>
-        /// <param name="version"></param>
-        public BadFormatException(string format, string version)
+        public BadFormatException(EdifactFormat? format, string version, Exception innerException) : base($"Format {format} in version {version} could not be found", innerException)
         {
-            _format = format;
-            _version = version;
+            this._format = format;
+            this._version = version;
+        }
+
+        [Obsolete("Use strongly typed overload instead")]
+        public BadFormatException(string format, string version, Exception innerException) : this(Enum.Parse<EdifactFormat>(format), version, innerException)
+        {
         }
     }
 }

@@ -76,7 +76,7 @@ namespace EDILibraryTests
             {
                 var expected = JsonSerializer.Deserialize<EDIFileInfo>(expectedOutput, JsonFieldOptions);
                 Assert.IsNotNull(expected);
-                if (expected.Format == "ERROR")
+                if (!expected.Format.HasValue)
                 {
                     Assert.AreEqual(expected.Format, actual.Format);
                     Assert.IsTrue(System.Guid.TryParse(actual.Referenz, out _));

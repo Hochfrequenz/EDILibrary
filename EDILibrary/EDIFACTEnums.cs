@@ -169,7 +169,5 @@ namespace EDILibrary
         Referenz,
         [Description("Version")]
         Version
-
-
     }
 }
