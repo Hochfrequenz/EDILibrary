@@ -34,11 +34,14 @@ namespace EDILibrary
             public string Sender;
             public string Receiver;
         }
+
+        [Obsolete("Use strongly typed version instead")]
         public async Task<string> ParseToJson(string edi, string packageVersion, string includeEmptyValues = null)
         {
-            return (await ParseToJsonWithVersion(edi, packageVersion, includeEmptyValues)).EDI;
+            return (await ParseToJsonWithVersion(edi, packageVersion.ToEdifactFormatVersion(), includeEmptyValues)).EDI;
         }
-        public async Task<JsonResult> ParseToJsonWithVersion(string edi, string packageVersion, string includeEmptyValues = null)
+
+        public async Task<JsonResult> ParseToJsonWithVersion(string edi, EdifactFormatVersion? packageVersion, string includeEmptyValues = null)
         {
             var edi_info = EDIHelper.GetEdiFileInfo(edi.Substring(0, Math.Min(1000, edi.Length)));
             var edi_string = EDIHelper.NormalizeEDIHeader(edi);
@@ -51,21 +54,21 @@ namespace EDILibrary
             TreeHelper.RefreshDirtyFlags(tree);
             var fileObject = loader.LoadTemplateWithLoadedTree(template, edi_tree);
             var jsonResult = JsonConvert.DeserializeObject<JObject>(fileObject.SerializeToJSON());
-            string package = null;
-            if (packageVersion != null)
+            Tuple<EdifactFormat?, string> package;
+            if (packageVersion.HasValue)
             {
-                package = packageVersion;
+                package = new Tuple<EdifactFormat?, string>(null, packageVersion.Value.ToLegacyVersionString());
             }
             else
             {
                 //The template loader can try to read the package from the format and version (and the right table)
-                package = edi_info.Format + "|" + edi_info.Version;
+                package = new Tuple<EdifactFormat?, string>(edi_info.Format, edi_info.Version);
             }
             //mapping laden
             JArray mappings;
             try
             {
-                mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, edi_info.Format + ".json"));
+                mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package.Item1, package.Item2, edi_info.Format + ".json"));
             }
             catch (Exception e)
             {
@@ -95,10 +98,9 @@ namespace EDILibrary
         public async Task<string> CreateFromJson(string jsonInput, string pid, EdifactFormatVersion formatPackage, bool convertFromUTC = false)
         {
             var format = EdifactFormatHelper.FromPruefidentifikator(pid);
-            var package = formatPackage;
-            var json = JsonConvert.DeserializeObject<JObject>(await _loader.LoadJSONTemplate(package, $"{pid}.json"));
+            var json = JsonConvert.DeserializeObject<JObject>(await _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), $"{pid}.json"));
             var inputJson = JsonConvert.DeserializeObject<JObject>(jsonInput);
-            JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package, format + ".json"));
+            JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), format + ".json"));
             //map inputJson via fix values from mapping
             // if (((JObject)json.Where(entry => ((JObject)entry).Property("key").Value.Value<string>() == "utilmd").FirstOrDefault()) != null)
             //{

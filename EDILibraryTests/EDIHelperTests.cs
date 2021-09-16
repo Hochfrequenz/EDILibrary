@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using EDILibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -53,7 +54,8 @@ namespace EDILibraryTests
 
         private static readonly JsonSerializerOptions JsonFieldOptions = new()
         {
-            IncludeFields = true
+            IncludeFields = true,
+            Converters = { new JsonStringEnumConverter() }
         };
 
         /// <summary>
@@ -61,7 +63,7 @@ namespace EDILibraryTests
         /// </summary>
         [TestMethod]
         [DataRow(null, null)]
-        [DataRow("foo", "{\"Format\":\"ERROR\"}")]
+        [DataRow("foo", "{\"Format\":null}")]
         [DataRow(
             "UNA:+.? 'UNB+UNOC:3+123456789012345:500+123456789:500+210326:1553+WIM00000000901'UNH+WIM00000000901+UTILMD:D:11A:UN:5.2b'BGM+E03+WIM00000000901'DTM+137:202103261553:203'NAD+MS+123456789012345::293'CTA+IC+:Max Mustermann'COM+max@mustermann.de:EM'NAD+MR+123456789::293'IDE+24+WIMP0000000459'DTM+92:20210401:102'DTM+157:20210401:102'STS+7++ZE8'LOC+172+41234567896'RFF+Z13:11116'SEQ+Z01'CCI+Z30++Z06'",
             "{\"Format\":\"UTILMD\", \"Nachrichtenversion\":\"D\",\"Version\":\"5.2b\", \"Sender\":{\"CodeList\":\"500\",\"ID\":\"123456789012345\"}, \"Freigabenummer\":\"11A\", \"Empfänger\":{\"CodeList\":\"500\",\"ID\":\"123456789\"}, \"ID\":\"WIM00000000901\"}")]

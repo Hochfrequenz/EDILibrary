@@ -8,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -94,23 +95,25 @@ namespace EDIFileLoader
         [Obsolete("Use strongly typed version instead.")]
         public async Task<string> LoadJSONTemplate(string formatPackage, string fileName)
         {
-            return await LoadJSONTemplate(formatPackage.ToEdifactFormatVersion(), fileName);
+            var format = Enum.Parse<EdifactFormat>(formatPackage.Split("|").First());
+            var version = formatPackage.Split("|").Last();
+            return await LoadJSONTemplate(format, version, fileName);
         }
 
-        public async Task<string> LoadJSONTemplate(EdifactFormatVersion formatPackage, string fileName)
+        public async Task<string> LoadJSONTemplate(EdifactFormat? format, string version, string fileName)
         {
             if (Cache != null)
             {
                 try
                 {
-                    return Cache["edi"][Path.Combine(formatPackage.ToLegacyVersionString().Replace("/", ""), fileName.Replace("\\", "/"))];
+                    return Cache["edi"][Path.Combine(version.Replace("/", ""), fileName.Replace("\\", "/"))];
                 }
                 catch (Exception)
                 {
                     // todo: no pokemon-catcher
                 }
             }
-            var blockBlob = _container.GetBlobClient(System.IO.Path.Combine(formatPackage.ToLegacyVersionString().Replace("/", ""), fileName).Replace("\\", "/"));
+            var blockBlob = _container.GetBlobClient(System.IO.Path.Combine(version.Replace("/", ""), fileName).Replace("\\", "/"));
 
             string text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
             text = EDIHelper.RemoveByteOrderMark(text);

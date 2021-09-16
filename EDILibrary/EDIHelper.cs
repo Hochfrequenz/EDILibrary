@@ -52,6 +52,9 @@ namespace EDILibrary
         /// e.g. 5.2h
         /// </summary>
         public string Version;
+        /// <summary>
+        /// EDIFACT format if set. Null in case of error (formerly: "ERROR")
+        /// </summary>
         public EdifactFormat? Format;
         public EDIPartner Sender;
         public EDIPartner Empfänger;
