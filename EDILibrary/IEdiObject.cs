@@ -10,7 +10,7 @@ using System.Xml.Linq;
 namespace EDILibrary
 {
 
-    [Obsolete("Use "+nameof(EdiObject)+ " instead.", true)]
+    [Obsolete("Use " + nameof(EdiObject) + " instead.", true)]
     // ReSharper disable once InconsistentNaming
     public class IEdiObject
     {
