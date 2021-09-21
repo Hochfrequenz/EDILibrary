@@ -1,5 +1,4 @@
-﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using System;
@@ -10,8 +9,15 @@ using System.Text;
 using System.Xml.Linq;
 namespace EDILibrary
 {
-    [DataContract]
+
+    [Obsolete("Use " + nameof(EdiObject) + " instead.", true)]
+    // ReSharper disable once InconsistentNaming
     public class IEdiObject
+    {
+    }
+
+    [DataContract]
+    public class EdiObject
     {
         [DataMember]
         public string Name { get; set; }
@@ -22,13 +28,13 @@ namespace EDILibrary
 
         [DataMember]
         public string Edi { get; set; }
-        public IEdiObject Parent { get; private set; }
+        public EdiObject Parent { get; private set; }
         XElement template;
         [DataMember]
-        public List<IEdiObject> Children { get; set; }
-        public List<IEdiObject> SelfOrChildren
+        public List<EdiObject> Children { get; set; }
+        public List<EdiObject> SelfOrChildren
         {
-            get { List<IEdiObject> list = Children.Take(Children.Count).ToList(); list.Add(this); return list; }
+            get { List<EdiObject> list = Children.Take(Children.Count).ToList(); list.Add(this); return list; }
         }
         [DataMember]
         public Dictionary<string, List<string>> Fields { get; set; }
@@ -36,14 +42,14 @@ namespace EDILibrary
         public Dictionary<string, string> MigFields { get; set; }
         [DataMember]
         public Dictionary<string, string> EdiFields { get; set; }
-        public IEdiObject(EDIEnums enumValue, XElement temp, string keyValue) : this(EDIEnumHelper.GetDescription(enumValue), temp, keyValue)
+        public EdiObject(EDIEnums enumValue, XElement temp, string keyValue) : this(EDIEnumHelper.GetDescription(enumValue), temp, keyValue)
         {
 
         }
-        public IEdiObject(string name, XElement temp, string keyValue)
+        public EdiObject(string name, XElement temp, string keyValue)
         {
             Name = name;
-            Children = new List<IEdiObject>();
+            Children = new List<EdiObject>();
             Fields = new Dictionary<string, List<string>>();
             MigFields = new Dictionary<string, string>();
             EdiFields = new Dictionary<string, string>();
@@ -77,7 +83,7 @@ namespace EDILibrary
                 {
                     foreach (var childValue in child.Value)
                     {
-                        IEdiObject childNode = new IEdiObject(child.Name, null, GenerateKey(child.Name));
+                        EdiObject childNode = new EdiObject(child.Name, null, GenerateKey(child.Name));
                         childNode.ParseJSON(childValue);
                         if (childNode.Fields.Count > 0 || childNode.Children.Count > 0)
                             AddChild(childNode);
@@ -103,11 +109,11 @@ namespace EDILibrary
             }
 
         }
-        public static IEdiObject CreateFromJSON(string JSON)
+        public static EdiObject CreateFromJSON(string JSON)
         {
             dynamic json = JsonConvert.DeserializeObject(JSON);
             var doc = json["Dokument"][0];
-            IEdiObject root = new IEdiObject(EDIEnums.Dokument, null, GenerateKey("Dokument"));
+            EdiObject root = new EdiObject(EDIEnums.Dokument, null, GenerateKey("Dokument"));
             root.ParseJSON(doc);
             return root;
         }
@@ -116,7 +122,7 @@ namespace EDILibrary
         {
             return Name + "  " + Key;
         }
-        protected void Recurse(XElement elem, IEdiObject child)
+        protected void Recurse(XElement elem, EdiObject child)
         {
             foreach (var field in child.Fields)
             {
@@ -139,7 +145,7 @@ namespace EDILibrary
             return value.Replace("\"", "\\\"");
         }
         protected StringBuilder _builder;
-        protected void RecurseJSON(IEdiObject cur)
+        protected void RecurseJSON(EdiObject cur)
         {
             bool hasKey = false;
 
@@ -343,23 +349,23 @@ namespace EDILibrary
                 Fields.Add(EDIEnumHelper.GetDescription(enumValue), new List<string> { value });
             }
         }
-        public IEdiObject Child(EDIEnums name, string key)
+        public EdiObject Child(EDIEnums name, string key)
         {
             return Child(EDIEnumHelper.GetDescription(name), key);
         }
-        public IEdiObject Child(EDIEnums name)
+        public EdiObject Child(EDIEnums name)
         {
             return Child(EDIEnumHelper.GetDescription(name));
         }
-        public IEdiObject Child(string name, string key)
+        public EdiObject Child(string name, string key)
         {
             return (from child in Children where child.Name == name && child.Key == key select child).FirstOrDefault();
         }
-        public IEdiObject Child(string name)
+        public EdiObject Child(string name)
         {
             return (from child in Children where child.Name == name select child).FirstOrDefault();
         }
-        public void AddChild(IEdiObject child)
+        public void AddChild(EdiObject child)
         {
             if (child == null)
                 return;
@@ -393,22 +399,22 @@ namespace EDILibrary
         public void RemoveChilds(string name)
         {
             var children = (from child in Children where child.Name == name select child).ToList();
-            foreach (IEdiObject child in children)
+            foreach (EdiObject child in children)
             {
                 Children.Remove(child);
             }
         }
-        public List<IEdiObject> Childs(EDIEnums name)
+        public List<EdiObject> Childs(EDIEnums name)
         {
             return Childs(EDIEnumHelper.GetDescription(name));
         }
-        public List<IEdiObject> Childs(string name)
+        public List<EdiObject> Childs(string name)
         {
             return (from child in Children where child.Name == name select child).ToList();
         }
-        public IEdiObject Clone()
+        public EdiObject Clone()
         {
-            IEdiObject clone = new IEdiObject(Name, null, Key);
+            EdiObject clone = new EdiObject(Name, null, Key);
             foreach (var child in Children)
             {
                 clone.AddChild(child.Clone());

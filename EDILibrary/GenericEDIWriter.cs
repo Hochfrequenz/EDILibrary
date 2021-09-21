@@ -124,7 +124,7 @@ namespace EDILibrary
             }
             return value;
         }
-        string RecurseTemplate(string template, IEdiObject parent)
+        string RecurseTemplate(string template, EdiObject parent)
         {
             int currentIndex = 0;
             int beginIndex = 0;
@@ -158,7 +158,7 @@ namespace EDILibrary
                         {
                             foreach (string val in value_node)
                             {
-                                IEdiObject tempObject = new IEdiObject(node, null, val);
+                                EdiObject tempObject = new EdiObject(node, null, val);
                                 tempObject.Fields.Add(node, new List<string> { val });
                                 resultBuilder.Append(RecurseTemplate(innercode, tempObject));
 
@@ -453,7 +453,7 @@ namespace EDILibrary
         {
 
         }
-        public string CompileTemplate(string template, IEdiObject sourceRoot)
+        public string CompileTemplate(string template, EdiObject sourceRoot)
         {
 
             string result = RecurseTemplate(template, sourceRoot);

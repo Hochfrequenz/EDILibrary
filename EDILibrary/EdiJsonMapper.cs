@@ -132,7 +132,7 @@ namespace EDILibrary
                 //maskArray.Merge(((step as JObject)?.Property("fields").Value as JObject).Properties(), new JsonMergeSettings() { MergeArrayHandling = MergeArrayHandling.Union });
             }
             var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, out var subParent, convertFromUTC);
-            IEdiObject result = IEdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
+            EdiObject result = EdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
             return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo
             {
