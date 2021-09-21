@@ -9,12 +9,12 @@ namespace EDILibrary
 {
     public class GenericEDILoader
     {
-        protected virtual IEdiObject ProcessSpecificTemplate(XElement template, Dictionary<string, List<TreeElement>> objectMapping)
+        protected virtual EdiObject ProcessSpecificTemplate(XElement template, Dictionary<string, List<TreeElement>> objectMapping)
         {
             TreeElement treeRoot = objectMapping[TreeHelper.GetHash(template.ToString())][0];
             return ProcessSpecificTemplate(template, treeRoot, objectMapping);
         }
-        protected virtual IEdiObject ProcessSpecificTemplate(XElement template, TreeElement treeRoot, Dictionary<string, List<TreeElement>> objectMapping)
+        protected virtual EdiObject ProcessSpecificTemplate(XElement template, TreeElement treeRoot, Dictionary<string, List<TreeElement>> objectMapping)
         {
             string key = null;
             string ediSeg = null;
@@ -28,7 +28,7 @@ namespace EDILibrary
 
             }
 
-            IEdiObject rootObject = new IEdiObject(template.Attribute("name").Value, template, key)
+            EdiObject rootObject = new EdiObject(template.Attribute("name").Value, template, key)
             {
                 Edi = ediSeg
             };
@@ -84,7 +84,7 @@ namespace EDILibrary
                 foreach (TreeElement childRoot in childTree)
                 {
                     iChildCounter++;
-                    IEdiObject childObject = ProcessSpecificTemplate(child, childRoot, objectMapping);
+                    EdiObject childObject = ProcessSpecificTemplate(child, childRoot, objectMapping);
 
                     rootObject.AddChild(childObject);
 
@@ -346,7 +346,7 @@ namespace EDILibrary
         protected bool _useCache = true;
         protected Dictionary<TreeElement, Dictionary<string, List<string>>> _elementCache = new Dictionary<TreeElement, Dictionary<string, List<string>>>();
         protected Dictionary<string, Dictionary<string, string>> _valueCache = new Dictionary<string, Dictionary<string, string>>();
-        public IEdiObject LoadTemplateWithLoadedTree(XElement template, TreeElement tree)
+        public EdiObject LoadTemplateWithLoadedTree(XElement template, TreeElement tree)
         {
             Dictionary<string, List<TreeElement>> objectMapping = new Dictionary<string, List<TreeElement>>();
             var classes = from cls in template.DescendantsAndSelf("class")
