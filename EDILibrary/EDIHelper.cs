@@ -191,7 +191,7 @@ namespace EDILibrary
         {
             if (edi == null)
                 return null;
-            edi = RemoveByteOrderMark(edi);
+            edi = RemoveBOM(edi);
             var specialChars = GetSpecialChars(edi);
             var message = GetActualMessage(edi, specialChars);
             if (specialChars.EscapeChar != DefaultEscapeChar)
@@ -226,7 +226,7 @@ namespace EDILibrary
                 return null;
             try
             {
-                edi = RemoveByteOrderMark(edi);
+                edi = RemoveBOM(edi);
                 var specialChars = GetSpecialChars(edi);
                 var message = GetActualMessage(edi, specialChars);
                 string[] segments = message.LowMemSplit(specialChars.SegmentDelimiter).Take(2).ToArray();
