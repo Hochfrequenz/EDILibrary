@@ -2,6 +2,8 @@
 
 using EDILibrary;
 
+using Microsoft.Extensions.Logging;
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -23,13 +25,19 @@ namespace EDIFileLoader
         /// Root path (e.g. container in azure blob)
         /// </summary>
         protected string Root { get; set; }
+
+        /// <summary>
+        /// Logger
+        /// </summary>
+        protected ILogger Logger { get; set; }
         /// <summary>
         /// Cache dictionary to not download every file again
         /// </summary>
         protected ConcurrentDictionary<string, Dictionary<string, string>> Cache { get; set; } = new ConcurrentDictionary<string, Dictionary<string, string>>();
-        public StorageNetLoader(Storage.Net.Blobs.IBlobStorage storage, string root = "/")
+        public StorageNetLoader(ILogger<StorageNetLoader> logger, Storage.Net.Blobs.IBlobStorage storage, string root = "/")
         {
             Storage = storage ?? throw new ArgumentNullException(nameof(storage));
+            Logger = logger;
             Root = root;
         }
         /// <summary>
@@ -71,7 +79,9 @@ namespace EDIFileLoader
         protected async Task<string> GetUTF8TextFromPath(string path)
         {
             using var s = new MemoryStream();
+            Logger.LogDebug($"Reading path {path}");
             using Stream ss = await Storage.OpenReadAsync(path);
+            Logger.LogDebug($"Copying to stream");
             await ss.CopyToAsync(s);
 
             return Encoding.UTF8.GetString(s.ToArray());
@@ -95,10 +105,17 @@ namespace EDIFileLoader
                     // todo: no pokemon-catcher
                 }
             }
-
-            string text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", "edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type).Replace("\\", "/"));
-            text = EDIHelper.RemoveByteOrderMark(text);
-            return text;
+            try
+            {
+                string text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", "edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type).Replace("\\", "/"));
+                text = EDIHelper.RemoveByteOrderMark(text);
+                return text;
+            }
+            catch (Exception exc)
+            {
+                Logger.LogDebug($"Could not load edi template from storage: {exc}");
+                return "";
+            }
         }
         [Obsolete("Use strongly typed version instead.", true)]
         public Task<string> LoadJSONTemplate(string fileName)
@@ -133,9 +150,17 @@ namespace EDIFileLoader
                     // todo: no pokemon-catcher
                 }
             }
-            string text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", version.Replace("/", ""), fileName).Replace("\\", "/"));
-            text = EDIHelper.RemoveByteOrderMark(text);
-            return text;
+            try
+            {
+                string text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", version.Replace("/", ""), fileName).Replace("\\", "/"));
+                text = EDIHelper.RemoveByteOrderMark(text);
+                return text;
+            }
+            catch (Exception exc)
+            {
+                Logger.LogDebug($"Could not load edi template from storage: {exc}");
+                return "";
+            }
         }
     }
 }
