@@ -111,6 +111,10 @@ namespace EDIFileLoader
                 text = EDIHelper.RemoveByteOrderMark(text);
                 if (Cache != null)
                 {
+                    if (!Cache.ContainsKey("edi"))
+                    {
+                        Cache["edi"] = new Dictionary<string, string>();
+                    }
                     var ediCache = Cache["edi"];
                     if (ediCache == null)
                         ediCache = new Dictionary<string, string>();
@@ -163,6 +167,10 @@ namespace EDIFileLoader
                 text = EDIHelper.RemoveByteOrderMark(text);
                 if (Cache != null)
                 {
+                    if (!Cache.ContainsKey(version.Replace(" / ", "")))
+                    {
+                        Cache[version.Replace(" / ", "")] = new Dictionary<string, string>();
+                    }
                     var ediCache = Cache[version.Replace(" / ", "")];
                     if (ediCache == null)
                         ediCache = new Dictionary<string, string>();
