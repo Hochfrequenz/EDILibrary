@@ -109,6 +109,13 @@ namespace EDIFileLoader
             {
                 string text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", "edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type).Replace("\\", "/"));
                 text = EDIHelper.RemoveByteOrderMark(text);
+                if (Cache != null)
+                {
+                    var ediCache = Cache["edi"];
+                    if (ediCache == null)
+                        ediCache = new Dictionary<string, string>();
+                    ediCache[Path.Combine("edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type).Replace("\\", "/")] = text;
+                }
                 return text;
             }
             catch (Exception exc)
@@ -143,7 +150,7 @@ namespace EDIFileLoader
             {
                 try
                 {
-                    return Cache["edi"][Path.Combine(version.Replace("/", ""), fileName.Replace("\\", "/"))];
+                    return Cache[version.Replace("/", "")][fileName.Replace("\\", "/")];
                 }
                 catch (Exception)
                 {
@@ -154,6 +161,13 @@ namespace EDIFileLoader
             {
                 string text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", version.Replace("/", ""), fileName).Replace("\\", "/"));
                 text = EDIHelper.RemoveByteOrderMark(text);
+                if (Cache != null)
+                {
+                    var ediCache = Cache[version.Replace(" / ", "")];
+                    if (ediCache == null)
+                        ediCache = new Dictionary<string, string>();
+                    ediCache[fileName.Replace("\\", "/")] = text;
+                }
                 return text;
             }
             catch (Exception exc)
