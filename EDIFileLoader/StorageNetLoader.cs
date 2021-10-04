@@ -167,11 +167,11 @@ namespace EDIFileLoader
                 text = EDIHelper.RemoveByteOrderMark(text);
                 if (Cache != null)
                 {
-                    if (!Cache.ContainsKey(version.Replace(" / ", "")))
+                    if (!Cache.ContainsKey(version.Replace("/", "")))
                     {
-                        Cache[version.Replace(" / ", "")] = new Dictionary<string, string>();
+                        Cache[version.Replace("/", "")] = new Dictionary<string, string>();
                     }
-                    var ediCache = Cache[version.Replace(" / ", "")];
+                    var ediCache = Cache[version.Replace("/", "")];
                     if (ediCache == null)
                         ediCache = new Dictionary<string, string>();
                     ediCache[fileName.Replace("\\", "/")] = text;
