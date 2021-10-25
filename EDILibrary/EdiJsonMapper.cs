@@ -50,7 +50,7 @@ namespace EDILibrary
             var loader = new GenericEDILoader();
             var template = GenericEDILoader.LoadTemplate(templateString);
             var tree = GenericEDILoader.LoadTree(treeString);
-            var edi_tree = loader.LoadEdi(edi_string, tree);
+            var edi_tree = loader.LoadEDI(edi_string, tree);
             TreeHelper.RefreshDirtyFlags(tree);
             var fileObject = loader.LoadTemplateWithLoadedTree(template, edi_tree);
             var jsonResult = JsonConvert.DeserializeObject<JObject>(fileObject.SerializeToJSON());

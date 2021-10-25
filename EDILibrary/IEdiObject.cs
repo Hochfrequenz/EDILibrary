@@ -247,7 +247,7 @@ namespace EDILibrary
             {
                 if (!hasKey)
                 {
-                    var key;// = "";
+                    string key;// = "";
                     if (cur.Attribute("key") != null)
                     {
                         key = "\"" + "Key" + "\" : \"" + cur.Attribute("key").Value + "\"" + (i != 0 || hasClass ? "," : "");
