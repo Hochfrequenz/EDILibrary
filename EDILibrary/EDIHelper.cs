@@ -229,25 +229,25 @@ namespace EDILibrary
                 edi = RemoveBOM(edi);
                 var specialChars = GetSpecialChars(edi);
                 var message = GetActualMessage(edi, specialChars);
-                string[] segments = message.LowMemSplit(specialChars.SegmentDelimiter).Take(2).ToArray();
-                string unb = segments[0];
-                string unh = segments[1];
-                string[] unbParts = unb.Split(specialChars.GroupDelimiter.ToCharArray());
-                string[] unhParts = unh.Split(specialChars.GroupDelimiter.ToCharArray());
+                var segments = message.LowMemSplit(specialChars.SegmentDelimiter).Take(2).ToArray();
+                var unb = segments[0];
+                var unh = segments[1];
+                var unbParts = unb.Split(specialChars.GroupDelimiter.ToCharArray());
+                var unhParts = unh.Split(specialChars.GroupDelimiter.ToCharArray());
 
-                EDIPartner sender = new EDIPartner
+                var sender = new EDIPartner
                 {
                     CodeList =
                         unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray()).Length > 1 ? unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[1] : "500",
                     ID = unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]
                 };
-                EDIPartner empfänger = new EDIPartner
+                var empfänger = new EDIPartner
                 {
                     CodeList =
                         unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray()).Length > 1 ? unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray())[1] : "500",
                     ID = unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray())[0]
                 };
-                EDIFileInfo file = new EDIFileInfo
+                var file = new EDIFileInfo
                 {
                     Empfänger = empfänger,
                     Sender = sender,

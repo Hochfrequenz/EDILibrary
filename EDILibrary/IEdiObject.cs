@@ -34,7 +34,7 @@ namespace EDILibrary
         public List<EdiObject> Children { get; set; }
         public List<EdiObject> SelfOrChildren
         {
-            get { List<EdiObject> list = Children.Take(Children.Count).ToList(); list.Add(this); return list; }
+            get { var list = Children.Take(Children.Count).ToList(); list.Add(this); return list; }
         }
         [DataMember]
         public Dictionary<string, List<string>> Fields { get; set; }
@@ -83,9 +83,9 @@ namespace EDILibrary
                 {
                     foreach (var childValue in child.Value)
                     {
-                        EdiObject childNode = new EdiObject(child.Name, null, GenerateKey(child.Name));
+                        var childNode = new EdiObject(child.Name, null, GenerateKey(child.Name));
                         childNode.ParseJSON(childValue);
-                        if (childNode.Fields.Count > 0 || childNode.Children.Count > 0)
+                        if (childNode.Fields.Any() || childNode.Children.Any())
                             AddChild(childNode);
                     }
                 }
@@ -113,7 +113,7 @@ namespace EDILibrary
         {
             dynamic json = JsonConvert.DeserializeObject(JSON);
             var doc = json["Dokument"][0];
-            EdiObject root = new EdiObject(EDIEnums.Dokument, null, GenerateKey("Dokument"));
+            var root = new EdiObject(EDIEnums.Dokument, null, GenerateKey("Dokument"));
             root.ParseJSON(doc);
             return root;
         }
@@ -126,14 +126,14 @@ namespace EDILibrary
         {
             foreach (var field in child.Fields)
             {
-                XElement f = new XElement("Field");
+                var f = new XElement("Field");
                 f.SetAttributeValue("name", field.Key);
                 f.Value = string.Join("|", field.Value);
                 elem.Add(f);
             }
             foreach (var cl in child.Children)
             {
-                XElement ch = new XElement("Class");
+                var ch = new XElement("Class");
                 ch.SetAttributeValue("name", cl.Name);
                 ch.SetAttributeValue("key", cl.Key);
                 Recurse(ch, cl);
@@ -147,10 +147,10 @@ namespace EDILibrary
         protected StringBuilder _builder;
         protected void RecurseJSON(EdiObject cur)
         {
-            bool hasKey = false;
+            var hasKey = false;
 
-            int i = cur.Fields.Count;
-            bool hasClass = cur.Children.Count > 0;
+            var i = cur.Fields.Count;
+            var hasClass = cur.Children.Any();
             if (cur.Key != null)
             {
                 hasKey = true;
@@ -158,7 +158,7 @@ namespace EDILibrary
             }
             if (cur.Fields.Count(f => f.Value.Count > 1) == cur.Fields.Count && cur.Fields.Any(f => f.Value.Count > 1)) // check for multiple values
             {
-                int index = 0;
+                var index = 0;
                 var oldI = i;
                 while (index < cur.Fields.First(f => f.Value.Count > 1).Value.Count)
                 {
@@ -183,12 +183,12 @@ namespace EDILibrary
 
                 }
             }
-            int j = cur.Children.Count;
+            var j = cur.Children.Count;
             if (j == 0 && cur.Fields.Count == 0) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
             {
                 if (!hasKey)
                 {
-                    string key = "";
+                    var key = "";
                     if (cur.Key != null)
                     {
                         key = "\"" + "Key" + "\" : \"" + cur.Key + "\"" + (i != 0 || hasClass ? "," : "");
@@ -202,7 +202,7 @@ namespace EDILibrary
 
             }
             var lastName = "";
-            bool openElement = false;
+            var openElement = false;
             foreach (var elem in cur.Children)
             {
                 if (elem.Name != lastName && lastName != "")
@@ -227,10 +227,10 @@ namespace EDILibrary
         }
         protected void RecurseJSON(XElement cur)
         {
-            bool hasKey = false;
+            var hasKey = false;
 
-            int i = cur.Descendants("Field").Count(d => d.Parent == cur);
-            bool hasClass = cur.Descendants("Class").Any(d => d.Parent == cur);
+            var i = cur.Descendants("Field").Count(d => d.Parent == cur);
+            var hasClass = cur.Descendants("Class").Any(d => d.Parent == cur);
             if (cur.Attribute("key") != null)
             {
                 hasKey = true;
@@ -242,12 +242,12 @@ namespace EDILibrary
                 _builder.AppendLine("\"" + elem.Attribute("name").Value + "\" : \"" + elem.Value + "\"" + (i != 0 || hasClass ? "," : ""));
 
             }
-            int j = cur.Descendants("Class").Count(d => d.Parent == cur);
+            var j = cur.Descendants("Class").Count(d => d.Parent == cur);
             if (j == 0 && cur.Descendants("Field").All(d => d.Parent != cur)) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
             {
                 if (!hasKey)
                 {
-                    string key = "";
+                    var key = "";
                     if (cur.Attribute("key") != null)
                     {
                         key = "\"" + "Key" + "\" : \"" + cur.Attribute("key").Value + "\"" + (i != 0 || hasClass ? "," : "");
@@ -270,7 +270,7 @@ namespace EDILibrary
         }
         public string Serialize()
         {
-            XElement root = new XElement("EDIFACT");
+            var root = new XElement("EDIFACT");
             Recurse(root, this);
             return root.ToString();
         }
@@ -298,8 +298,8 @@ namespace EDILibrary
             {
                 return Fields[EDIEnumHelper.GetDescription(enumValue)].ToArray<string>();
             }
-            else
-                return null;
+
+            return null;
         }
         public string[] FieldList(string name)
         {
@@ -307,8 +307,8 @@ namespace EDILibrary
             {
                 return Fields[name].ToArray<string>();
             }
-            else
-                return null;
+
+            return null;
         }
         public string Field(EDIEnums enumValue)
         {
@@ -316,8 +316,8 @@ namespace EDILibrary
             {
                 return Fields[EDIEnumHelper.GetDescription(enumValue)].First();
             }
-            else
-                return null;
+
+            return null;
         }
         public string Field(string name)
         {
@@ -325,8 +325,8 @@ namespace EDILibrary
             {
                 return Fields[name].First();
             }
-            else
-                return null;
+
+            return null;
         }
 
         public string Field(EDIEnums enumValue, int index)
@@ -335,8 +335,8 @@ namespace EDILibrary
             {
                 return Fields[EDIEnumHelper.GetDescription(enumValue)][index];
             }
-            else
-                return null;
+
+            return null;
         }
         public void AddField(EDIEnums enumValue, string value)
         {
@@ -399,7 +399,7 @@ namespace EDILibrary
         public void RemoveChilds(string name)
         {
             var children = (from child in Children where child.Name == name select child).ToList();
-            foreach (EdiObject child in children)
+            foreach (var child in children)
             {
                 Children.Remove(child);
             }
@@ -414,7 +414,7 @@ namespace EDILibrary
         }
         public EdiObject Clone()
         {
-            EdiObject clone = new EdiObject(Name, null, Key);
+            var clone = new EdiObject(Name, null, Key);
             foreach (var child in Children)
             {
                 clone.AddChild(child.Clone());

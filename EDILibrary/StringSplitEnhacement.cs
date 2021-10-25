@@ -12,9 +12,9 @@ namespace EDILibrary
         // This version is fast and memory efficient and return no empty lines. 
         public static List<string> LowMemSplit(this string s, string seperator)
         {
-            List<string> list = new List<string>();
-            int lastPos = 0;
-            int pos = s.IndexOf(seperator); // warn: string.IndexOf(string) is culture-specific
+            var list = new List<string>();
+            var lastPos = 0;
+            var pos = s.IndexOf(seperator); // warn: string.IndexOf(string) is culture-specific
             while (pos > -1)
             {
                 while (pos == lastPos)
@@ -25,7 +25,7 @@ namespace EDILibrary
                         return list;
                 }
 
-                string tmp = s.Substring(lastPos, pos - lastPos);
+                var tmp = s.Substring(lastPos, pos - lastPos);
                 if (tmp.Trim().Length > 0)
                     list.Add(tmp);
                 lastPos = pos + seperator.Length;
@@ -34,7 +34,7 @@ namespace EDILibrary
 
             if (lastPos < s.Length)
             {
-                string tmp = s.Substring(lastPos, s.Length - lastPos);
+                var tmp = s.Substring(lastPos, s.Length - lastPos);
                 if (tmp.Trim().Length > 0)
                     list.Add(tmp);
             }

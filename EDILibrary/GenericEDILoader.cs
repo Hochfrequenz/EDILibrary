@@ -11,7 +11,7 @@ namespace EDILibrary
     {
         protected virtual EdiObject ProcessSpecificTemplate(XElement template, Dictionary<string, List<TreeElement>> objectMapping)
         {
-            TreeElement treeRoot = objectMapping[TreeHelper.GetHash(template.ToString())][0];
+            var treeRoot = objectMapping[TreeHelper.GetHash(template.ToString())][0];
             return ProcessSpecificTemplate(template, treeRoot, objectMapping);
         }
         protected virtual EdiObject ProcessSpecificTemplate(XElement template, TreeElement treeRoot, Dictionary<string, List<TreeElement>> objectMapping)
@@ -28,21 +28,21 @@ namespace EDILibrary
 
             }
 
-            EdiObject rootObject = new EdiObject(template.Attribute("name").Value, template, key)
+            var rootObject = new EdiObject(template.Attribute("name").Value, template, key)
             {
                 Edi = ediSeg
             };
             if (template.Attribute("migName") != null)
                 rootObject.MigName = template.Attribute("migName").Value;
             var fields = from field in template.Elements("field") select field;
-            foreach (XElement field in fields)
+            foreach (var field in fields)
             {
-                string selector = field.Attribute("ref").Value;
+                var selector = field.Attribute("ref").Value;
                 if (field.Attribute("migName") != null)
                 {
                     rootObject.MigFields[field.Attribute("name").Value] = field.Attribute("migName").Value;
                 }
-                string value = EvaluateTemplate(selector, treeRoot, out string ediSegment);
+                var value = EvaluateTemplate(selector, treeRoot, out var ediSegment);
                 rootObject.EdiFields[field.Attribute("name").Value] = ediSegment;
                 if (value != null)
                 {
@@ -50,8 +50,8 @@ namespace EDILibrary
                         rootObject.Fields[field.Attribute("name").Value] = new List<string>();
                     if (value.Contains("|"))
                     {
-                        string[] subvalues = value.Split(new[] { '|' });
-                        foreach (string val in subvalues)
+                        var subvalues = value.Split(new[] { '|' });
+                        foreach (var val in subvalues)
                             rootObject.Fields[field.Attribute("name").Value].Add(val);
                     }
                     else
@@ -62,29 +62,25 @@ namespace EDILibrary
             }
             var children = from child in template.Elements("class") select child;
 
-            foreach (XElement child in children)
+            foreach (var child in children)
             {
-                int iChildCounter = 0;
-                string Hash = "";
+                var iChildCounter = 0;
+                var Hash = "";
                 if (child.Attribute("hash") == null)
                 {
                     Hash = TreeHelper.GetHash(child.ToString());
                     child.SetAttributeValue("hash", Hash);
                 }
-                else
-                {
-                    Hash = child.Attribute("hash").Value;
-                }
 
-                string refName = child.Attribute("ref").Value.Split(new[] { '[' })[0];
-                List<TreeElement> childTree = new List<TreeElement>();
+                var refName = child.Attribute("ref").Value.Split(new[] { '[' })[0];
+                var childTree = new List<TreeElement>();
                 treeRoot.FindElements(refName, true, ref childTree, 1);
                 childTree = (from childElem in childTree where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList();
 
-                foreach (TreeElement childRoot in childTree)
+                foreach (var childRoot in childTree)
                 {
                     iChildCounter++;
-                    EdiObject childObject = ProcessSpecificTemplate(child, childRoot, objectMapping);
+                    var childObject = ProcessSpecificTemplate(child, childRoot, objectMapping);
 
                     rootObject.AddChild(childObject);
 
@@ -104,27 +100,27 @@ namespace EDILibrary
             edi = edi.Replace("??", "<<").Replace("?+", "?<").Replace("?:", "?>");
             if (pos == null || pos == "")
                 return null;
-            string[] Groups = edi.Split(new[] { "+" }, StringSplitOptions.None);
-            string[] SubPos = pos.Split(new[] { ":" }, StringSplitOptions.None);
-            if (!edi.StartsWith(SubPos[0]))
+            var groups = edi.Split(new[] { "+" }, StringSplitOptions.None);
+            var subPos = pos.Split(new[] { ":" }, StringSplitOptions.None);
+            if (!edi.StartsWith(subPos[0]))
                 return null;
-            int GroupPos = int.Parse(SubPos[1]);
-            if (Groups.Length <= GroupPos)
+            var groupPos = int.Parse(subPos[1]);
+            if (groups.Length <= groupPos)
                 return null;
-            string[] SubGroups = Groups[GroupPos].Split(new[] { ":" }, StringSplitOptions.None);
-            if (SubPos[2].Contains("("))
+            var subGroups = groups[groupPos].Split(new[] { ":" }, StringSplitOptions.None);
+            if (subPos[2].Contains("("))
             {
-                string[] range = SubPos[2].Split(new[] { "," }, StringSplitOptions.None);
-                int start = int.Parse(range[0].Substring(1));
-                int end = int.Parse(range[1].Substring(0, range[1].Length - 1));
-                List<string> parts = new List<string>();
-                for (int i = start; i <= end; i++)
+                var range = subPos[2].Split(new[] { "," }, StringSplitOptions.None);
+                var start = int.Parse(range[0].Substring(1));
+                var end = int.Parse(range[1].Substring(0, range[1].Length - 1));
+                var parts = new List<string>();
+                for (var i = start; i <= end; i++)
                 {
-                    if (SubGroups.Length <= i)
+                    if (subGroups.Length <= i)
                         break;
-                    parts.Add(SubGroups[i].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?"));
+                    parts.Add(subGroups[i].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?"));
                 }
-                string endValue = string.Join("", parts).Trim();
+                var endValue = string.Join("", parts).Trim();
                 if (_useCache && !_valueCache.ContainsKey(edi))
                 {
                     _valueCache.Add(edi, new Dictionary<string, string>());
@@ -133,37 +129,35 @@ namespace EDILibrary
                     _valueCache[edi][pos] = endValue;
                 return endValue;
             }
-            else
+
+            var DetailPos = int.Parse(subPos[2]);
+            if (subGroups.Length <= DetailPos)
+                return null;
+            var result = subGroups[DetailPos].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?");
+            if (!_valueCache.ContainsKey(edi))
             {
-                int DetailPos = int.Parse(SubPos[2]);
-                if (SubGroups.Length <= DetailPos)
-                    return null;
-                string result = SubGroups[DetailPos].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?");
-                if (!_valueCache.ContainsKey(edi))
-                {
-                    _valueCache.Add(edi, new Dictionary<string, string>());
-                }
-                _valueCache[edi][pos] = result.Trim();
-                return result.Trim();
+                _valueCache.Add(edi, new Dictionary<string, string>());
             }
+            _valueCache[edi][pos] = result.Trim();
+            return result.Trim();
         }
         protected string EvaluateTemplate(string selector, TreeElement templateRoot, out string ediSegment)
         {
             //string[] sel_path= selector.Split(new char[]{'['});
-            int klammerIndex = selector.IndexOf('[');
+            var klammerIndex = selector.IndexOf('[');
             if (klammerIndex == -1)
                 klammerIndex = selector.Length;
-            string selection = selector.Substring(0, klammerIndex);// sel_path[0];
+            var selection = selector.Substring(0, klammerIndex);// sel_path[0];
             string path = null;
             //string[] sel_segments = selection.Split(new char[] { ':' });
-            int sepIndex = selection.IndexOf(':');
+            var sepIndex = selection.IndexOf(':');
             if (sepIndex == -1)
                 sepIndex = selection.Length;
-            string segment = selection.Substring(0, sepIndex);
+            var segment = selection.Substring(0, sepIndex);
             if (klammerIndex != selector.Length)
                 path = selector.Substring(klammerIndex + 1, selector.Length - 1 - klammerIndex - 1);
-            List<TreeElement> resultList = new List<TreeElement>();
-            List<string> resultEDI = new List<string>();
+            var resultList = new List<TreeElement>();
+            var resultEDI = new List<string>();
             if (_useCache && _elementCache.ContainsKey(templateRoot))
             {
                 if (_elementCache[templateRoot].ContainsKey(segment))
@@ -173,12 +167,12 @@ namespace EDILibrary
                 else
                 {
                     templateRoot.FindElements(segment, true, ref resultList, 2);
-                    if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Count > 0 select res).Count() > 0)
+                    if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Any() select res).Any())
                     {
 
                         foreach (var result in resultList)
                         {
-                            if (result.Edi.Count > 0)
+                            if (result.Edi.Any())
                             {
                                 foreach (var rEdi in result.Edi)
                                 {
@@ -200,25 +194,12 @@ namespace EDILibrary
             else
             {
                 templateRoot.FindElements(segment, true, ref resultList, 2);
-                if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Count > 0 select res).Any())
+                if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Any() select res).Any())
                 {
                     if (_useCache)
                         _elementCache.Add(templateRoot, new Dictionary<string, List<string>>());
 
-                    foreach (var result in resultList)
-                    {
-                        if (result.Edi.Count > 0)
-                        {
-                            foreach (var rEdi in result.Edi)
-                            {
-                                //                                if (!resultEDI.Contains(rEdi))
-                                {
-
-                                    resultEDI.Add(rEdi);
-                                }
-                            }
-                        }
-                    }
+                    resultEDI.AddRange(resultList.Where(result => result.Edi.Any()).SelectMany(result => result.Edi));
                     if (_useCache)
                         _elementCache[templateRoot].Add(segment, resultEDI);
                 }
@@ -226,28 +207,28 @@ namespace EDILibrary
             ediSegment = null;
             if (resultEDI.Count == 0)
                 return null;
-            else if (resultEDI.Count >= 1)
+            if (resultEDI.Count >= 1)
             {
-                List<string> ResultParts = new List<string>();
-                foreach (string edi in resultEDI)
+                var resultParts = new List<string>();
+                foreach (var edi in resultEDI)
                 {
                     if (path != null)
                     {
-                        string[] paths = path.Split(new[] { '^', '|' }, StringSplitOptions.RemoveEmptyEntries);
-                        List<string> searchEdi = new List<string>();
-                        string Part = "";
-                        bool condition_met = true;
+                        var paths = path.Split(new[] { '^', '|' }, StringSplitOptions.RemoveEmptyEntries);
+                        var searchEdi = new List<string>();
+                        var part = "";
+                        var condition_met = true;
                         if (path.Contains('|')) // Die OR-Verknüpfung erfordert eine andere Initialisierung
                             condition_met = false;
-                        foreach (string temp_path in paths)
+                        foreach (var temp_path in paths)
                         {
-                            Part = "";
+                            part = "";
                             /* If we count more then two separators we already included the segment, so skip this*/
                             string seg_path = null;
                             if (temp_path.Split(new[] { ':' }).Length > 2)
                             {
                                 seg_path = temp_path;
-                                TreeElement searchElement = templateRoot.FindElement(seg_path.Split(new[] { ':' })[0], false);
+                                var searchElement = templateRoot.FindElement(seg_path.Split(new[] { ':' })[0], false);
                                 if (searchElement != null)
                                     searchEdi.AddRange(searchElement.Edi);
                             }
@@ -256,16 +237,16 @@ namespace EDILibrary
                                 seg_path = segment + ":" + temp_path;
                                 searchEdi.Add(edi);
                             }
-                            string sep_op = "=";
+                            var sep_op = "=";
                             if (seg_path.Contains("!="))
                             {
                                 sep_op = "!=";
 
                             }
-                            int opIndex = seg_path.IndexOf(sep_op);
+                            var opIndex = seg_path.IndexOf(sep_op);
                             if (opIndex == -1)
                                 opIndex = seg_path.Length;
-                            string path_selector = seg_path.Substring(0, opIndex);
+                            var path_selector = seg_path.Substring(0, opIndex);
                             string path_value = null;
                             if (seg_path.Length != sepIndex)
                                 path_value = seg_path.Substring(opIndex + sep_op.Length, seg_path.Length - opIndex - sep_op.Length);
@@ -274,30 +255,30 @@ namespace EDILibrary
                                 path_value = "";
                             }
                             //.Where(s=>s==edi)
-                            foreach (string edi_search in searchEdi)
+                            foreach (var ediSearch in searchEdi)
                             {
-                                if (edi_search.Substring(0, 3) == edi.Substring(0, 3) && edi_search != edi)
+                                if (ediSearch.Substring(0, 3) == edi.Substring(0, 3) && ediSearch != edi)
                                     continue;
                                 if (sep_op == "=")
                                 {
-                                    if (getValue(path_selector, edi_search) == path_value)
+                                    if (getValue(path_selector, ediSearch) == path_value)
                                     {
                                         //20120807: Geänder von edi_search auf edi um auch in CCI-CAV-Segmenten den Key richtig zu bestimmen
-                                        Part = getValue(selection, edi);
+                                        part = getValue(selection, edi);
                                         break;
                                     }
                                 }
                                 else
                                 {
-                                    if (getValue(path_selector, edi_search) != path_value)
+                                    if (getValue(path_selector, ediSearch) != path_value)
                                     {
                                         //20120807: Geänder von edi_search auf edi um auch in CCI-CAV-Segmenten den Key richtig zu bestimmen
-                                        Part = getValue(selection, edi);
+                                        part = getValue(selection, edi);
                                         break;
                                     }
                                 }
                             }
-                            if (string.IsNullOrWhiteSpace(Part) == false)
+                            if (string.IsNullOrWhiteSpace(part) == false)
                             {
                                 if (path.Contains('|'))
                                 {
@@ -318,29 +299,27 @@ namespace EDILibrary
                         if (condition_met)
                         {
                             ediSegment = edi;
-                            ResultParts.Add(Part);
+                            resultParts.Add(part);
                         }
                     }
                     else
                     {
                         ediSegment = edi;
-                        ResultParts.Add(getValue(selection, edi));
+                        resultParts.Add(getValue(selection, edi));
                     }
                 }
-                if (ResultParts.Count > 0)
-                    return string.Join("|", ResultParts);
-                else
-                    return null;
-            }
-            else
+                if (resultParts.Any())
+                    return string.Join("|", resultParts);
                 return null;
+            }
+            return null;
         }
         public XElement LoadTemplate(string template)
         {
 
-            StringReader reader = new StringReader(template);
+            var reader = new StringReader(template);
 
-            XElement root = XElement.Load(reader);
+            var root = XElement.Load(reader);
             return root;
         }
         protected bool _useCache = true;
@@ -348,19 +327,19 @@ namespace EDILibrary
         protected Dictionary<string, Dictionary<string, string>> _valueCache = new Dictionary<string, Dictionary<string, string>>();
         public EdiObject LoadTemplateWithLoadedTree(XElement template, TreeElement tree)
         {
-            Dictionary<string, List<TreeElement>> objectMapping = new Dictionary<string, List<TreeElement>>();
+            var objectMapping = new Dictionary<string, List<TreeElement>>();
             var classes = from cls in template.DescendantsAndSelf("class")
                           select cls;
             _elementCache.Clear();
             _valueCache.Clear();
-            XElement Dokument = (from temp in template.DescendantsAndSelf("class") where temp.Attribute("name").Value == "Dokument" select temp).Single();
+            var Dokument = (from temp in template.DescendantsAndSelf("class") where temp.Attribute("name").Value == "Dokument" select temp).Single();
             TreeElement docElement = null;
-            foreach (XElement cls in classes)
+            foreach (var cls in classes)
             {
                 if (TreeHelper.GetHash(cls.ToString()) == TreeHelper.GetHash(Dokument.ToString()))
                 {
-                    List<TreeElement> treeElements = new List<TreeElement>();
-                    string refName = cls.Attribute("ref").Value.Split(new[] { '[' })[0];
+                    var treeElements = new List<TreeElement>();
+                    var refName = cls.Attribute("ref").Value.Split(new[] { '[' })[0];
                     tree.FindElements(refName, true, ref treeElements);
                     treeElements = (from childElem in treeElements where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList();
                     docElement = treeElements[0];
@@ -377,25 +356,25 @@ namespace EDILibrary
         public TreeElement LoadTree(string tree)
         {
             TreeElement treeRoot;
-            string seperator = "\n";
+            var seperator = "\n";
             if (tree.IndexOf(Environment.NewLine) > -1)
             {
                 seperator = Environment.NewLine;
             }
-            string[] lines = tree.Split(new[] { seperator }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = tree.Split(new[] { seperator }, StringSplitOptions.RemoveEmptyEntries);
             treeRoot = new TreeElement("/[M;M]");
 
             TreeElement currentRoot = null;
             treeRoot.Parent = null;
-            foreach (string line in lines)
+            foreach (var line in lines)
             {
-                string[] lineParts = line.Split(new[] { ':' });
-                string[] elementParts = lineParts[1].Split(new[] { ',' });
+                var lineParts = line.Split(new[] { ':' });
+                var elementParts = lineParts[1].Split(new[] { ',' });
                 currentRoot = treeRoot.FindElement(lineParts[0]);
-                bool first = true;
-                foreach (string element in elementParts)
+                var first = true;
+                foreach (var element in elementParts)
                 {
-                    TreeElement ele = new TreeElement(element);
+                    var ele = new TreeElement(element);
                     if (ele.Name == "UNH")
                         ele.Dirty = true;
                     ele.Parent = currentRoot;
@@ -411,16 +390,16 @@ namespace EDILibrary
         }
         public TreeElement LoadEDI(string edi, TreeElement tree)
         {
-            string elementDelimiter = ":";
-            string groupDelimiter = "+";
-            string segmentDelimiter = "'";
-            int segDelimiterLength = 1;
-            int UNAoffset = -1;
+            var elementDelimiter = ":";
+            var groupDelimiter = "+";
+            var segmentDelimiter = "'";
+            var segDelimiterLength = 1;
+            var UNAoffset = -1;
             if (edi.StartsWith("UNA"))
             {
 
 
-                string UNA = edi.Substring(0, 9);
+                var UNA = edi.Substring(0, 9);
                 UNAoffset = 8;
                 elementDelimiter = UNA.Substring(3, 1);
                 groupDelimiter = UNA.Substring(4, 1);
@@ -430,17 +409,17 @@ namespace EDILibrary
                     segmentDelimiter = Environment.NewLine;
             }
 
-            string message = edi.Substring(UNAoffset + segDelimiterLength, edi.Length - (UNAoffset + segDelimiterLength));
+            var message = edi.Substring(UNAoffset + segDelimiterLength, edi.Length - (UNAoffset + segDelimiterLength));
             message = message.Replace("?'", "?$");
             message = message.Replace("\"", "\\\"");
             if (tree != null)
             {
                 TreeHelper.treeRoot = null;
-                TreeElement currentTreeRoot = tree;
+                var currentTreeRoot = tree;
                 foreach (var segment in message.SplitLines(segmentDelimiter.First()))
                 {
-                    string str_segment = segment.Line.ToString().TrimStart('\r', '\n', '\t').TrimEnd('\r', '\n', '\t');
-                    TreeElement child = TreeHelper.FindEdiElement(ref currentTreeRoot, str_segment);
+                    var str_segment = segment.Line.ToString().TrimStart('\r', '\n', '\t').TrimEnd('\r', '\n', '\t');
+                    var child = TreeHelper.FindEdiElement(ref currentTreeRoot, str_segment);
                     if (child != null)
                         child.AddEdi(str_segment, child);
                     else

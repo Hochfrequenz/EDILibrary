@@ -23,8 +23,7 @@ namespace EDILibrary
         {
             if (name.Contains("_"))
                 return name.Substring(0, name.IndexOf('_'));
-            else
-                return name;
+            return name;
         }
         public void AddChild(TreeElement child)
         {
@@ -58,9 +57,9 @@ namespace EDILibrary
             APERAK_Status = old.APERAK_Status;
             CONTRL_Check_String = old.CONTRL_Check_String;
             APERAK_Check_String = old.APERAK_Check_String;
-            foreach (TreeElement child in old.Children.Values)
+            foreach (var child in old.Children.Values)
             {
-                TreeElement newChild = new TreeElement(child)
+                var newChild = new TreeElement(child)
                 {
                     Parent = this
                 };
@@ -92,11 +91,11 @@ namespace EDILibrary
         {
             if (name.Contains('['))
             {
-                string[] nameSplit = name.Split("[".ToCharArray());
+                var nameSplit = name.Split("[".ToCharArray());
                 Name = nameSplit[0];
-                string nameIndex = nameSplit[1];
+                var nameIndex = nameSplit[1];
                 nameIndex = nameIndex.Substring(0, nameIndex.Length - 1);
-                string[] nameParts = nameIndex.Split(";".ToCharArray());
+                var nameParts = nameIndex.Split(";".ToCharArray());
                 CONTRL_Status = nameParts[0];
                 APERAK_Status = nameParts[1];
                 if (nameParts.Length > 2)
@@ -150,7 +149,7 @@ namespace EDILibrary
             // {
             if (recursive && recursionDepth > 0)
             {
-                foreach (TreeElement child in Children.Values)
+                foreach (var child in Children.Values)
                 {
                     child.FindElements(name, recursive, ref list, recursionDepth - 1);
                 }
@@ -167,24 +166,22 @@ namespace EDILibrary
             {
                 return Children[ExtractName(name)];
             }
-            else
+
+            if (recursive)
             {
-                if (recursive)
+                foreach (var child in Children.Values)
                 {
-                    foreach (TreeElement child in Children.Values)
-                    {
-                        TreeElement ret = child.FindElement(name);
-                        if (ret != null)
-                            return ret;
-                    }
+                    var ret = child.FindElement(name);
+                    if (ret != null)
+                        return ret;
                 }
-                return null;
             }
+            return null;
         }
 
         public void Dispose()
         {
-            foreach (TreeElement child in Children.Values)
+            foreach (var child in Children.Values)
             {
                 child.Dispose();
             }
@@ -205,7 +202,7 @@ namespace EDILibrary
             var children = from elem in root.Children.Values where elem.Dirty && !elem.Children.Any() select elem;
             if (!children.Any())
                 root.Dirty = false;
-            foreach (TreeElement child in root.Children.Values)
+            foreach (var child in root.Children.Values)
             {
                 RefreshDirtyFlags(child);
             }
@@ -217,7 +214,7 @@ namespace EDILibrary
 
 
             TreeElement oldRoot = null;
-            string segName = segment.LowMemSplit("+").First();
+            var segName = segment.LowMemSplit("+").First();
             if (segName.StartsWith("UNS"))
             {
             }
@@ -234,7 +231,7 @@ namespace EDILibrary
                     TreeElement ele = null;
                     if (treeCopyMap.ContainsKey(root.Name) && treeCopyMap[root.Name].Occurence != root.Occurence)
                     {
-                        TreeElement linkRoot = treeCopyMap[root.Name];
+                        var linkRoot = treeCopyMap[root.Name];
                         ele = FindEdiElement(ref linkRoot, segment);
                         oldRoot = root;
                         root = linkRoot;
@@ -242,52 +239,50 @@ namespace EDILibrary
                         System.Diagnostics.Debug.Assert(root != null, segment, oldRoot.ToString());
                         return ele;
                     }
-                    else
-                    {
-                        oldRoot = root;
-                        if (root.Name != "/")
-                        {
-                            root = root.Parent;
-                            System.Diagnostics.Debug.Assert(root != null, segment, oldRoot.ToString());
-                            ele = FindEdiElement(ref root, segment);
-                            return ele;
-                        }
-                        else if (segName.StartsWith("UNH"))
-                        {
-                            if (treeRoot == null)
-                                treeRoot = root.Children[segName];
-                            TreeElement copy = new TreeElement(treeRoot);
-                            TreeElement child = treeRoot;
-                            treeRoot = copy;
-                            //bei UNH muss ich dann schon die Anzahl der UNH-Kinder zählen und die Occurence manuell setzen
-                            int UNHCounter = 0;
-                            foreach (TreeElement tempChild in root.Children.Values)
-                            {
-                                if (tempChild.Name.StartsWith("UNH"))
-                                    UNHCounter++;
-                            }
-                            foreach (TreeElement c in child.Children.Values)
-                                c.Dirty = false;
-                            foreach (TreeElement c in copy.Children.Values)
-                                c.Dirty = false;
-                            treeCopyMap["UNH"] = copy;
-                            copy.Dirty = false;
-                            copy.Occurence = UNHCounter;
-                            root.AddChild(copy);
-                            root = child;
-                            return child;
-                        }
 
+                    oldRoot = root;
+                    if (root.Name != "/")
+                    {
+                        root = root.Parent;
+                        System.Diagnostics.Debug.Assert(root != null, segment, oldRoot.ToString());
+                        ele = FindEdiElement(ref root, segment);
+                        return ele;
+                    }
+
+                    if (segName.StartsWith("UNH"))
+                    {
+                        if (treeRoot == null)
+                            treeRoot = root.Children[segName];
+                        var copy = new TreeElement(treeRoot);
+                        var child = treeRoot;
+                        treeRoot = copy;
+                        //bei UNH muss ich dann schon die Anzahl der UNH-Kinder zählen und die Occurence manuell setzen
+                        var UNHCounter = 0;
+                        foreach (var tempChild in root.Children.Values)
+                        {
+                            if (tempChild.Name.StartsWith("UNH"))
+                                UNHCounter++;
+                        }
+                        foreach (var c in child.Children.Values)
+                            c.Dirty = false;
+                        foreach (var c in copy.Children.Values)
+                            c.Dirty = false;
+                        treeCopyMap["UNH"] = copy;
+                        copy.Dirty = false;
+                        copy.Occurence = UNHCounter;
+                        root.AddChild(copy);
+                        root = child;
+                        return child;
                     }
 
                 }
                 if (root.Children[segName].Key)
                 {
 
-                    TreeElement child = root.Children[segName];
+                    var child = root.Children[segName];
                     if (child.Parent.Name != "/" && child.Parent.Name != "UNH")
                     {
-                        TreeElement copy = new TreeElement(root);
+                        var copy = new TreeElement(root);
                         treeCopyMap[TreeElement.ExtractName(root.Name)] = copy;
                         root.Parent.AddChild(copy);
                         root.Dirty = true;
@@ -299,51 +294,46 @@ namespace EDILibrary
                 }
                 return root.Children[segName];
             }
-            else
+
+            foreach (var child in root.Children.Values)
             {
-                foreach (TreeElement child in root.Children.Values)
+                if (child.Dirty)
+                    continue;
+                var ele = child.FindElement(segName, false);
+                // Wenn das Element existiert müssen wir tiefer navigieren und legen dafür eine Kopie an
+                if (ele != null)
                 {
-                    if (child.Dirty)
-                        continue;
-                    TreeElement ele = child.FindElement(segName, false);
-                    // Wenn das Element existiert müssen wir tiefer navigieren und legen dafür eine Kopie an
-                    if (ele != null)
-                    {
-                        TreeElement copy = new TreeElement(child);
-                        treeCopyMap[TreeElement.ExtractName(child.Name)] = copy;
-                        child.Parent.AddChild(copy);
-                        child.Dirty = true;
-                        copy.Dirty = false;
-                        oldRoot = root;
-                        root = child;
-                        System.Diagnostics.Debug.Assert(root != null, segment, oldRoot.ToString());
-                        if (child[segName].Key)
-                            child[segName].Dirty = true;
-                        return child[segName];
-                    }
+                    var copy = new TreeElement(child);
+                    treeCopyMap[TreeElement.ExtractName(child.Name)] = copy;
+                    child.Parent.AddChild(copy);
+                    child.Dirty = true;
+                    copy.Dirty = false;
+                    oldRoot = root;
+                    root = child;
+                    System.Diagnostics.Debug.Assert(root != null, segment, oldRoot.ToString());
+                    if (child[segName].Key)
+                        child[segName].Dirty = true;
+                    return child[segName];
                 }
-                if (root.Parent != null)
-                {
-                    //TEST 1302
-                    //if (root.Parent.Name != "/")
-                    //{
-                    //    foreach (TreeElement child in root.Children.Values)
-                    //        child.Dirty = true;
-                    //}
-                    root = root.Parent;
-                    TreeElement ele = FindEdiElement(ref root, segment);
-
-                    return ele;
-                }
-                else
-                {
-                    //oldRoot = root;
-                    //root = root.Parent;
-                    //System.Diagnostics.Debug.Assert(root != null, segment, oldRoot.ToString());
-                    return null;
-                }
-
             }
+            if (root.Parent != null)
+            {
+                //TEST 1302
+                //if (root.Parent.Name != "/")
+                //{
+                //    foreach (TreeElement child in root.Children.Values)
+                //        child.Dirty = true;
+                //}
+                root = root.Parent;
+                var ele = FindEdiElement(ref root, segment);
+
+                return ele;
+            }
+
+            //oldRoot = root;
+            //root = root.Parent;
+            //System.Diagnostics.Debug.Assert(root != null, segment, oldRoot.ToString());
+            return null;
         }
         //  static SHA1 hash = System.Security.Cryptography.SHA1.Create();
         static HashAlgorithm hash = Murmur.MurmurHash.Create128(seed: (uint)new DateTime().Ticks);
@@ -360,8 +350,8 @@ namespace EDILibrary
             //zerlegt werden. Danach muss das Resultat wieder zurück in ein string.
 
             // Convert the string into an array of bytes.
-            byte[] textToHash = UE.GetBytes(TextToHash);
-            byte[] result = hash.ComputeHash(textToHash);
+            var textToHash = UE.GetBytes(TextToHash);
+            var result = hash.ComputeHash(textToHash);
 
             return BitConverter.ToString(result);
         }
@@ -369,11 +359,11 @@ namespace EDILibrary
         {
             if (ele.Edi.Count == 0 && ele.Children.Count == 0)
                 return true;
-            if (ele.Children.Count > 0)
+            if (ele.Children.Any())
             {
-                bool delete = true;
-                List<string> deleteList = new List<string>();
-                foreach (KeyValuePair<string, TreeElement> child in ele.Children)
+                var delete = true;
+                var deleteList = new List<string>();
+                foreach (var child in ele.Children)
                 {
                     if (CleanTree(child.Value) == false)
                         delete = false;
@@ -384,7 +374,7 @@ namespace EDILibrary
 
                     }
                 }
-                foreach (string del in deleteList)
+                foreach (var del in deleteList)
                     ele.Children.Remove(del);
                 if (delete)
                 {

@@ -11,10 +11,10 @@ namespace EDILibrary
     {
         protected void ParseStep(JObject step, StringBuilder builder)
         {
-            string stepName = step.Property("name").Value.Value<string>();
+            var stepName = step.Property("name").Value.Value<string>();
             foreach (JObject group in step.Property("groups").Value as JArray)
             {
-                string groupName = group.Property("key").Value.Value<string>();
+                var groupName = group.Property("key").Value.Value<string>();
                 if (group.Property("fields") != null)
                 {
                     foreach (JObject field in @group.Property("fields").Value as JArray)
@@ -28,7 +28,7 @@ namespace EDILibrary
                         }
                         else
                         {
-                            string fieldName = field.Property("key").Value.Value<string>();
+                            var fieldName = field.Property("key").Value.Value<string>();
                             builder.Append(string.Format("{0}/{1};", groupName, fieldName));
                         }
                     }
@@ -47,7 +47,7 @@ namespace EDILibrary
                     }
                     else
                     {
-                        string fieldName = field.Property("key").Value.Value<string>();
+                        var fieldName = field.Property("key").Value.Value<string>();
                         builder.Append(string.Format("{0};", fieldName));
                     }
                 }
@@ -82,9 +82,9 @@ namespace EDILibrary
         }
         public string CreateCSVTemplateFromJSON(string json)
         {
-            JObject rootObject = JsonConvert.DeserializeObject<JObject>(json);
-            StringBuilder builder = new StringBuilder();
-            StringBuilder valueBuilder = new StringBuilder();
+            var rootObject = JsonConvert.DeserializeObject<JObject>(json);
+            var builder = new StringBuilder();
+            var valueBuilder = new StringBuilder();
             if (rootObject.Property("steps") != null)
             {
                 foreach (var step in (rootObject.Property("steps").Value as JObject).Properties())
@@ -116,10 +116,10 @@ namespace EDILibrary
             if (segment.Contains("|"))
             {
                 var segmentParts = segment.Split('|');
-                string newSegment = string.Join("|", segmentParts.Skip(1));
+                var newSegment = string.Join("|", segmentParts.Skip(1));
                 if (localRoot.Property(segmentParts[0]) == null)
                 {
-                    JArray newChilds = new JArray(new JObject());
+                    var newChilds = new JArray(new JObject());
                     localRoot.Add(segmentParts[0], newChilds);
                 }
                 BuildObjectFromSegment(newSegment, value, (localRoot.Property(segmentParts[0]).Value as JArray)[0] as JObject);
@@ -142,17 +142,17 @@ namespace EDILibrary
             //first split header line from content lines
             var lines = csv.LowMemSplit(Environment.NewLine);
             var segments = lines[0].Split(new[] { ";" }, StringSplitOptions.None);
-            List<string> returnList = new List<string>();
+            var returnList = new List<string>();
             foreach (var line in lines.Skip(1))
             {
                 var lineSegments = line.Split(new[] { ";" }, StringSplitOptions.None);
-                int index = 0;
-                JObject lineObject = new JObject();
-                JObject nachrichtObject = new JObject
+                var index = 0;
+                var lineObject = new JObject();
+                var nachrichtObject = new JObject
                 {
                     { "Nachricht", new JArray(lineObject) }
                 };
-                JObject dokumentObject = new JObject
+                var dokumentObject = new JObject
                 {
                     { "Dokument", new JArray(nachrichtObject) }
                 };

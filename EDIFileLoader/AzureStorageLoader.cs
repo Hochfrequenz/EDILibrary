@@ -38,7 +38,7 @@ namespace EDIFileLoader
         }
         public async Task PreloadCache()
         {
-            ConcurrentBag<Task> tasks = new ConcurrentBag<Task>();
+            var tasks = new ConcurrentBag<Task>();
             await foreach (var prefixPage in _container.GetBlobsByHierarchyAsync(Azure.Storage.Blobs.Models.BlobTraits.Metadata, Azure.Storage.Blobs.Models.BlobStates.None, "/").AsPages())
             {
 
@@ -56,7 +56,7 @@ namespace EDIFileLoader
                                     if (blob.IsBlob)
                                     {
                                         var blockBlob = _container.GetBlobClient(blob.Blob.Name);
-                                        string text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
+                                        var text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
                                         text = EDIHelper.RemoveByteOrderMark(text);
                                         Cache[prefix.Prefix.TrimEnd('/')].TryAdd(blob.Blob.Name, text);
                                     }
@@ -83,7 +83,7 @@ namespace EDIFileLoader
             }
             var blockBlob = _container.GetBlobClient(Path.Combine("edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type));
 
-            string text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
+            var text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
             text = EDIHelper.RemoveByteOrderMark(text);
             return text;
         }
@@ -115,7 +115,7 @@ namespace EDIFileLoader
             }
             var blockBlob = _container.GetBlobClient(System.IO.Path.Combine(version.Replace("/", ""), fileName).Replace("\\", "/"));
 
-            string text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
+            var text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
             text = EDIHelper.RemoveByteOrderMark(text);
             return text;
         }
