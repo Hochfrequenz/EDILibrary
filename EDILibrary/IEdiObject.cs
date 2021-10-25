@@ -140,7 +140,7 @@ namespace EDILibrary
                 elem.Add(ch);
             }
         }
-        protected string escapeSpecialChars(string value)
+        protected static string escapeSpecialChars(string value)
         {
             return value.Replace("\"", "\\\"");
         }
@@ -162,11 +162,10 @@ namespace EDILibrary
                 var oldI = i;
                 while (index < cur.Fields.First(f => f.Value.Count > 1).Value.Count)
                 {
-                    foreach (var elem in cur.Fields)
+                    foreach (var (key, value) in cur.Fields)
                     {
                         i--;
-                        _builder.AppendLine("\"" + elem.Key + "\" : \"" + escapeSpecialChars(elem.Value.ElementAt(index)) + "\"" + (i != 0 || hasClass ? "," : ""));
-
+                        _builder.AppendLine("\"" + key + "\" : \"" + escapeSpecialChars(value.ElementAt(index)) + "\"" + (i != 0 || hasClass ? "," : ""));
                     }
                     i = oldI;
                     if (index + 1 < cur.Fields.First(f => f.Value.Count > 1).Value.Count)

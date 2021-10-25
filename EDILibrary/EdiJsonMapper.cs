@@ -42,16 +42,19 @@ namespace EDILibrary
 
         public async Task<JsonResult> ParseToJsonWithVersion(string edi, EdifactFormatVersion? packageVersion, string includeEmptyValues = null)
         {
-            var edi_info = EDIHelper.GetEdiFileInfo(edi.Substring(0, Math.Min(1000, edi.Length)));
-            var edi_string = EDIHelper.NormalizeEDIHeader(edi);
-            var treeString = await _loader.LoadEDITemplate(edi_info, "tree");
-            var templateString = await _loader.LoadEDITemplate(edi_info, "template");
+            var ediInfo = EDIHelper.GetEdiFileInfo(edi.Substring(0, Math.Min(1000, edi.Length)));
+            var ediString = EDIHelper.NormalizeEDIHeader(edi);
+            var treeStringTask = _loader.LoadEDITemplate(ediInfo, "tree");
+            var templateStringTask = _loader.LoadEDITemplate(ediInfo, "template");
+            await Task.WhenAll(new List<Task> { treeStringTask, templateStringTask });
+            var treeString = treeStringTask.Result;
+            var templateString = templateStringTask.Result;
             var loader = new GenericEDILoader();
             var template = GenericEDILoader.LoadTemplate(templateString);
             var tree = GenericEDILoader.LoadTree(treeString);
-            var edi_tree = loader.LoadEDI(edi_string, tree);
+            var ediTree = GenericEDILoader.LoadEDI(ediString, tree);
             TreeHelper.RefreshDirtyFlags(tree);
-            var fileObject = loader.LoadTemplateWithLoadedTree(template, edi_tree);
+            var fileObject = loader.LoadTemplateWithLoadedTree(template, ediTree);
             var jsonResult = JsonConvert.DeserializeObject<JObject>(fileObject.SerializeToJSON());
             Tuple<EdifactFormat?, string> package;
             if (packageVersion.HasValue)
@@ -61,17 +64,17 @@ namespace EDILibrary
             else
             {
                 //The template loader can try to read the package from the format and version (and the right table)
-                package = new Tuple<EdifactFormat?, string>(edi_info.Format, edi_info.Version);
+                package = new Tuple<EdifactFormat?, string>(ediInfo.Format, ediInfo.Version);
             }
             //mapping laden
             JArray mappings;
             try
             {
-                mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package.Item1, package.Item2, edi_info.Format + ".json"));
+                mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package.Item1, package.Item2, ediInfo.Format + ".json"));
             }
             catch (Exception e)
             {
-                throw new BadFormatException(edi_info.Format, edi_info.Version, e);
+                throw new BadFormatException(ediInfo.Format, ediInfo.Version, e);
             }
             dynamic resultObject = new ExpandoObject();
 
@@ -80,10 +83,10 @@ namespace EDILibrary
             var result = new JsonResult
             {
                 EDI = JsonConvert.SerializeObject(resultObject),
-                Format = edi_info.Format,
-                Version = edi_info.Version,
-                Sender = edi_info.Sender.ID,
-                Receiver = edi_info.Empfänger.ID
+                Format = ediInfo.Format,
+                Version = ediInfo.Version,
+                Sender = ediInfo.Sender.ID,
+                Receiver = ediInfo.Empfänger.ID
             };
             return result;
         }
@@ -97,9 +100,12 @@ namespace EDILibrary
         public async Task<string> CreateFromJson(string jsonInput, string pid, EdifactFormatVersion formatPackage, bool convertFromUTC = false)
         {
             var format = EdifactFormatHelper.FromPruefidentifikator(pid);
-            var json = JsonConvert.DeserializeObject<JObject>(await _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), $"{pid}.json"));
+            var jsonBodyTask = _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), $"{pid}.json");
+            var mappingsBodyTask = _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), format + ".json");
+            await Task.WhenAll(new List<Task> { jsonBodyTask, mappingsBodyTask });
+            var json = JsonConvert.DeserializeObject<JObject>(jsonBodyTask.Result);
             var inputJson = JsonConvert.DeserializeObject<JObject>(jsonInput);
-            var mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), format + ".json"));
+            var mappings = JsonConvert.DeserializeObject<JArray>(mappingsBodyTask.Result);
             //map inputJson via fix values from mapping
             // if (((JObject)json.Where(entry => ((JObject)entry).Property("key").Value.Value<string>() == "utilmd").FirstOrDefault()) != null)
             //{
@@ -115,7 +121,6 @@ namespace EDILibrary
             //       throw new BadPIDException(pid);
             //    }
             var version = mappings[0]["_meta"]["version"].Value<string>();
-
             var maskArray = new JArray();
             foreach (var step in json.Property("steps").Value)
             {
@@ -138,9 +143,8 @@ namespace EDILibrary
                 Format = format,
                 Version = version,
             }, new List<string>(), _loader, convertFromUTC);
-
         }
-        protected void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool _)
+        protected static void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool _)
         {
             foreach (var prop in value.Properties())
             {
@@ -199,8 +203,6 @@ namespace EDILibrary
                             }
                             if ((target[superValue] as JArray).Count == 0)
                                 (target[superValue] as JArray).Add(addObj);
-
-
                         }
                         else
                         {
@@ -264,9 +266,8 @@ namespace EDILibrary
             }
             return false;
         }
-        protected dynamic CreateMsgJSON(JObject input, JArray mapping, JArray mask, out bool createInParent, bool convertFromUTC = false)
+        protected static dynamic CreateMsgJSON(JObject input, JArray mapping, JArray mask, out bool createInParent, bool convertFromUTC = false)
         {
-
             createInParent = false;
             if (input == null)
                 return null;
@@ -287,12 +288,8 @@ namespace EDILibrary
                             return null;
                         }).ToArray();
                         var newArray = new JArray();
-                        foreach (var map in newMappings)
-                        {
-                            if (map != null)
-                                newArray = new JArray(newArray.Union(map));
-                        }
-                        if (newMappings.Any() && newArray.Count == 0)
+                        newArray = newMappings.Where(map => map != null).Aggregate(newArray, (current, map) => new JArray(current.Union(map)));
+                        if (newMappings.Any() && !newArray.Any())
                         {
                             //Spezialfall für "groupBy"-Array-Objekte (z.B. Beginn der Nachricht)
                             newArray.Add(deps.First());
@@ -305,7 +302,7 @@ namespace EDILibrary
                                 (returnObject as IDictionary<string, object>).Add(subProp.Key, subProp.Value);
                             continue;
                         }
-                        if (newArray.Count == 0)
+                        if (!newArray.Any())
                         {
                             var subObj = FindObjectByKey(deps.First(), prop.Name, out propVal, false);
                             if (subObj.SelectToken("_meta") != null)
@@ -359,9 +356,9 @@ namespace EDILibrary
                                     else
                                     {
                                         dynamic newObj = new ExpandoObject();
-                                        foreach (var newProp in (newSub as IDictionary<string, object>).ToList())
+                                        foreach (var (key, value) in (newSub as IDictionary<string, object>).ToList())
                                         {
-                                            (newObj as IDictionary<string, object>).Add(newProp.Key, newProp.Value);
+                                            (newObj as IDictionary<string, object>).Add(key, value);
                                         }
                                         ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newObj);
                                     }
@@ -494,7 +491,6 @@ namespace EDILibrary
         }
         protected static JObject FindDependentObject(JToken val, string key, out JToken propVal)
         {
-
             propVal = null;
 
             if (val == null)
@@ -537,7 +533,7 @@ namespace EDILibrary
             }
             return false;
         }
-        protected JObject FindObjectByKey(JToken val, string key, out JToken propVal, bool ignoreParentKey)
+        protected static JObject FindObjectByKey(JToken val, string key, out JToken propVal, bool ignoreParentKey)
         {
             //searches in a mapping json object for a corresponding key and returns the found token
             propVal = null;

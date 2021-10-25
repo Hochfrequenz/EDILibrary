@@ -41,7 +41,6 @@ namespace EDIFileLoader
             var tasks = new ConcurrentBag<Task>();
             await foreach (var prefixPage in _container.GetBlobsByHierarchyAsync(Azure.Storage.Blobs.Models.BlobTraits.Metadata, Azure.Storage.Blobs.Models.BlobStates.None, "/").AsPages())
             {
-
                 foreach (var prefix in prefixPage.Values)
                 {
                     tasks.Add(Task.Run(async () =>
@@ -82,7 +81,6 @@ namespace EDIFileLoader
                 }
             }
             var blockBlob = _container.GetBlobClient(Path.Combine("edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type));
-
             var text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
             text = EDIHelper.RemoveByteOrderMark(text);
             return text;
