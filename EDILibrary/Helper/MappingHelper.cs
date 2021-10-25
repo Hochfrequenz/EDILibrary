@@ -8,7 +8,7 @@ namespace EDILibrary.Helper
 {
     public class MappingHelper
     {
-        public async Task<string> ExecuteMappings(EdiObject edi, EDIFileInfo fileInfo, List<string> mappings, ITemplateLoader loader, bool bUseLocalTime = true)
+        public static async Task<string> ExecuteMappings(EdiObject edi, EDIFileInfo fileInfo, List<string> mappings, ITemplateLoader loader, bool bUseLocalTime = true)
         {
             var createtemplate = await loader.LoadEDITemplate(fileInfo, "create.template");
             var extMapping = new ExtendedMappings();

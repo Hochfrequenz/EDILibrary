@@ -168,12 +168,7 @@ namespace EDILibrary
 
             if (recursive)
             {
-                foreach (var child in Children.Values)
-                {
-                    var ret = child.FindElement(name);
-                    if (ret != null)
-                        return ret;
-                }
+                return Children.Values.Select(child => child.FindElement(name)).FirstOrDefault(ret => ret != null);
             }
             return null;
         }

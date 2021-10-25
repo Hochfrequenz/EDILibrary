@@ -9,7 +9,7 @@ namespace EDILibrary
 {
     public class CSVMapper
     {
-        protected void ParseStep(JObject step, StringBuilder builder)
+        protected static void ParseStep(JObject step, StringBuilder builder)
         {
             var stepName = step.Property("name").Value.Value<string>();
             foreach (JObject group in step.Property("groups").Value as JArray)
@@ -53,7 +53,7 @@ namespace EDILibrary
                 }
             }
         }
-        protected void ParseProperty(JProperty prop, string prefix, StringBuilder builder, StringBuilder valueBuilder)
+        protected static void ParseProperty(JProperty prop, string prefix, StringBuilder builder, StringBuilder valueBuilder)
         {
             if (prop.Value.GetType() == typeof(JArray))
             {
@@ -111,24 +111,32 @@ namespace EDILibrary
             }
             return builder.ToString().TrimEnd(';') + Environment.NewLine + valueBuilder.ToString().TrimEnd(';');
         }
-        protected void BuildObjectFromSegment(string segment, string value, JObject localRoot)
+
+        protected static void BuildObjectFromSegment(string segment, string value, JObject localRoot)
         {
-            if (segment.Contains("|"))
+            while (true)
             {
-                var segmentParts = segment.Split('|');
-                var newSegment = string.Join("|", segmentParts.Skip(1));
-                if (localRoot.Property(segmentParts[0]) == null)
+                if (segment.Contains("|"))
                 {
-                    var newChilds = new JArray(new JObject());
-                    localRoot.Add(segmentParts[0], newChilds);
+                    var segmentParts = segment.Split('|');
+                    var newSegment = string.Join("|", segmentParts.Skip(1));
+                    if (localRoot.Property(segmentParts[0]) == null)
+                    {
+                        var newChilds = new JArray(new JObject());
+                        localRoot.Add(segmentParts[0], newChilds);
+                    }
+
+                    segment = newSegment;
+                    localRoot = (localRoot.Property(segmentParts[0]).Value as JArray)[0] as JObject;
+                    continue;
                 }
-                BuildObjectFromSegment(newSegment, value, (localRoot.Property(segmentParts[0]).Value as JArray)[0] as JObject);
-            }
-            else
-            {
+
                 localRoot.Add(segment, value);
+
+                break;
             }
         }
+
         protected string RemoveStepFromSegment(string segment)
         {
             if (!segment.Contains("|"))

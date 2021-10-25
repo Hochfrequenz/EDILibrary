@@ -49,8 +49,8 @@ namespace EDILibrary
                         return date.ToString("yyyyMMddHHmmss");
                     }
                 case "303":
-                {
-                    if (useLocalTime)
+                    {
+                        if (useLocalTime)
                         {
 
                             var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
@@ -59,21 +59,21 @@ namespace EDILibrary
 
                         }
 
-                    // Zeitzone ist stets UTC
-                    return date.ToString("yyyyMMddHHmm") + "+00";
-                }
+                        // Zeitzone ist stets UTC
+                        return date.ToString("yyyyMMddHHmm") + "+00";
+                    }
                 case "406":
-                {
-                    if (useLocalTime)
+                    {
+                        if (useLocalTime)
                         {
                             var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
                             var offset = utcOffset.ToOffset(TimeZoneInfo.Local.GetUtcOffset(utcOffset)).Offset.Hours;
                             return "+0" + offset + "00";
                         }
 
-                    // wir speichern immer UTC, daher die Zeitzone auf 0 setzen
-                    return "+0000";
-                }
+                        // wir speichern immer UTC, daher die Zeitzone auf 0 setzen
+                        return "+0000";
+                    }
                 case "Z01":
                     {
                         return dateString;
@@ -121,7 +121,7 @@ namespace EDILibrary
             return value;
         }
         static readonly Regex questionMarkRegex = new Regex("\\?'", RegexOptions.Compiled);
-        
+
         string RecurseTemplate(string template, EdiObject parent)
         {
             var currentIndex = 0;
@@ -164,7 +164,7 @@ namespace EDILibrary
                         }
 
                     }
-                    var i = 1;
+                    const int i = 1;
                     var max = nodes.Count();
                     foreach (var subnode in nodes)
                     {
@@ -199,7 +199,7 @@ namespace EDILibrary
                     if (value != null)
                         value = EscapeValue(value.Trim());
 
-                    if (value != null && value.Length > 0)
+                    if (!string.IsNullOrEmpty(value))
                     {
                         resultBuilder.Append(RecurseTemplate(innercode, parent));
                     }
@@ -260,8 +260,8 @@ namespace EDILibrary
                     if (codeTemplate.Contains("SegmentCounter"))
                     {
                         var segCount = template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+")).Count(c => c == "'".ToCharArray()[0]); // warn: culture specific
-                        //escapte ' muss ich abziehen
-                        
+                                                                                                                                                        //escapte ' muss ich abziehen
+
                         var deduct = questionMarkRegex.Matches(template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+"))).Count;
                         segCount -= deduct;
                         resultBuilder.Append(segCount);

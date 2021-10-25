@@ -94,7 +94,7 @@ namespace EDILibrary
                 }
             }
             edi = edi.Replace("??", "<<").Replace("?+", "?<").Replace("?:", "?>");
-            if (pos == null || pos == "")
+            if (string.IsNullOrEmpty(pos))
                 return null;
             var groups = edi.Split(new[] { "+" }, StringSplitOptions.None);
             var subPos = pos.Split(new[] { ":" }, StringSplitOptions.None);
@@ -310,7 +310,7 @@ namespace EDILibrary
             }
             return null;
         }
-        public XElement LoadTemplate(string template)
+        public static XElement LoadTemplate(string template)
         {
 
             var reader = new StringReader(template);
@@ -349,7 +349,7 @@ namespace EDILibrary
             return ProcessSpecificTemplate(Dokument, docElement, null);
 
         }
-        public TreeElement LoadTree(string tree)
+        public static TreeElement LoadTree(string tree)
         {
             TreeElement treeRoot;
             var seperator = "\n";
@@ -395,11 +395,11 @@ namespace EDILibrary
             {
 
 
-                var UNA = edi.Substring(0, 9);
+                var una = edi.Substring(0, 9);
                 UNAoffset = 8;
-                elementDelimiter = UNA.Substring(3, 1);
-                groupDelimiter = UNA.Substring(4, 1);
-                segmentDelimiter = UNA.Substring(8, 1);
+                elementDelimiter = una.Substring(3, 1);
+                groupDelimiter = una.Substring(4, 1);
+                segmentDelimiter = una.Substring(8, 1);
                 segDelimiterLength = segmentDelimiter.Length;
                 if (segmentDelimiter == "\r" && edi.IndexOf(Environment.NewLine) > -1)
                     segmentDelimiter = Environment.NewLine;

@@ -48,9 +48,9 @@ namespace EDILibrary
             var treeString = await _loader.LoadEDITemplate(edi_info, "tree");
             var templateString = await _loader.LoadEDITemplate(edi_info, "template");
             var loader = new GenericEDILoader();
-            var template = loader.LoadTemplate(templateString);
-            var tree = loader.LoadTree(treeString);
-            var edi_tree = loader.LoadEDI(edi_string, tree);
+            var template = GenericEDILoader.LoadTemplate(templateString);
+            var tree = GenericEDILoader.LoadTree(treeString);
+            var edi_tree = loader.LoadEdi(edi_string, tree);
             TreeHelper.RefreshDirtyFlags(tree);
             var fileObject = loader.LoadTemplateWithLoadedTree(template, edi_tree);
             var jsonResult = JsonConvert.DeserializeObject<JObject>(fileObject.SerializeToJSON());
@@ -134,7 +134,7 @@ namespace EDILibrary
             var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, out var subParent, convertFromUTC);
             EdiObject result = EdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
-            return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo
+            return await MappingHelper.ExecuteMappings(result, new EDIFileInfo
             {
                 Format = format,
                 Version = version,
@@ -233,7 +233,7 @@ namespace EDILibrary
                 }
             }
         }
-        
+
         static readonly Regex noLetterRegex = new Regex("[^A-Za-z]", RegexOptions.Compiled);
         protected static bool CompareKey(string left, string right)
         {
@@ -241,8 +241,8 @@ namespace EDILibrary
             var rightReplaced = noLetterRegex.Replace(right, "");
             return leftReplaced == rightReplaced;
         }
-        
-        protected bool FindMask(JArray mask, string maskKey)
+
+        protected static bool FindMask(JArray mask, string maskKey)
         {
             if (mask == null)
                 return false;
@@ -414,7 +414,7 @@ namespace EDILibrary
             }
             return returnObject;
         }
-        protected void SetValue(JObject input, string path, string value)
+        protected static void SetValue(JObject input, string path, string value)
         {
             var splits = path.Split(new[] { "[]." }, StringSplitOptions.None);
             if (input.SelectToken(splits.First()) is JArray)
@@ -478,7 +478,7 @@ namespace EDILibrary
             }
             return input;
         }
-        protected JObject FindDependentObject(JToken val, string key, out JToken propVal)
+        protected static JObject FindDependentObject(JToken val, string key, out JToken propVal)
         {
 
             propVal = null;
@@ -512,7 +512,7 @@ namespace EDILibrary
             }
             return null;
         }
-        protected bool CheckFieldName(string name, string key)
+        protected static bool CheckFieldName(string name, string key)
         {
             if (name == key)
                 return true;

@@ -122,7 +122,7 @@ namespace EDILibrary
         {
             return Name + "  " + Key;
         }
-        protected void Recurse(XElement elem, EdiObject child)
+        protected static void Recurse(XElement elem, EdiObject child)
         {
             foreach (var field in child.Fields)
             {
@@ -188,7 +188,7 @@ namespace EDILibrary
             {
                 if (!hasKey)
                 {
-                    var key = "";
+                    string key;// = "";
                     if (cur.Key != null)
                     {
                         key = "\"" + "Key" + "\" : \"" + cur.Key + "\"" + (i != 0 || hasClass ? "," : "");
@@ -247,7 +247,7 @@ namespace EDILibrary
             {
                 if (!hasKey)
                 {
-                    var key = "";
+                    var key;// = "";
                     if (cur.Attribute("key") != null)
                     {
                         key = "\"" + "Key" + "\" : \"" + cur.Attribute("key").Value + "\"" + (i != 0 || hasClass ? "," : "");
