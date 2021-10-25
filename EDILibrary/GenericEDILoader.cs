@@ -77,13 +77,9 @@ namespace EDILibrary
                 treeRoot.FindElements(refName, true, ref childTree, 1);
                 childTree = (from childElem in childTree where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList();
 
-                foreach (var childRoot in childTree)
+                foreach (var childObject in childTree.Select(childRoot => ProcessSpecificTemplate(child, childRoot, objectMapping)))
                 {
-                    //iChildCounter++;
-                    var childObject = ProcessSpecificTemplate(child, childRoot, objectMapping);
-
                     rootObject.AddChild(childObject);
-
                 }
             }
             return rootObject;
@@ -418,10 +414,10 @@ namespace EDILibrary
                 var currentTreeRoot = tree;
                 foreach (var segment in message.SplitLines(segmentDelimiter.First()))
                 {
-                    var str_segment = segment.Line.ToString().TrimStart('\r', '\n', '\t').TrimEnd('\r', '\n', '\t');
-                    var child = TreeHelper.FindEdiElement(ref currentTreeRoot, str_segment);
+                    var strSegment = segment.Line.ToString().TrimStart('\r', '\n', '\t').TrimEnd('\r', '\n', '\t');
+                    var child = TreeHelper.FindEdiElement(ref currentTreeRoot, strSegment);
                     if (child != null)
-                        child.AddEdi(str_segment, child);
+                        child.AddEdi(strSegment, child);
                     else
                         return tree;
                 }
