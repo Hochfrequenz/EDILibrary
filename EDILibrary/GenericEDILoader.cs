@@ -201,118 +201,120 @@ namespace EDILibrary
                 }
             }
             ediSegment = null;
-            switch (resultEDI.Count)
+            if (resultEDI.Count == 0)
             {
-                case 0:
-                    return null;
-                case >= 1:
+                return null;
+            }
+
+            if (resultEDI.Count >= 1)
+            {
+                var resultParts = new List<string>();
+                foreach (var edi in resultEDI)
+                {
+                    if (path != null)
                     {
-                        var resultParts = new List<string>();
-                        foreach (var edi in resultEDI)
+                        var paths = path.Split(new[] { '^', '|' }, StringSplitOptions.RemoveEmptyEntries);
+                        var searchEdi = new List<string>();
+                        var part = "";
+                        var conditionMet = true;
+                        if (path.Contains('|')) // Die OR-Verknüpfung erfordert eine andere Initialisierung
+                            conditionMet = false;
+                        foreach (var tempPath in paths)
                         {
-                            if (path != null)
+                            part = "";
+                            /* If we count more then two separators we already included the segment, so skip this*/
+                            string segPath; //= null;
+                            if (tempPath.Split(new[] { ':' }).Length > 2)
                             {
-                                var paths = path.Split(new[] { '^', '|' }, StringSplitOptions.RemoveEmptyEntries);
-                                var searchEdi = new List<string>();
-                                var part = "";
-                                var condition_met = true;
-                                if (path.Contains('|')) // Die OR-Verknüpfung erfordert eine andere Initialisierung
-                                    condition_met = false;
-                                foreach (var temp_path in paths)
+                                segPath = tempPath;
+                                var searchElement = templateRoot.FindElement(segPath.Split(new[] { ':' })[0], false);
+                                if (searchElement != null)
+                                    searchEdi.AddRange(searchElement.Edi);
+                            }
+                            else
+                            {
+                                segPath = segment + ":" + tempPath;
+                                searchEdi.Add(edi);
+                            }
+
+                            var sepOp = "=";
+                            if (segPath.Contains("!="))
+                            {
+                                sepOp = "!=";
+                            }
+
+                            var opIndex = segPath.IndexOf(sepOp); // todo culture specific
+                            if (opIndex == -1)
+                                opIndex = segPath.Length;
+                            var pathSelector = segPath.Substring(0, opIndex);
+                            string pathValue = null;
+                            if (segPath.Length != sepIndex)
+                                pathValue = segPath.Substring(opIndex + sepOp.Length, segPath.Length - opIndex - sepOp.Length);
+                            else
+                            {
+                                pathValue = "";
+                            }
+
+                            //.Where(s=>s==edi)
+                            foreach (var ediSearch in searchEdi.Where(ediSearch => ediSearch.Substring(0, 3) != edi.Substring(0, 3) || ediSearch == edi))
+                            {
+                                if (sepOp == "=")
                                 {
-                                    part = "";
-                                    /* If we count more then two separators we already included the segment, so skip this*/
-                                    string seg_path = null;
-                                    if (temp_path.Split(new[] { ':' }).Length > 2)
+                                    if (getValue(pathSelector, ediSearch) == pathValue)
                                     {
-                                        seg_path = temp_path;
-                                        var searchElement = templateRoot.FindElement(seg_path.Split(new[] { ':' })[0], false);
-                                        if (searchElement != null)
-                                            searchEdi.AddRange(searchElement.Edi);
-                                    }
-                                    else
-                                    {
-                                        seg_path = segment + ":" + temp_path;
-                                        searchEdi.Add(edi);
-                                    }
-                                    var sep_op = "=";
-                                    if (seg_path.Contains("!="))
-                                    {
-                                        sep_op = "!=";
-
-                                    }
-                                    var opIndex = seg_path.IndexOf(sep_op);
-                                    if (opIndex == -1)
-                                        opIndex = seg_path.Length;
-                                    var path_selector = seg_path.Substring(0, opIndex);
-                                    string path_value = null;
-                                    if (seg_path.Length != sepIndex)
-                                        path_value = seg_path.Substring(opIndex + sep_op.Length, seg_path.Length - opIndex - sep_op.Length);
-                                    else
-                                    {
-                                        path_value = "";
-                                    }
-                                    //.Where(s=>s==edi)
-                                    foreach (var ediSearch in searchEdi)
-                                    {
-                                        if (ediSearch.Substring(0, 3) == edi.Substring(0, 3) && ediSearch != edi)
-                                            continue;
-                                        if (sep_op == "=")
-                                        {
-                                            if (getValue(path_selector, ediSearch) == path_value)
-                                            {
-                                                //20120807: Geänder von edi_search auf edi um auch in CCI-CAV-Segmenten den Key richtig zu bestimmen
-                                                part = getValue(selection, edi);
-                                                break;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (getValue(path_selector, ediSearch) != path_value)
-                                            {
-                                                //20120807: Geänder von edi_search auf edi um auch in CCI-CAV-Segmenten den Key richtig zu bestimmen
-                                                part = getValue(selection, edi);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    if (string.IsNullOrWhiteSpace(part) == false)
-                                    {
-                                        if (path.Contains('|'))
-                                        {
-                                            condition_met = true;
-                                            break;
-                                        }
-
-                                    }
-                                    else
-                                    {
-                                        if (!path.Contains('|'))
-                                        {
-                                            condition_met = false;
-                                            break;
-                                        }
+                                        //20120807: Geänder von edi_search auf edi um auch in CCI-CAV-Segmenten den Key richtig zu bestimmen
+                                        part = getValue(selection, edi);
+                                        break;
                                     }
                                 }
-                                if (condition_met)
+                                else
                                 {
-                                    ediSegment = edi;
-                                    resultParts.Add(part);
+                                    if (getValue(pathSelector, ediSearch) != pathValue)
+                                    {
+                                        //20120807: Geänder von edi_search auf edi um auch in CCI-CAV-Segmenten den Key richtig zu bestimmen
+                                        part = getValue(selection, edi);
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (string.IsNullOrWhiteSpace(part) == false)
+                            {
+                                if (path.Contains('|'))
+                                {
+                                    conditionMet = true;
+                                    break;
                                 }
                             }
                             else
                             {
-                                ediSegment = edi;
-                                resultParts.Add(getValue(selection, edi));
+                                if (!path.Contains('|'))
+                                {
+                                    conditionMet = false;
+                                    break;
+                                }
                             }
                         }
-                        if (resultParts.Any())
-                            return string.Join("|", resultParts);
-                        return null;
+
+                        if (conditionMet)
+                        {
+                            ediSegment = edi;
+                            resultParts.Add(part);
+                        }
                     }
-                default:
-                    return null;
+                    else
+                    {
+                        ediSegment = edi;
+                        resultParts.Add(getValue(selection, edi));
+                    }
+                }
+
+                if (resultParts.Any())
+                    return string.Join("|", resultParts);
+                return null;
             }
+
+            return null;
         }
         public static XElement LoadTemplate(string template)
         {

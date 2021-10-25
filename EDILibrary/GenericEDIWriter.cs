@@ -55,7 +55,7 @@ namespace EDILibrary
 
                             var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
                             var offset = utcOffset.ToOffset(TimeZoneInfo.Local.GetUtcOffset(utcOffset)).Offset.Hours;
-                            return date.ToLocalTime().ToString("yyyyMMddHHmm") + "+0" + offset; ;
+                            return date.ToLocalTime().ToString("yyyyMMddHHmm") + "+0" + offset;
 
                         }
 
@@ -141,9 +141,8 @@ namespace EDILibrary
                 {
                     var nodeparts = code.Split(new[] { ' ' });
                     var node = string.Join(" ", nodeparts.Skip(1));
-                    string innercode;
                     beginIndex = template.IndexOf("</foreach " + node + ">", endIndex);// :warn: is culture specific
-                    innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
+                    var innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
                     var nodes = from ele in parent.SelfOrChildren
                                 where ele.Name == node
                                 select ele;
@@ -182,9 +181,8 @@ namespace EDILibrary
                 {
                     var nodeparts = code.Split(new[] { ' ' });
                     var node = string.Join(" ", nodeparts.Skip(1));
-                    string innercode;
                     beginIndex = template.IndexOf("</if>", endIndex);
-                    innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
+                    var innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
 
                     string value = null;
 

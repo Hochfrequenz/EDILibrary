@@ -211,25 +211,33 @@ namespace EDILibrary
                 }
             }
         }
+
         protected static void AddProperty(IDictionary<string, object> target, string name, JToken value)
         {
-            if (name.Contains(".") == false)
+            while (true)
             {
-                target.Add(name, value);
-            }
-            else
-            {
-                var splits = name.Split(new[] { "." }, StringSplitOptions.None);
-                if (target.ContainsKey(splits.First()))
+                if (name.Contains(".") == false)
                 {
-                    AddProperty(target[splits.First()] as IDictionary<string, object>, string.Join(".", splits.Skip(1)), value);
+                    target.Add(name, value);
                 }
                 else
                 {
+                    var splits = name.Split(new[] { "." }, StringSplitOptions.None);
+                    if (target.ContainsKey(splits.First()))
+                    {
+                        target = target[splits.First()] as IDictionary<string, object>;
+                        name = string.Join(".", splits.Skip(1));
+                        continue;
+                    }
+
                     var newObj = new ExpandoObject();
                     target.Add(splits.First(), newObj);
-                    AddProperty(target[splits.First()] as IDictionary<string, object>, string.Join(".", splits.Skip(1)), value);
+                    target = target[splits.First()] as IDictionary<string, object>;
+                    name = string.Join(".", splits.Skip(1));
+                    continue;
                 }
+
+                break;
             }
         }
 

@@ -382,11 +382,11 @@ namespace EDILibrary
         }
         public bool ContainsChild(string name, string key)
         {
-            return (from child in Children where child.Name == name && child.Key == key select child).Count() > 0;
+            return (from child in Children where child.Name == name && child.Key == key select child).Any();
         }
         public bool ContainsChild(string name)
         {
-            return (from child in Children where child.Name == name select child).Count() > 0;
+            return (from child in Children where child.Name == name select child).Any();
         }
         public void RemoveField(string name)
         {
