@@ -76,7 +76,7 @@ namespace EDILibrary
             }
             dynamic resultObject = new ExpandoObject();
 
-            var resultDict = resultObject as IDictionary<string, object>;
+            // var resultDict = resultObject as IDictionary<string, object>;
             ParseObject(jsonResult, resultObject as IDictionary<string, object>, mappings, includeEmptyValues != null);
             var result = new JsonResult
             {
@@ -141,7 +141,7 @@ namespace EDILibrary
             }, new List<string>(), _loader, convertFromUTC);
 
         }
-        protected void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool includeEmptyValues)
+        protected void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool _)
         {
             foreach (var prop in value.Properties())
             {
@@ -212,7 +212,7 @@ namespace EDILibrary
                 }
             }
         }
-        protected void AddProperty(IDictionary<string, object> target, string name, JToken value)
+        protected static void AddProperty(IDictionary<string, object> target, string name, JToken value)
         {
             if (name.Contains(".") == false)
             {
@@ -235,11 +235,11 @@ namespace EDILibrary
         }
         
         static readonly Regex noLetterRegex = new Regex("[^A-Za-z]", RegexOptions.Compiled);
-        protected bool CompareKey(string left, string right)
+        protected static bool CompareKey(string left, string right)
         {
-            var left_replaced = noLetterRegex.Replace(left, "");
-            var right_replaced = noLetterRegex.Replace(right, "");
-            return left_replaced == right_replaced;
+            var leftReplaced = noLetterRegex.Replace(left, "");
+            var rightReplaced = noLetterRegex.Replace(right, "");
+            return leftReplaced == rightReplaced;
         }
         
         protected bool FindMask(JArray mask, string maskKey)

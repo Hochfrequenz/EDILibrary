@@ -64,7 +64,7 @@ namespace EDILibrary
 
             foreach (var child in children)
             {
-                var iChildCounter = 0;
+                //var iChildCounter = 0;
                 var Hash = "";
                 if (child.Attribute("hash") == null)
                 {
@@ -79,7 +79,7 @@ namespace EDILibrary
 
                 foreach (var childRoot in childTree)
                 {
-                    iChildCounter++;
+                    //iChildCounter++;
                     var childObject = ProcessSpecificTemplate(child, childRoot, objectMapping);
 
                     rootObject.AddChild(childObject);
