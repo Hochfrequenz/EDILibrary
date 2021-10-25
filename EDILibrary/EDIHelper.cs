@@ -36,7 +36,7 @@ namespace EDILibrary
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((EDIPartner)obj);
         }
 
@@ -68,7 +68,7 @@ namespace EDILibrary
             return string.Join("_",
                 new List<string>
                 {
-                    this.Format.ToString(), Referenz, Sender != null ? Sender.ToString() : "", Empfänger != null ? Empfänger.ToString() : "", DateTime.UtcNow.ToString("yyyyMMdd"), ID
+                    Format.ToString(), Referenz, Sender != null ? Sender.ToString() : "", Empfänger != null ? Empfänger.ToString() : "", DateTime.UtcNow.ToString("yyyyMMdd"), ID
                 });
         }
 
@@ -76,7 +76,7 @@ namespace EDILibrary
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Version == other.Version && this.Format == other.Format && Equals(Sender, other.Sender) && Equals(Empfänger, other.Empfänger) && ID == other.ID &&
+            return Version == other.Version && Format == other.Format && Equals(Sender, other.Sender) && Equals(Empfänger, other.Empfänger) && ID == other.ID &&
                    Referenz == other.Referenz && Freigabenummer == other.Freigabenummer && Nachrichtenversion == other.Nachrichtenversion;
         }
 
@@ -84,7 +84,7 @@ namespace EDILibrary
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((EDIFileInfo)obj);
         }
 
@@ -229,25 +229,25 @@ namespace EDILibrary
                 edi = RemoveBOM(edi);
                 var specialChars = GetSpecialChars(edi);
                 var message = GetActualMessage(edi, specialChars);
-                string[] segments = message.LowMemSplit(specialChars.SegmentDelimiter).Take(2).ToArray();
-                string unb = segments[0];
-                string unh = segments[1];
-                string[] unbParts = unb.Split(specialChars.GroupDelimiter.ToCharArray());
-                string[] unhParts = unh.Split(specialChars.GroupDelimiter.ToCharArray());
+                var segments = message.LowMemSplit(specialChars.SegmentDelimiter).Take(2).ToArray();
+                var unb = segments[0];
+                var unh = segments[1];
+                var unbParts = unb.Split(specialChars.GroupDelimiter.ToCharArray());
+                var unhParts = unh.Split(specialChars.GroupDelimiter.ToCharArray());
 
-                EDIPartner sender = new EDIPartner
+                var sender = new EDIPartner
                 {
                     CodeList =
                         unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray()).Length > 1 ? unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[1] : "500",
                     ID = unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]
                 };
-                EDIPartner empfänger = new EDIPartner
+                var empfänger = new EDIPartner
                 {
                     CodeList =
                         unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray()).Length > 1 ? unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray())[1] : "500",
                     ID = unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray())[0]
                 };
-                EDIFileInfo file = new EDIFileInfo
+                var file = new EDIFileInfo
                 {
                     Empfänger = empfänger,
                     Sender = sender,

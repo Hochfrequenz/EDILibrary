@@ -16,8 +16,8 @@ namespace EDILibrary.Exceptions
 
         public BadFormatException(EdifactFormat? format, string version, Exception innerException) : base($"Format {format} in version {version} could not be found", innerException)
         {
-            this._format = format;
-            this._version = version;
+            _format = format;
+            _version = version;
         }
 
         [Obsolete("Use strongly typed overload instead")]

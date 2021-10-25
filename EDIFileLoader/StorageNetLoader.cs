@@ -1,9 +1,6 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
 
 using EDILibrary;
-
-using Microsoft.Extensions.Logging;
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.Extensions.Logging;
 namespace EDIFileLoader
 {
     public class StorageNetLoader : EDILibrary.Interfaces.ITemplateLoader
@@ -46,7 +43,7 @@ namespace EDIFileLoader
         /// <returns></returns>
         public async Task PreloadCache()
         {
-            ConcurrentBag<Task> tasks = new ConcurrentBag<Task>();
+            var tasks = new ConcurrentBag<Task>();
             // go through all folders
             foreach (var folder in await Storage.ListAsync(new Storage.Net.Blobs.ListOptions() { FolderPath = Root }))
             {
@@ -107,7 +104,7 @@ namespace EDIFileLoader
             }
             try
             {
-                string text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", "edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type).Replace("\\", "/"));
+                var text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", "edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type).Replace("\\", "/"));
                 text = EDIHelper.RemoveByteOrderMark(text);
                 if (Cache != null)
                 {
@@ -163,7 +160,7 @@ namespace EDIFileLoader
             }
             try
             {
-                string text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", version.Replace("/", ""), fileName).Replace("\\", "/"));
+                var text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", version.Replace("/", ""), fileName).Replace("\\", "/"));
                 text = EDIHelper.RemoveByteOrderMark(text);
                 if (Cache != null)
                 {

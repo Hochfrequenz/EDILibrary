@@ -11,7 +11,6 @@ using System.Dynamic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace EDILibrary
 {
@@ -45,11 +44,11 @@ namespace EDILibrary
         {
             var edi_info = EDIHelper.GetEdiFileInfo(edi.Substring(0, Math.Min(1000, edi.Length)));
             var edi_string = EDIHelper.NormalizeEDIHeader(edi);
-            string treeString = await _loader.LoadEDITemplate(edi_info, "tree");
-            string templateString = await _loader.LoadEDITemplate(edi_info, "template");
-            GenericEDILoader loader = new GenericEDILoader();
-            XElement template = loader.LoadTemplate(templateString);
-            TreeElement tree = loader.LoadTree(treeString);
+            var treeString = await _loader.LoadEDITemplate(edi_info, "tree");
+            var templateString = await _loader.LoadEDITemplate(edi_info, "template");
+            var loader = new GenericEDILoader();
+            var template = GenericEDILoader.LoadTemplate(templateString);
+            var tree = GenericEDILoader.LoadTree(treeString);
             var edi_tree = loader.LoadEDI(edi_string, tree);
             TreeHelper.RefreshDirtyFlags(tree);
             var fileObject = loader.LoadTemplateWithLoadedTree(template, edi_tree);
@@ -76,9 +75,9 @@ namespace EDILibrary
             }
             dynamic resultObject = new ExpandoObject();
 
-            var resultDict = resultObject as IDictionary<string, object>;
+            // var resultDict = resultObject as IDictionary<string, object>;
             ParseObject(jsonResult, resultObject as IDictionary<string, object>, mappings, includeEmptyValues != null);
-            JsonResult result = new JsonResult
+            var result = new JsonResult
             {
                 EDI = JsonConvert.SerializeObject(resultObject),
                 Format = edi_info.Format,
@@ -100,7 +99,7 @@ namespace EDILibrary
             var format = EdifactFormatHelper.FromPruefidentifikator(pid);
             var json = JsonConvert.DeserializeObject<JObject>(await _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), $"{pid}.json"));
             var inputJson = JsonConvert.DeserializeObject<JObject>(jsonInput);
-            JArray mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), format + ".json"));
+            var mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), format + ".json"));
             //map inputJson via fix values from mapping
             // if (((JObject)json.Where(entry => ((JObject)entry).Property("key").Value.Value<string>() == "utilmd").FirstOrDefault()) != null)
             //{
@@ -117,7 +116,7 @@ namespace EDILibrary
             //    }
             var version = mappings[0]["_meta"]["version"].Value<string>();
 
-            JArray maskArray = new JArray();
+            var maskArray = new JArray();
             foreach (var step in json.Property("steps").Value)
             {
                 foreach (var prop in ((step as JObject)?.Property("fields").Value as JObject).Properties())
@@ -134,23 +133,23 @@ namespace EDILibrary
             var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, out var subParent, convertFromUTC);
             EdiObject result = EdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
-            return await new MappingHelper().ExecuteMappings(result, new EDIFileInfo
+            return await MappingHelper.ExecuteMappings(result, new EDIFileInfo
             {
                 Format = format,
                 Version = version,
             }, new List<string>(), _loader, convertFromUTC);
 
         }
-        protected void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool includeEmptyValues)
+        protected void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool _)
         {
             foreach (var prop in value.Properties())
             {
-                var deps = mappings.Where(map => FindDependentObject(map, prop.Name, out JToken propVal) != null).ToList();
+                var deps = mappings.Where(map => FindDependentObject(map, prop.Name, out var propVal) != null).ToList();
                 if (deps.Any())
                 {
                     foreach (var dep in deps)
                     {
-                        var retObj = FindDependentObject(dep, prop.Name, out JToken propVal);
+                        var retObj = FindDependentObject(dep, prop.Name, out var propVal);
                         var superValue = ((JProperty)retObj.First).Value.Value<string>();
                         var superKey = ((JProperty)retObj.First).Name;
                         if (propVal.Type == JTokenType.Array)
@@ -164,85 +163,93 @@ namespace EDILibrary
                                 foreach (var entry in prop.Value as JArray)
                                 {
                                     dynamic subObj = new ExpandoObject();
-                                    ParseObject(entry as JObject, subObj as IDictionary<string, object>, (JArray)propVal, includeEmptyValues);
+                                    ParseObject(entry as JObject, subObj as IDictionary<string, object>, (JArray)propVal, _);
                                     obj.Add(subObj);
                                 }
                             }
                             else
                             {
-                                ParseObject(prop.Value as JObject, obj as IDictionary<string, object>, (JArray)propVal, includeEmptyValues);
+                                ParseObject(prop.Value as JObject, obj as IDictionary<string, object>, (JArray)propVal, _);
                             }
 
                             target.Add(((JObject)dep).Property("key").Value.Value<string>(), obj);
 
                             continue;
                         }
+
+                        //special case for groupBy fields
+                        if (superKey != prop.Name && superValue != prop.Name)
+                        {
+                            //dynamic obj = new ExpandoObject();
+                            if (!target.ContainsKey(superValue))
+                            {
+                                //create group array
+                                target.Add(superValue, new JArray());
+                            }
+                            var newProp = new ExpandoObject();
+                            AddProperty(newProp, ((JValue)propVal).Value<string>(), prop.Value);
+                            var addObj = new JObject();
+                            //if we already have an object in the array, just add the new property
+                            if ((target[superValue] as JArray).Any())
+                                addObj = (target[superValue] as JArray)[0] as JObject;
+                            // go through all new defined properties and add them to the JObject
+                            foreach (var kvp in newProp)
+                            {
+                                addObj.Add(kvp.Key, JToken.FromObject(kvp.Value));
+                            }
+                            if ((target[superValue] as JArray).Count == 0)
+                                (target[superValue] as JArray).Add(addObj);
+
+
+                        }
                         else
                         {
-                            //special case for groupBy fields
-                            if (superKey != prop.Name && superValue != prop.Name)
-                            {
-                                dynamic obj = new ExpandoObject();
-                                if (!target.ContainsKey(superValue))
-                                {
-                                    //create group array
-                                    target.Add(superValue, new JArray());
-                                }
-                                var newProp = new ExpandoObject();
-                                AddProperty(newProp, ((JValue)propVal).Value<string>(), prop.Value);
-                                var addObj = new JObject();
-                                //if we already have an object in the array, just add the new property
-                                if ((target[superValue] as JArray).Count > 0)
-                                    addObj = (target[superValue] as JArray)[0] as JObject;
-                                // go through all new defined properties and add them to the JObject
-                                foreach (var kvp in newProp as IDictionary<string, object>)
-                                {
-                                    addObj.Add(kvp.Key, JToken.FromObject(kvp.Value));
-                                }
-                                if ((target[superValue] as JArray).Count == 0)
-                                    (target[superValue] as JArray).Add(addObj);
-
-
-                            }
-                            else
-                            {
-                                if (!string.IsNullOrEmpty(prop.Value.Value<string>()))
-                                    AddProperty(target, ((JValue)propVal).Value<string>(), prop.Value);
-                            }
+                            if (!string.IsNullOrEmpty(prop.Value.Value<string>()))
+                                AddProperty(target, ((JValue)propVal).Value<string>(), prop.Value);
                         }
                     }
                 }
             }
         }
-        protected void AddProperty(IDictionary<string, object> target, string name, JToken value)
+
+        protected static void AddProperty(IDictionary<string, object> target, string name, JToken value)
         {
-            if (name.Contains(".") == false)
+            while (true)
             {
-                target.Add(name, value);
-            }
-            else
-            {
-                var splits = name.Split(new[] { "." }, StringSplitOptions.None);
-                if (target.ContainsKey(splits.First()))
+                if (name.Contains(".") == false)
                 {
-                    AddProperty(target[splits.First()] as IDictionary<string, object>, string.Join(".", splits.Skip(1)), value);
+                    target.Add(name, value);
                 }
                 else
                 {
+                    var splits = name.Split(new[] { "." }, StringSplitOptions.None);
+                    if (target.ContainsKey(splits.First()))
+                    {
+                        target = target[splits.First()] as IDictionary<string, object>;
+                        name = string.Join(".", splits.Skip(1));
+                        continue;
+                    }
+
                     var newObj = new ExpandoObject();
                     target.Add(splits.First(), newObj);
-                    AddProperty(target[splits.First()] as IDictionary<string, object>, string.Join(".", splits.Skip(1)), value);
+                    target = target[splits.First()] as IDictionary<string, object>;
+                    name = string.Join(".", splits.Skip(1));
+                    continue;
                 }
+
+                break;
             }
         }
-        protected bool CompareKey(string left, string right)
+
+        static readonly Regex noLetterRegex = new Regex("[^A-Za-z]", RegexOptions.Compiled);
+        protected static bool CompareKey(string left, string right)
         {
-            Regex rx = new Regex("[^A-Za-z]");
-            var left_replaced = rx.Replace(left, "");
-            var right_replaced = rx.Replace(right, "");
-            return left_replaced == right_replaced;
+            var leftReplaced = noLetterRegex.Replace(left, "");
+            var rightReplaced = noLetterRegex.Replace(right, "");
+            return leftReplaced == rightReplaced;
         }
-        protected bool FindMask(JArray mask, string maskKey)
+
+        protected static bool FindMask(JArray mask, string maskKey)
         {
             if (mask == null)
                 return false;
@@ -266,21 +273,20 @@ namespace EDILibrary
             var returnObject = new ExpandoObject();
             foreach (var prop in input.Properties())
             {
-                var deps = mapping.Where(map => FindObjectByKey(map, prop.Name, out JToken propVal, false) != null).ToList();
+                var deps = mapping.Where(map => FindObjectByKey(map, prop.Name, out var propVal, false) != null).ToList();
                 if (deps.Any())
                 {
-                    var foundObj = FindObjectByKey(deps.First(), prop.Name, out JToken propVal, false);
+                    var foundObj = FindObjectByKey(deps.First(), prop.Name, out var propVal, false);
                     if (propVal == null) // then create new target element and recurse
                     {
 
                         var newMappings = ((deps.First() as JObject).Property("requires").Value as JArray).Select(req =>
                         {
-                            if (((req as JObject).Properties().FirstOrDefault() as JProperty)?.Value as JArray != null)
-                                return ((req as JObject).Properties().FirstOrDefault() as JProperty)?.Value as JArray;
-                            else
-                                return null;
+                            if ((req as JObject).Properties().FirstOrDefault()?.Value as JArray != null)
+                                return (req as JObject).Properties().FirstOrDefault()?.Value as JArray;
+                            return null;
                         }).ToArray();
-                        JArray newArray = new JArray();
+                        var newArray = new JArray();
                         foreach (var map in newMappings)
                         {
                             if (map != null)
@@ -295,7 +301,7 @@ namespace EDILibrary
                             if (prop.Value.GetType() == typeof(JObject))
                                 continue;
                             var newSub = CreateMsgJSON((prop.Value as JArray)[0] as JObject, newArray, mask, out var subParent, convertFromUTC);
-                            foreach (KeyValuePair<string, object> subProp in newSub as IDictionary<string, object>)
+                            foreach (var subProp in newSub as IDictionary<string, object>)
                                 (returnObject as IDictionary<string, object>).Add(subProp.Key, subProp.Value);
                             continue;
                         }
@@ -304,7 +310,7 @@ namespace EDILibrary
                             var subObj = FindObjectByKey(deps.First(), prop.Name, out propVal, false);
                             if (subObj.SelectToken("_meta") != null)
                             {
-                                string format = subObj.SelectToken("_meta.format").Value<string>();
+                                var format = subObj.SelectToken("_meta.format").Value<string>();
                                 //format date
                                 (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), new ScriptHelper { useLocalTime = convertFromUTC }.FormatDate(prop.Value.Value<string>(), format));
                             }
@@ -316,7 +322,7 @@ namespace EDILibrary
                         else
                         {
                             //check for virtual groups
-                            bool virtualGroup = false;
+                            var virtualGroup = false;
                             var subObj = FindObjectByKey(deps.First(), prop.Name, out propVal, false);
                             if (subObj.SelectToken("_meta.virtual") != null)
                                 virtualGroup = subObj.SelectToken("_meta.virtual").Value<bool>();
@@ -371,43 +377,50 @@ namespace EDILibrary
                             if (!FindMask(mask, foundObj.Property("key").Value.Value<string>()))
                                 continue;
                         }
-                        //if we have a complex type (e.g. Absender.Code) make sure to apply all values
-                        if (prop.Value.Type == JTokenType.Array)
-                        {
-                            foreach (var dep in deps)
-                            {
-                                FindObjectByKey(dep, prop.Name, out JToken newVal, false);
-                                var valPath = dep[newVal.Value<string>()].Value<string>();
-                                var pathParts = valPath.Split('.');
-                                //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
-                                createInParent = true;
-                                (returnObject as IDictionary<string, object>).Add(newVal.Value<string>(), prop.Value[0][pathParts[1]]);
 
-                            }
-                        }
-                        else if (prop.Value.Type == JTokenType.Object)
+                        switch (prop.Value.Type)
                         {
-                            foreach (var dep in deps)
-                            {
-                                FindObjectByKey(dep, prop.Name, out JToken newVal, false);
-                                var valPath = dep[newVal.Value<string>()].Value<string>();
-                                var pathParts = valPath.Split('.');
-                                if (pathParts.Length > 1)
+                            //if we have a complex type (e.g. Absender.Code) make sure to apply all values
+                            case JTokenType.Array:
                                 {
-                                    //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
-                                    createInParent = true;
-                                    (returnObject as IDictionary<string, object>).Add(newVal.Value<string>(), prop.Value[pathParts[1]]);
-                                }
-                                else
-                                {
-                                    (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), prop.Value);
-                                }
+                                    foreach (var dep in deps)
+                                    {
+                                        FindObjectByKey(dep, prop.Name, out var newVal, false);
+                                        var valPath = dep[newVal.Value<string>()].Value<string>();
+                                        var pathParts = valPath.Split('.');
+                                        //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
+                                        createInParent = true;
+                                        (returnObject as IDictionary<string, object>).Add(newVal.Value<string>(), prop.Value[0][pathParts[1]]);
 
-                            }
-                        }
-                        else
-                        {
-                            (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), prop.Value);
+                                    }
+
+                                    break;
+                                }
+                            case JTokenType.Object:
+                                {
+                                    foreach (var dep in deps)
+                                    {
+                                        FindObjectByKey(dep, prop.Name, out var newVal, false);
+                                        var valPath = dep[newVal.Value<string>()].Value<string>();
+                                        var pathParts = valPath.Split('.');
+                                        if (pathParts.Length > 1)
+                                        {
+                                            //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
+                                            createInParent = true;
+                                            (returnObject as IDictionary<string, object>).Add(newVal.Value<string>(), prop.Value[pathParts[1]]);
+                                        }
+                                        else
+                                        {
+                                            (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), prop.Value);
+                                        }
+
+                                    }
+
+                                    break;
+                                }
+                            default:
+                                (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), prop.Value);
+                                break;
                         }
                     }
 
@@ -415,7 +428,7 @@ namespace EDILibrary
             }
             return returnObject;
         }
-        protected void SetValue(JObject input, string path, string value)
+        protected static void SetValue(JObject input, string path, string value)
         {
             var splits = path.Split(new[] { "[]." }, StringSplitOptions.None);
             if (input.SelectToken(splits.First()) is JArray)
@@ -458,8 +471,8 @@ namespace EDILibrary
                 return null;
             foreach (JObject subFix in fix.SelectToken("fix") as JArray)
             {
-                string name = subFix.SelectToken("_name").Value<string>();
-                string value = "";
+                var name = subFix.SelectToken("_name").Value<string>();
+                var value = "";
                 if (subFix.SelectToken("_value") != null)
                 {
                     value = subFix.SelectToken("_value").Value<string>();
@@ -479,7 +492,7 @@ namespace EDILibrary
             }
             return input;
         }
-        protected JObject FindDependentObject(JToken val, string key, out JToken propVal)
+        protected static JObject FindDependentObject(JToken val, string key, out JToken propVal)
         {
 
             propVal = null;
@@ -488,7 +501,7 @@ namespace EDILibrary
                 return null;
             if (val.Type != JTokenType.Object)
                 return null;
-            JObject obj = (JObject)val;
+            var obj = (JObject)val;
             var requires = obj.SelectToken("requires");
             if (requires == null || requires.Type != JTokenType.Array)
             {
@@ -497,14 +510,14 @@ namespace EDILibrary
                     propVal = obj.Property(key).Value;
                     return obj;
                 }
-                else
-                    return null;
+
+                return null;
             }
             foreach (var req in (JArray)requires)
             {
                 if (req.Type != JTokenType.Object)
                     continue;
-                JObject reqObj = (JObject)req;
+                var reqObj = (JObject)req;
                 if (reqObj.Properties().FirstOrDefault()?.Name == key)
                 {
                     propVal = reqObj.Properties().First().Value;
@@ -513,7 +526,7 @@ namespace EDILibrary
             }
             return null;
         }
-        protected bool CheckFieldName(string name, string key)
+        protected static bool CheckFieldName(string name, string key)
         {
             if (name == key)
                 return true;
@@ -534,7 +547,7 @@ namespace EDILibrary
                 return null;
             if (val.Type != JTokenType.Object)
                 return null;
-            JObject obj = (JObject)val;
+            var obj = (JObject)val;
             //we have found a top level match (val.key), check if we want top level matches and return
             if (!ignoreParentKey && obj.Property("key")?.Value.Value<string>() == key)
             {
@@ -545,7 +558,7 @@ namespace EDILibrary
             //if requires is an object and not an array look for matching keys in the object properties
             if (requires == null || requires.Type != JTokenType.Array)
             {
-                foreach (JProperty prop in obj.Properties())
+                foreach (var prop in obj.Properties())
                 {
                     if (!prop.Name.StartsWith("_") && prop.Value.Type == JTokenType.String)
                     {
@@ -563,7 +576,7 @@ namespace EDILibrary
             foreach (JObject req in (JArray)requires)
             {
                 // check all properties for a match
-                foreach (JProperty sub in req.Properties())
+                foreach (var sub in req.Properties())
                 {
                     //only check properties with value type string (otherwise we can't compare the key name)
                     if (sub.Value.Type == JTokenType.String)
