@@ -165,21 +165,7 @@ namespace EDILibrary
                     templateRoot.FindElements(segment, true, ref resultList, 2);
                     if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Any() select res).Any())
                     {
-
-                        foreach (var result in resultList)
-                        {
-                            if (result.Edi.Any())
-                            {
-                                foreach (var rEdi in result.Edi)
-                                {
-                                    //                                    if (!resultEDI.Contains(rEdi))
-                                    {
-
-                                        resultEDI.Add(rEdi);
-                                    }
-                                }
-                            }
-                        }
+                        resultEDI.AddRange(resultList.Where(result => result.Edi.Any()).SelectMany(result => result.Edi));
                         if (_useCache)
                             _elementCache[templateRoot].Add(segment, resultEDI);
                     }

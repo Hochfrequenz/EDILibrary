@@ -113,12 +113,7 @@ namespace EDILibrary
         protected Dictionary<string, string> escapeMap = new Dictionary<string, string>();
         protected string EscapeValue(string value)
         {
-
-            foreach (var pair in escapeMap)
-            {
-                value = value.Replace(pair.Key, pair.Value);
-            }
-            return value;
+            return escapeMap.Aggregate(value, (current, pair) => current.Replace(pair.Key, pair.Value));
         }
         static readonly Regex questionMarkRegex = new Regex("\\?'", RegexOptions.Compiled);
 
@@ -148,12 +143,12 @@ namespace EDILibrary
                                 select ele;
                     if (!nodes.Any()) // wenn keine Treffer könnte es sich noch um eine field-Liste handeln
                     {
-                        var string_nodes = from ele in parent.Fields
+                        var stringNodes = from ele in parent.Fields
                                            where ele.Key == node
                                            select ele.Value;
-                        foreach (var value_node in string_nodes)
+                        foreach (var valueNode in stringNodes)
                         {
-                            foreach (var val in value_node)
+                            foreach (var val in valueNode)
                             {
                                 var tempObject = new EdiObject(node, null, val);
                                 tempObject.Fields.Add(node, new List<string> { val });

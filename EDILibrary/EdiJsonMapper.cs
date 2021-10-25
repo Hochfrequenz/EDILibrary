@@ -197,9 +197,9 @@ namespace EDILibrary
                             if ((target[superValue] as JArray).Any())
                                 addObj = (target[superValue] as JArray)[0] as JObject;
                             // go through all new defined properties and add them to the JObject
-                            foreach (var kvp in newProp)
+                            foreach (var (key, o) in newProp)
                             {
-                                addObj.Add(kvp.Key, JToken.FromObject(kvp.Value));
+                                addObj.Add(key, JToken.FromObject(o));
                             }
                             if ((target[superValue] as JArray).Count == 0)
                                 (target[superValue] as JArray).Add(addObj);
@@ -298,8 +298,8 @@ namespace EDILibrary
                             if (prop.Value.GetType() == typeof(JObject))
                                 continue;
                             var newSub = CreateMsgJSON((prop.Value as JArray)[0] as JObject, newArray, mask, out var subParent, convertFromUTC);
-                            foreach (var subProp in newSub as IDictionary<string, object>)
-                                (returnObject as IDictionary<string, object>).Add(subProp.Key, subProp.Value);
+                            foreach (var (key, value) in newSub as IDictionary<string, object>)
+                                (returnObject as IDictionary<string, object>).Add(key, value);
                             continue;
                         }
                         if (!newArray.Any())
@@ -339,9 +339,9 @@ namespace EDILibrary
                                             else
                                             {
                                                 dynamic newObj = new ExpandoObject();
-                                                foreach (var newProp in (newSub as IDictionary<string, object>).ToList())
+                                                foreach (var (key, value) in (newSub as IDictionary<string, object>).ToList())
                                                 {
-                                                    (newObj as IDictionary<string, object>).Add(newProp.Key, newProp.Value);
+                                                    (newObj as IDictionary<string, object>).Add(key, value);
                                                 }
                                                 ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newObj);
                                             }
@@ -462,7 +462,7 @@ namespace EDILibrary
                 }
             }
         }
-        protected JObject ApplyFix(JObject input, JObject fix)
+        protected static JObject ApplyFix(JObject input, JObject fix)
         {
             if (fix.SelectToken("fix") == null)
                 return null;

@@ -342,15 +342,15 @@ namespace EDILibrary
             {
                 var delete = true;
                 var deleteList = new List<string>();
-                foreach (var child in ele.Children)
+                foreach (var (key, value) in ele.Children)
                 {
-                    if (CleanTree(child.Value) == false)
+                    if (CleanTree(value) == false)
                     {
                         delete = false;
                     }
                     else
                     {
-                        deleteList.Add(child.Key);
+                        deleteList.Add(key);
                     }
                 }
                 foreach (var del in deleteList)

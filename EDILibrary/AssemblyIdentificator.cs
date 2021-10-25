@@ -6,7 +6,7 @@ namespace EDILibrary
 {
     public class AssemblyIdentificator
     {
-        public Assembly GetAssembly()
+        public static Assembly GetAssembly()
         {
             return Assembly.GetEntryAssembly();
         }

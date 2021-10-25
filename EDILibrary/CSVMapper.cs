@@ -80,7 +80,7 @@ namespace EDILibrary
                     valueBuilder.Append(prop.Value.Value<string>() + ";");
             }
         }
-        public string CreateCSVTemplateFromJSON(string json)
+        public static string CreateCSVTemplateFromJSON(string json)
         {
             var rootObject = JsonConvert.DeserializeObject<JObject>(json);
             var builder = new StringBuilder();
@@ -137,11 +137,11 @@ namespace EDILibrary
             }
         }
 
-        protected string RemoveStepFromSegment(string segment)
+        protected static string RemoveStepFromSegment(string segment)
         {
             return !segment.Contains("|") ? segment : string.Join("|", segment.Split('|').Skip(1));
         }
-        public List<string> CreateJSONFromCSV(string csv)
+        public static List<string> CreateJSONFromCSV(string csv)
         {
             //first split header line from content lines
             var lines = csv.LowMemSplit(Environment.NewLine);
