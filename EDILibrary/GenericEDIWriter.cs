@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -144,8 +145,8 @@ namespace EDILibrary
                     if (!nodes.Any()) // wenn keine Treffer könnte es sich noch um eine field-Liste handeln
                     {
                         var stringNodes = from ele in parent.Fields
-                                           where ele.Key == node
-                                           select ele.Value;
+                                          where ele.Key == node
+                                          select ele.Value;
                         foreach (var valueNode in stringNodes)
                         {
                             foreach (var val in valueNode)
@@ -153,10 +154,8 @@ namespace EDILibrary
                                 var tempObject = new EdiObject(node, null, val);
                                 tempObject.Fields.Add(node, new List<string> { val });
                                 resultBuilder.Append(RecurseTemplate(innercode, tempObject));
-
                             }
                         }
-
                     }
                     const int i = 1;
                     var max = nodes.Count();
@@ -200,7 +199,6 @@ namespace EDILibrary
                     endIndex = template.IndexOf("</if>", beginIndex);
                     template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 5).Replace(template.Substring(beginIndex, endIndex - beginIndex + 5), resultBuilder.ToString()) + template.Substring(endIndex + 5);
                     beginIndex = 0;
-
                 }
                 else if (codeTemplate.StartsWith("<date"))
                 {
@@ -244,7 +242,6 @@ namespace EDILibrary
                     endIndex = template.IndexOf(">", beginIndex);
                     template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, endIndex - beginIndex + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
                     beginIndex = 0;
-
                 }
                 else if (codeTemplate.StartsWith("<!") || codeTemplate.StartsWith("<$"))
                 {
@@ -258,7 +255,6 @@ namespace EDILibrary
                         var deduct = questionMarkRegex.Matches(template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+"))).Count;
                         segCount -= deduct;
                         resultBuilder.Append(segCount);
-
                     }
                     else if (codeTemplate.Contains("MessageNumber"))
                     {
@@ -297,7 +293,7 @@ namespace EDILibrary
                             counter++;
                         }*/
                     }
-                    catch (Exception)
+                    catch (Exception) // todo: now pokoemon catching
                     {
                         //     MessageBox.Show(e.ToString());
                     }
@@ -345,7 +341,6 @@ namespace EDILibrary
                         else if (codeParts[1].Contains(';'))
                         {
                             fieldLengths = codeParts[1].Split(",".ToCharArray());
-
                         }
                     }
                     if (code == parent.Name + ":Key")
@@ -357,9 +352,6 @@ namespace EDILibrary
                     }
                     else
                     {
-
-
-
                         var selection = from ele in parent.Fields
                                         where ele.Key == code
                                         select ele.Value[0];
@@ -373,8 +365,6 @@ namespace EDILibrary
 
                         if (value != null)
                             value = EscapeValue(value.Trim());
-
-
                     }
                     if (length != null)
                     {
@@ -430,7 +420,6 @@ namespace EDILibrary
                     }
 
                     resultBuilder.Append(value);
-
                     //template = template.Replace(codeTemplate, evalResult);
                     template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, endIndex - beginIndex + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
                 }
@@ -445,37 +434,34 @@ namespace EDILibrary
         {
 
         }
+
+        private static readonly List<Tuple<string, string>> CompileReplacements = new List<Tuple<string, string>>
+        {
+            new Tuple<string, string>(":+", "+"),
+            new Tuple<string, string>(":'","'"),
+            new Tuple<string, string>("+'", "'"),
+            new Tuple<string, string>(":'", "'"), // why are there duplicates? and why is the order important?
+            new Tuple<string, string>("+'", "'"),
+            new Tuple<string, string>(":'", "'"),
+            // can we maybe use a compiled regex and simply replace all at once? 
+        };
+
         public string CompileTemplate(string template, EdiObject sourceRoot)
         {
-
             var result = RecurseTemplate(template, sourceRoot);
-            var UNA = result.Substring(0, 8);
+            // a good unittest could start here because everything that follows is just replacements.
+            var una = result.Substring(0, 8);
             var content = result.Substring(8);
+            // todo: use stringbuilder and stringbuilder.replace instead of overwriting content https://youtu.be/qfZVu0alU0I?t=34
             content = content.Replace("??", "<<").Replace("?+", "?<").Replace("?:", "?>");
-            while (content.Contains(":+"))
+            foreach (var (oldVar, replacement) in CompileReplacements)
             {
-                content = content.Replace(":+", "+");
+                while (content.Contains(oldVar))
+                {
+                    content = content.Replace(oldVar, replacement);
+                }
             }
-            while (content.Contains(":'"))
-            {
-                content = content.Replace(":'", "'");
-            }
-            while (content.Contains("+'"))
-            {
-                content = content.Replace("+'", "'");
-            }
-            while (content.Contains(":'"))
-            {
-                content = content.Replace(":'", "'");
-            }
-            while (content.Contains("+'"))
-            {
-                content = content.Replace("+'", "'");
-            }
-            while (content.Contains(":'"))
-            {
-                content = content.Replace(":'", "'");
-            }
+            // todo: write a unittest for the edge cases this code is supposed to solve and then find a better way
             while (content.Contains("\n\n") || content.Contains("\r\r") || content.Contains("\n\r") || content.Contains("\r\n\r\n") || content.Contains(Environment.NewLine) || content.Contains("\r\n\r\n") || content.Contains(Environment.NewLine))
             {
                 while (content.Contains("\r\n\r\n"))
@@ -512,7 +498,7 @@ namespace EDILibrary
                 content = content.Replace("\n", "");
             }
             content = content.Replace("?<", "?+").Replace("?>", "?:");
-            return UNA + content;
+            return una + content;
         }
     }
 }
