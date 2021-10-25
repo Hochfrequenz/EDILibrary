@@ -164,13 +164,13 @@ namespace EDILibrary
                                 foreach (var entry in prop.Value as JArray)
                                 {
                                     dynamic subObj = new ExpandoObject();
-                                    ParseObject(entry as JObject, subObj as IDictionary<string, object>, (JArray)propVal, includeEmptyValues);
+                                    ParseObject(entry as JObject, subObj as IDictionary<string, object>, (JArray)propVal, _);
                                     obj.Add(subObj);
                                 }
                             }
                             else
                             {
-                                ParseObject(prop.Value as JObject, obj as IDictionary<string, object>, (JArray)propVal, includeEmptyValues);
+                                ParseObject(prop.Value as JObject, obj as IDictionary<string, object>, (JArray)propVal, _);
                             }
 
                             target.Add(((JObject)dep).Property("key").Value.Value<string>(), obj);
@@ -181,7 +181,7 @@ namespace EDILibrary
                         //special case for groupBy fields
                         if (superKey != prop.Name && superValue != prop.Name)
                         {
-                            dynamic obj = new ExpandoObject();
+                            //dynamic obj = new ExpandoObject();
                             if (!target.ContainsKey(superValue))
                             {
                                 //create group array
@@ -194,7 +194,7 @@ namespace EDILibrary
                             if ((target[superValue] as JArray).Any())
                                 addObj = (target[superValue] as JArray)[0] as JObject;
                             // go through all new defined properties and add them to the JObject
-                            foreach (var kvp in newProp as IDictionary<string, object>)
+                            foreach (var kvp in newProp)
                             {
                                 addObj.Add(kvp.Key, JToken.FromObject(kvp.Value));
                             }
@@ -275,8 +275,8 @@ namespace EDILibrary
 
                         var newMappings = ((deps.First() as JObject).Property("requires").Value as JArray).Select(req =>
                         {
-                            if (((req as JObject).Properties().FirstOrDefault() as JProperty)?.Value as JArray != null)
-                                return ((req as JObject).Properties().FirstOrDefault() as JProperty)?.Value as JArray;
+                            if ((req as JObject).Properties().FirstOrDefault()?.Value as JArray != null)
+                                return (req as JObject).Properties().FirstOrDefault()?.Value as JArray;
                             return null;
                         }).ToArray();
                         var newArray = new JArray();

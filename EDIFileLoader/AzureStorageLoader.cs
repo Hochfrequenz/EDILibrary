@@ -113,7 +113,7 @@ namespace EDIFileLoader
                     // todo: no pokemon-catcher
                 }
             }
-            var blockBlob = _container.GetBlobClient(System.IO.Path.Combine(version.Replace("/", ""), fileName).Replace("\\", "/"));
+            var blockBlob = _container.GetBlobClient(Path.Combine(version.Replace("/", ""), fileName).Replace("\\", "/"));
 
             var text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
             text = EDIHelper.RemoveByteOrderMark(text);

@@ -154,7 +154,6 @@ namespace EDILibrary
                     child.FindElements(name, recursive, ref list, recursionDepth - 1);
                 }
             }
-            return;
             // }
         }
 
