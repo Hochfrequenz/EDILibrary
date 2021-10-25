@@ -276,7 +276,7 @@ namespace EDILibrary
                     // evaluate code
                     try
                     {
-                        var lines = code.Split(new[] { ';' });
+                        _ = code.Split(new[] { ';' });
                         /*int counter = 0;
                         
                         foreach (string line in lines)
@@ -313,8 +313,8 @@ namespace EDILibrary
                 else if (codeTemplate.StartsWith("<§"))
                 {
                     var items = code.Split(new[] { ' ' });
-                    var variableName = items.Skip(1).Take(1).First();
-                    var item = string.Join(" ", items.Skip(2));
+                    _ = items.Skip(1).Take(1).First();
+                    _ = string.Join(" ", items.Skip(2));
                     /*
                     string value = null;
                     try
@@ -333,9 +333,9 @@ namespace EDILibrary
                 }
                 else
                 {
-                    string value = null;
+                    string value;// = null;
                     string length = null;
-                    string max_count = null;
+                    string maxCount = null;
                     string[] fieldLengths = null;
                     if (code.Contains("["))
                     {
@@ -347,7 +347,7 @@ namespace EDILibrary
                         {
                             var lengthParts = codeParts[1].Split(",".ToCharArray());
                             length = lengthParts[0];
-                            max_count = lengthParts[1].Substring(0, lengthParts[1].Length - 1);
+                            maxCount = lengthParts[1].Substring(0, lengthParts[1].Length - 1);
                         }
                         else if (codeParts[1].Contains(';'))
                         {
@@ -390,7 +390,7 @@ namespace EDILibrary
                             value = "";
                         var temp_value = value;
                         var laenge = int.Parse(length);
-                        if (max_count != null) // gleiche Längen
+                        if (maxCount != null) // gleiche Längen
                         {
                             while (temp_value.Length > laenge)
                             {
@@ -401,7 +401,7 @@ namespace EDILibrary
                             }
                             parts.Add(temp_value);
                             // Auffüllen auf Maximalanzahl, da sonst Konstellationen wie Nachname::Vorname nicht möglich sind
-                            while (parts.Count < int.Parse(max_count))
+                            while (parts.Count < int.Parse(maxCount))
                             {
                                 parts.Add("");
                             }
@@ -432,7 +432,7 @@ namespace EDILibrary
                         }
                         // Bei leerem Vornamen muss trotzdem ein Doppelpunkt drin sein.
                         //if((from string s in parts where s!="" select s).Count()>0)
-                        value = string.Join(":", parts.Take(int.Parse(max_count)));
+                        value = string.Join(":", parts.Take(int.Parse(maxCount)));
 
                     }
 

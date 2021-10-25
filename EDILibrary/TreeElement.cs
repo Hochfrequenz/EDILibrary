@@ -207,7 +207,7 @@ namespace EDILibrary
         {
 
 
-            TreeElement oldRoot = null;
+            TreeElement oldRoot;// = null;
             var segName = segment.LowMemSplit("+").First();
             if (segName.StartsWith("UNS"))
             {
@@ -222,7 +222,7 @@ namespace EDILibrary
                         //foreach (TreeElement child in root.Children.Values)
                         //    child.Dirty = true;
                     }
-                    TreeElement ele = null;
+                    TreeElement ele;// = null;
                     if (treeCopyMap.ContainsKey(root.Name) && treeCopyMap[root.Name].Occurence != root.Occurence)
                     {
                         var linkRoot = treeCopyMap[root.Name];

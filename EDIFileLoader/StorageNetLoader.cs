@@ -1,9 +1,6 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
 
 using EDILibrary;
-
-using Microsoft.Extensions.Logging;
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

@@ -72,7 +72,7 @@ namespace EDILibrary
             }
         }
         protected List<string> _ediLines;
-        protected string GetValue(string pos, string edi)
+        protected static string GetValue(string pos, string edi)
         {
             //if (_valueCache.ContainsKey(edi))
             //{

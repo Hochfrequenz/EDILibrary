@@ -11,7 +11,6 @@ using System.Dynamic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace EDILibrary
 {
@@ -370,43 +369,50 @@ namespace EDILibrary
                             if (!FindMask(mask, foundObj.Property("key").Value.Value<string>()))
                                 continue;
                         }
-                        //if we have a complex type (e.g. Absender.Code) make sure to apply all values
-                        if (prop.Value.Type == JTokenType.Array)
-                        {
-                            foreach (var dep in deps)
-                            {
-                                FindObjectByKey(dep, prop.Name, out var newVal, false);
-                                var valPath = dep[newVal.Value<string>()].Value<string>();
-                                var pathParts = valPath.Split('.');
-                                //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
-                                createInParent = true;
-                                (returnObject as IDictionary<string, object>).Add(newVal.Value<string>(), prop.Value[0][pathParts[1]]);
 
-                            }
-                        }
-                        else if (prop.Value.Type == JTokenType.Object)
+                        switch (prop.Value.Type)
                         {
-                            foreach (var dep in deps)
-                            {
-                                FindObjectByKey(dep, prop.Name, out var newVal, false);
-                                var valPath = dep[newVal.Value<string>()].Value<string>();
-                                var pathParts = valPath.Split('.');
-                                if (pathParts.Length > 1)
+                            //if we have a complex type (e.g. Absender.Code) make sure to apply all values
+                            case JTokenType.Array:
                                 {
-                                    //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
-                                    createInParent = true;
-                                    (returnObject as IDictionary<string, object>).Add(newVal.Value<string>(), prop.Value[pathParts[1]]);
-                                }
-                                else
-                                {
-                                    (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), prop.Value);
-                                }
+                                    foreach (var dep in deps)
+                                    {
+                                        FindObjectByKey(dep, prop.Name, out var newVal, false);
+                                        var valPath = dep[newVal.Value<string>()].Value<string>();
+                                        var pathParts = valPath.Split('.');
+                                        //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
+                                        createInParent = true;
+                                        (returnObject as IDictionary<string, object>).Add(newVal.Value<string>(), prop.Value[0][pathParts[1]]);
 
-                            }
-                        }
-                        else
-                        {
-                            (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), prop.Value);
+                                    }
+
+                                    break;
+                                }
+                            case JTokenType.Object:
+                                {
+                                    foreach (var dep in deps)
+                                    {
+                                        FindObjectByKey(dep, prop.Name, out var newVal, false);
+                                        var valPath = dep[newVal.Value<string>()].Value<string>();
+                                        var pathParts = valPath.Split('.');
+                                        if (pathParts.Length > 1)
+                                        {
+                                            //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
+                                            createInParent = true;
+                                            (returnObject as IDictionary<string, object>).Add(newVal.Value<string>(), prop.Value[pathParts[1]]);
+                                        }
+                                        else
+                                        {
+                                            (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), prop.Value);
+                                        }
+
+                                    }
+
+                                    break;
+                                }
+                            default:
+                                (returnObject as IDictionary<string, object>).Add(propVal.Value<string>(), prop.Value);
+                                break;
                         }
                     }
 
