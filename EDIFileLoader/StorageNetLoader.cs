@@ -75,12 +75,11 @@ namespace EDIFileLoader
         /// <returns></returns>
         protected async Task<string> GetUTF8TextFromPath(string path)
         {
-            using var s = new MemoryStream();
+            await using var s = new MemoryStream();
             Logger.LogDebug($"Reading path {path}");
-            using Stream ss = await Storage.OpenReadAsync(path);
-            Logger.LogDebug($"Copying to stream");
+            await using Stream ss = await Storage.OpenReadAsync(path);
+            Logger.LogDebug("Copying to stream");
             await ss.CopyToAsync(s);
-
             return Encoding.UTF8.GetString(s.ToArray());
         }
         /// <summary>
@@ -121,7 +120,7 @@ namespace EDIFileLoader
             }
             catch (Exception exc)
             {
-                Logger.LogDebug($"Could not load edi template from storage: {exc}");
+                Logger.LogDebug(exc, $"Could not load edi template from storage: {exc.Message}");
                 return "";
             }
         }

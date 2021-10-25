@@ -138,7 +138,7 @@ namespace EDILibrary
         {
             if (_ediLines == null)
                 throw new Exception("Call PrepareEDIMapping before executing a mapping");
-            var mapping = _mappingRoot.Where(mr => mr.Attribute("Name").Value == mappingName).FirstOrDefault();
+            var mapping = _mappingRoot.FirstOrDefault(mr => mr.Attribute("Name").Value == mappingName);
             if (mapping?.Attribute("type") != null && mapping.Attribute("type").Value == "edi")
             {
                 var parts = mapping.Value.Replace("\n", "").Split(new[] { "==" }, StringSplitOptions.RemoveEmptyEntries);
@@ -166,19 +166,18 @@ namespace EDILibrary
                 string pathValue = null;
                 if (path != null)
                 {
-                    var sep_op = "=";
+                    var sepOp = "=";
                     if (path.Contains("!="))
                     {
-                        sep_op = "!=";
-
+                        sepOp = "!=";
                     }
-                    var opIndex = path.IndexOf(sep_op);
+                    var opIndex = path.IndexOf(sepOp);
                     if (opIndex == -1)
                         opIndex = path.Length;
                     pathSelector = path.Substring(0, opIndex);
 
                     if (path.Length != sepIndex)
-                        pathValue = path.Substring(opIndex + sep_op.Length, path.Length - opIndex - sep_op.Length);
+                        pathValue = path.Substring(opIndex + sepOp.Length, path.Length - opIndex - sepOp.Length);
                     else
                     {
                         pathValue = "";
@@ -186,7 +185,6 @@ namespace EDILibrary
                 }
                 for (var i = 0; i < _ediLines.Count; i++)
                 {
-
                     var ediSegment = _ediLines[i];
                     if (ediSegment.StartsWith(segment) == false)
                         continue;

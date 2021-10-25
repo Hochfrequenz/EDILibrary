@@ -124,11 +124,11 @@ namespace EDILibrary
         }
         protected static void Recurse(XElement elem, EdiObject child)
         {
-            foreach (var field in child.Fields)
+            foreach (var (key, value) in child.Fields)
             {
                 var f = new XElement("Field");
-                f.SetAttributeValue("name", field.Key);
-                f.Value = string.Join("|", field.Value);
+                f.SetAttributeValue("name", key);
+                f.Value = string.Join("|", value);
                 elem.Add(f);
             }
             foreach (var cl in child.Children)
@@ -140,7 +140,7 @@ namespace EDILibrary
                 elem.Add(ch);
             }
         }
-        protected string escapeSpecialChars(string value)
+        protected static string escapeSpecialChars(string value)
         {
             return value.Replace("\"", "\\\"");
         }
@@ -162,11 +162,10 @@ namespace EDILibrary
                 var oldI = i;
                 while (index < cur.Fields.First(f => f.Value.Count > 1).Value.Count)
                 {
-                    foreach (var elem in cur.Fields)
+                    foreach (var (key, value) in cur.Fields)
                     {
                         i--;
-                        _builder.AppendLine("\"" + elem.Key + "\" : \"" + escapeSpecialChars(elem.Value.ElementAt(index)) + "\"" + (i != 0 || hasClass ? "," : ""));
-
+                        _builder.AppendLine("\"" + key + "\" : \"" + escapeSpecialChars(value.ElementAt(index)) + "\"" + (i != 0 || hasClass ? "," : ""));
                     }
                     i = oldI;
                     if (index + 1 < cur.Fields.First(f => f.Value.Count > 1).Value.Count)
@@ -176,10 +175,10 @@ namespace EDILibrary
             }
             else
             {
-                foreach (var elem in cur.Fields)
+                foreach (var (key, value) in cur.Fields)
                 {
                     i--;
-                    _builder.AppendLine("\"" + elem.Key + "\" : \"" + escapeSpecialChars(elem.Value.FirstOrDefault()) + "\"" + (i != 0 || hasClass ? "," : ""));
+                    _builder.AppendLine("\"" + key + "\" : \"" + escapeSpecialChars(value.FirstOrDefault()) + "\"" + (i != 0 || hasClass ? "," : ""));
 
                 }
             }
@@ -419,9 +418,9 @@ namespace EDILibrary
             {
                 clone.AddChild(child.Clone());
             }
-            foreach (var field in Fields)
+            foreach (var (key, value) in Fields)
             {
-                clone.Fields.Add(field.Key, new List<string>(field.Value));
+                clone.Fields.Add(key, new List<string>(value));
             }
             return clone;
         }

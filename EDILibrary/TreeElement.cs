@@ -21,9 +21,7 @@ namespace EDILibrary
         public string APERAK_Check_String;
         public static string ExtractName(string name)
         {
-            if (name.Contains("_"))
-                return name.Substring(0, name.IndexOf('_'));
-            return name;
+            return name.Contains("_") ? name.Substring(0, name.IndexOf('_')) : name;
         }
         public void AddChild(TreeElement child)
         {
@@ -41,10 +39,8 @@ namespace EDILibrary
         }
         public TreeElement AddEdi(string edi, TreeElement currentRoot)
         {
-
             Edi.Add(edi);
             return Parent;
-
         }
         public TreeElement(TreeElement old)
         {
@@ -57,12 +53,11 @@ namespace EDILibrary
             APERAK_Status = old.APERAK_Status;
             CONTRL_Check_String = old.CONTRL_Check_String;
             APERAK_Check_String = old.APERAK_Check_String;
-            foreach (var child in old.Children.Values)
+            foreach (var newChild in old.Children.Values.Select(child => new TreeElement(child)
             {
-                var newChild = new TreeElement(child)
-                {
-                    Parent = this
-                };
+                Parent = this
+            }))
+            {
                 if (newChild.Name.StartsWith("SG") || newChild.Name == "UNH")
                 {
                     if (Occurence > 0)
@@ -81,7 +76,6 @@ namespace EDILibrary
                     if (Children.ContainsKey(newChild.Name) == false)
                         Children.Add(newChild.Name, newChild);
                 }
-
             }
             Occurence = old.Occurence + 1;
             Edi = new List<string>();
@@ -205,13 +199,11 @@ namespace EDILibrary
         }
         public static TreeElement FindEdiElement(ref TreeElement root, string segment)
         {
-
-
             TreeElement oldRoot;// = null;
             var segName = segment.LowMemSplit("+").First();
-            if (segName.StartsWith("UNS"))
+            /*if (segName.StartsWith("UNS"))
             {
-            }
+            }*/
             if (root.Children.ContainsKey(segName))
             {
                 if (root.Children[segName].Dirty)
@@ -251,19 +243,14 @@ namespace EDILibrary
                         var child = treeRoot;
                         treeRoot = copy;
                         //bei UNH muss ich dann schon die Anzahl der UNH-Kinder zählen und die Occurence manuell setzen
-                        var UNHCounter = 0;
-                        foreach (var tempChild in root.Children.Values)
-                        {
-                            if (tempChild.Name.StartsWith("UNH"))
-                                UNHCounter++;
-                        }
+                        var unhCounter = root.Children.Values.Count(tempChild => tempChild.Name.StartsWith("UNH"));
                         foreach (var c in child.Children.Values)
                             c.Dirty = false;
                         foreach (var c in copy.Children.Values)
                             c.Dirty = false;
                         treeCopyMap["UNH"] = copy;
                         copy.Dirty = false;
-                        copy.Occurence = UNHCounter;
+                        copy.Occurence = unhCounter;
                         root.AddChild(copy);
                         root = child;
                         return child;
@@ -282,8 +269,6 @@ namespace EDILibrary
                         root.Dirty = true;
                         copy.Dirty = false;
                     }
-
-
                     root.Children[segName].Dirty = true;
                 }
                 return root.Children[segName];
@@ -357,15 +342,15 @@ namespace EDILibrary
             {
                 var delete = true;
                 var deleteList = new List<string>();
-                foreach (var child in ele.Children)
+                foreach (var (key, value) in ele.Children)
                 {
-                    if (CleanTree(child.Value) == false)
+                    if (CleanTree(value) == false)
+                    {
                         delete = false;
+                    }
                     else
                     {
-                        deleteList.Add(child.Key);
-
-
+                        deleteList.Add(key);
                     }
                 }
                 foreach (var del in deleteList)
@@ -378,6 +363,5 @@ namespace EDILibrary
             }
             return false;
         }
-
     }
 }

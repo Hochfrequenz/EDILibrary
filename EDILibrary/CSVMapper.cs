@@ -58,7 +58,7 @@ namespace EDILibrary
             if (prop.Value.GetType() == typeof(JArray))
             {
                 //if the array is non empty, process properties, otherwise continue
-                if ((prop.Value as JArray).Count == 0)
+                if (!(prop.Value as JArray).Any())
                     return;
 
                 foreach (var subProp in ((prop.Value as JArray)[0] as JObject).Properties())
@@ -80,7 +80,7 @@ namespace EDILibrary
                     valueBuilder.Append(prop.Value.Value<string>() + ";");
             }
         }
-        public string CreateCSVTemplateFromJSON(string json)
+        public static string CreateCSVTemplateFromJSON(string json)
         {
             var rootObject = JsonConvert.DeserializeObject<JObject>(json);
             var builder = new StringBuilder();
@@ -100,7 +100,7 @@ namespace EDILibrary
                     rootObject = (rootObject.Property("Dokument").Value as JArray)[0] as JObject;
                     rootObject = (rootObject.Property("Nachricht").Value as JArray)[0] as JObject;
                 }
-                catch (Exception)
+                catch (Exception) // todo: no pokemon catching
                 {
                     return null;
                 }
@@ -137,15 +137,11 @@ namespace EDILibrary
             }
         }
 
-        protected string RemoveStepFromSegment(string segment)
+        protected static string RemoveStepFromSegment(string segment)
         {
-            if (!segment.Contains("|"))
-            {
-                return segment;
-            }
-            return string.Join("|", segment.Split('|').Skip(1));
+            return !segment.Contains("|") ? segment : string.Join("|", segment.Split('|').Skip(1));
         }
-        public List<string> CreateJSONFromCSV(string csv)
+        public static List<string> CreateJSONFromCSV(string csv)
         {
             //first split header line from content lines
             var lines = csv.LowMemSplit(Environment.NewLine);

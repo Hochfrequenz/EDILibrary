@@ -165,21 +165,7 @@ namespace EDILibrary
                     templateRoot.FindElements(segment, true, ref resultList, 2);
                     if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Any() select res).Any())
                     {
-
-                        foreach (var result in resultList)
-                        {
-                            if (result.Edi.Any())
-                            {
-                                foreach (var rEdi in result.Edi)
-                                {
-                                    //                                    if (!resultEDI.Contains(rEdi))
-                                    {
-
-                                        resultEDI.Add(rEdi);
-                                    }
-                                }
-                            }
-                        }
+                        resultEDI.AddRange(resultList.Where(result => result.Edi.Any()).SelectMany(result => result.Edi));
                         if (_useCache)
                             _elementCache[templateRoot].Add(segment, resultEDI);
                     }
@@ -318,12 +304,11 @@ namespace EDILibrary
         }
         public static XElement LoadTemplate(string template)
         {
-
             var reader = new StringReader(template);
-
             var root = XElement.Load(reader);
             return root;
         }
+
         protected bool _useCache = true;
         protected Dictionary<TreeElement, Dictionary<string, List<string>>> _elementCache = new Dictionary<TreeElement, Dictionary<string, List<string>>>();
         protected Dictionary<string, Dictionary<string, string>> _valueCache = new Dictionary<string, Dictionary<string, string>>();
@@ -334,11 +319,11 @@ namespace EDILibrary
                           select cls;
             _elementCache.Clear();
             _valueCache.Clear();
-            var Dokument = (from temp in template.DescendantsAndSelf("class") where temp.Attribute("name").Value == "Dokument" select temp).Single();
+            var dokument = (from temp in template.DescendantsAndSelf("class") where temp.Attribute("name").Value == "Dokument" select temp).Single();
             TreeElement docElement = null;
             foreach (var cls in classes)
             {
-                if (TreeHelper.GetHash(cls.ToString()) == TreeHelper.GetHash(Dokument.ToString()))
+                if (TreeHelper.GetHash(cls.ToString()) == TreeHelper.GetHash(dokument.ToString()))
                 {
                     var treeElements = new List<TreeElement>();
                     var refName = cls.Attribute("ref").Value.Split(new[] { '[' })[0];
@@ -352,7 +337,7 @@ namespace EDILibrary
                 //treeElements = (from childElem in treeElements where (childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0) select childElem).ToList<TreeElement>();
                 //objectMapping[TreeHelper.GetHash(cls.ToString())] = treeElements;
             }
-            return ProcessSpecificTemplate(Dokument, docElement, null);
+            return ProcessSpecificTemplate(dokument, docElement, null);
 
         }
         public static TreeElement LoadTree(string tree)
@@ -390,19 +375,17 @@ namespace EDILibrary
             }
             return treeRoot;
         }
-        public TreeElement LoadEDI(string edi, TreeElement tree)
+        public static TreeElement LoadEDI(string edi, TreeElement tree)
         {
             var elementDelimiter = ":";
             var groupDelimiter = "+";
             var segmentDelimiter = "'";
             var segDelimiterLength = 1;
-            var UNAoffset = -1;
+            var unAoffset = -1;
             if (edi.StartsWith("UNA"))
             {
-
-
                 var una = edi.Substring(0, 9);
-                UNAoffset = 8;
+                unAoffset = 8;
                 elementDelimiter = una.Substring(3, 1);
                 groupDelimiter = una.Substring(4, 1);
                 segmentDelimiter = una.Substring(8, 1);
@@ -411,7 +394,7 @@ namespace EDILibrary
                     segmentDelimiter = Environment.NewLine;
             }
 
-            var message = edi.Substring(UNAoffset + segDelimiterLength, edi.Length - (UNAoffset + segDelimiterLength));
+            var message = edi.Substring(unAoffset + segDelimiterLength, edi.Length - (unAoffset + segDelimiterLength));
             message = message.Replace("?'", "?$");
             message = message.Replace("\"", "\\\"");
             if (tree != null)

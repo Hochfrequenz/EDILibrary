@@ -10,7 +10,7 @@ namespace EDILibrary.Helper
     {
         public static async Task<string> ExecuteMappings(EdiObject edi, EDIFileInfo fileInfo, List<string> mappings, ITemplateLoader loader, bool bUseLocalTime = true)
         {
-            var createtemplate = await loader.LoadEDITemplate(fileInfo, "create.template");
+            var createTemplate = await loader.LoadEDITemplate(fileInfo, "create.template");
             var extMapping = new ExtendedMappings();
             extMapping.LoadMappings("");
             foreach (var map in mappings)
@@ -25,7 +25,7 @@ namespace EDILibrary.Helper
             }
             var writer = new GenericEDIWriter();
             GenericEDIWriter.helper.useLocalTime = bUseLocalTime;
-            var newEDI = writer.CompileTemplate(createtemplate, edi);
+            var newEDI = writer.CompileTemplate(createTemplate, edi);
             extMapping.PrepareEDIMapping(newEDI);
             foreach (var map in mappings)
             {

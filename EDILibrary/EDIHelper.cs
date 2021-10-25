@@ -191,7 +191,7 @@ namespace EDILibrary
         {
             if (edi == null)
                 return null;
-            edi = RemoveBOM(edi);
+            edi = RemoveBOM(edi); // todo: check why RemoveBOM is still used and RemoveByteOrderMark does not work
             var specialChars = GetSpecialChars(edi);
             var message = GetActualMessage(edi, specialChars);
             if (specialChars.EscapeChar != DefaultEscapeChar)
@@ -226,7 +226,7 @@ namespace EDILibrary
                 return null;
             try
             {
-                edi = RemoveBOM(edi);
+                edi = RemoveBOM(edi); // todo: check why RemoveBOM is still used and RemoveByteOrderMark does not work
                 var specialChars = GetSpecialChars(edi);
                 var message = GetActualMessage(edi, specialChars);
                 var segments = message.LowMemSplit(specialChars.SegmentDelimiter).Take(2).ToArray();
@@ -241,7 +241,7 @@ namespace EDILibrary
                         unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray()).Length > 1 ? unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[1] : "500",
                     ID = unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]
                 };
-                var empfänger = new EDIPartner
+                var receiver = new EDIPartner
                 {
                     CodeList =
                         unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray()).Length > 1 ? unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray())[1] : "500",
@@ -249,7 +249,7 @@ namespace EDILibrary
                 };
                 var file = new EDIFileInfo
                 {
-                    Empfänger = empfänger,
+                    Empfänger = receiver,
                     Sender = sender,
                     ID = unbParts[5].Split(specialChars.ElementDelimiter.ToCharArray())[0],
                     Format = Enum.Parse<EdifactFormat>(unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]),
