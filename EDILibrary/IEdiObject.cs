@@ -280,6 +280,7 @@ namespace EDILibrary
             _builder.AppendLine("\"Dokument\":[{");
             RecurseJSON(this);
             _builder.AppendLine("}]}");
+            _builder.Replace("\\\\\"", "\\\"");
             return _builder.ToString();
         }
         public bool ContainsField(string name)
