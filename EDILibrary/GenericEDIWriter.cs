@@ -267,10 +267,10 @@ namespace EDILibrary
                     {
                         _ = code.Split(new[] { ';' });
                         /*int counter = 0;
-                        
+
                         foreach (string line in lines)
                         {
-                            
+
                             if (counter == lines.Count() - 1 && codeTemplate.StartsWith("<!"))
                             {
 
@@ -443,7 +443,7 @@ namespace EDILibrary
             new Tuple<string, string>(":'", "'"), // why are there duplicates? and why is the order important?
             new Tuple<string, string>("+'", "'"),
             new Tuple<string, string>(":'", "'"),
-            // can we maybe use a compiled regex and simply replace all at once? 
+            // can we maybe use a compiled regex and simply replace all at once?
         };
 
         public string CompileTemplate(string template, EdiObject sourceRoot)
