@@ -10,6 +10,11 @@ namespace EDILibrary
     public enum EdifactFormat
     {
         /// <summary>
+        /// Anwendungsfehler- und Bestätigungs-Nachricht
+        /// </summary>
+        APERAK = 99,
+
+        /// <summary>
         /// Handelsunstimmigkeit
         /// </summary>
         COMDIS = 29,
