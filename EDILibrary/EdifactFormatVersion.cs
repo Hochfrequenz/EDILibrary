@@ -10,6 +10,11 @@ namespace EDILibrary
     public enum EdifactFormat
     {
         /// <summary>
+        /// Handelsunstimmigkeit
+        /// </summary>
+        COMDIS = 29,
+
+        /// <summary>
         /// Multimodaler Statusbericht
         /// </summary>
         IFTSTA = 21,
@@ -30,6 +35,11 @@ namespace EDILibrary
         MSCONS = 13,
 
         /// <summary>
+        /// Bestelländerung
+        /// </summary>
+        ORDCHG = 39,
+
+        /// <summary>
         /// Bestellung
         /// </summary>
         ORDERS = 17,
@@ -38,6 +48,11 @@ namespace EDILibrary
         /// Bestellantwort
         /// </summary>
         ORDRSP = 19,
+
+        /// <summary>
+        /// Partnerstammdaten
+        /// </summary>
+        PARTIN = 37,
 
         /// <summary>
         /// price catalogues
@@ -62,7 +77,12 @@ namespace EDILibrary
         /// <summary>
         /// master data
         /// </summary>
-        UTILMD = 11
+        UTILMD = 11,
+
+        /// <summary>
+        /// Netznutzungszeiten-Nachricht
+        /// </summary>
+        UTILTS = 25
     }
 
     /// <summary>
@@ -77,7 +97,8 @@ namespace EDILibrary
         /// <returns>the EdifactFormat, e.g. <see cref="EdifactFormat.UTILMD"/> or throws a NotImplementedException iff EdiFormat was found</returns>
         public static EdifactFormat FromPruefidentifikator(string pruefidentifikator)
         {
-            if (string.IsNullOrWhiteSpace(pruefidentifikator)) throw new ArgumentNullException(nameof(pruefidentifikator));
+            if (string.IsNullOrWhiteSpace(pruefidentifikator))
+                throw new ArgumentNullException(nameof(pruefidentifikator));
             foreach (EdifactFormat ef in Enum.GetValues(typeof(EdifactFormat)))
             {
                 if (pruefidentifikator.StartsWith(((int)ef).ToString()))
@@ -167,7 +188,8 @@ namespace EDILibrary
         /// <exception cref="NotImplementedException"></exception>
         public static EdifactFormatVersion ToEdifactFormatVersion(this string legacyFormatString)
         {
-            if (string.IsNullOrWhiteSpace(legacyFormatString)) return EdifactFormatVersionHelper.GetCurrent();
+            if (string.IsNullOrWhiteSpace(legacyFormatString))
+                return EdifactFormatVersionHelper.GetCurrent();
             foreach (var efv in Enum.GetValues<EdifactFormatVersion>())
             {
                 if (legacyFormatString == efv.ToLegacyVersionString())
@@ -229,26 +251,32 @@ namespace EDILibrary
             {
                 return EdifactFormatVersion.FV2204;
             }
+
             if (now > KeyDate2110)
             {
                 return EdifactFormatVersion.FV2110;
             }
+
             if (now > Keydate2104)
             {
                 return EdifactFormatVersion.FV2104;
             }
+
             if (now > Keydate2004)
             {
                 return EdifactFormatVersion.FV2004;
             }
+
             if (now > Keydate1912)
             {
                 return EdifactFormatVersion.FV1912;
             }
+
             if (now > Keydate1904)
             {
                 return EdifactFormatVersion.FV1904;
             }
+
             return EdifactFormatVersion.FV1710;
         }
     }

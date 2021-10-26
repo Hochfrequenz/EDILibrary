@@ -78,7 +78,8 @@ namespace EDILibrary
         /// <returns>the EdifactFormat, e.g. <see cref="EdifactFormat.UTILMD"/> or throws a NotImplementedException iff EdiFormat was found</returns>
         public static EdifactFormat FromPruefidentifikator(string pruefidentifikator)
         {
-            if (string.IsNullOrWhiteSpace(pruefidentifikator)) throw new ArgumentNullException(nameof(pruefidentifikator));
+            if (string.IsNullOrWhiteSpace(pruefidentifikator))
+                throw new ArgumentNullException(nameof(pruefidentifikator));
             foreach (EdifactFormat ef in Enum.GetValues(typeof(EdifactFormat)))
             {
                 if (pruefidentifikator.StartsWith(((int)ef).ToString()))
@@ -168,7 +169,8 @@ namespace EDILibrary
         /// <exception cref="NotImplementedException"></exception>
         public static EdifactFormatVersion ToEdifactFormatVersion(this string legacyFormatString)
         {
-            if (string.IsNullOrWhiteSpace(legacyFormatString)) return EdifactFormatVersionHelper.GetCurrent();
+            if (string.IsNullOrWhiteSpace(legacyFormatString))
+                return EdifactFormatVersionHelper.GetCurrent();
             foreach (var efv in Enum.GetValues(typeof(EdifactFormatVersion)).Cast<EdifactFormatVersion>())
             {
                 if (legacyFormatString == efv.ToLegacyVersionString())
