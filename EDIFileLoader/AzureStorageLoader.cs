@@ -1,9 +1,5 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
 
-using Azure.Storage.Blobs;
-
-using EDILibrary;
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs;
+using EDILibrary;
 
 namespace EDIFileLoader
 {

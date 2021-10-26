@@ -1,16 +1,14 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
-using EDILibrary.Exceptions;
-using EDILibrary.Helper;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using EDILibrary.Exceptions;
+using EDILibrary.Helper;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace EDILibrary
 {

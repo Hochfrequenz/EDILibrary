@@ -1,6 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using EDILibrary;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EDILibraryTests
 {

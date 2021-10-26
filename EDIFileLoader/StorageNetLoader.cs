@@ -1,6 +1,5 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
 
-using EDILibrary;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EDILibrary;
 using Microsoft.Extensions.Logging;
 namespace EDIFileLoader
 {

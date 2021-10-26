@@ -27,16 +27,21 @@ namespace EDILibrary
 
         public bool Equals(EDIPartner other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
             return ID == other.ID && CodeList == other.CodeList && Rolle == other.Rolle;
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
+            if (ReferenceEquals(null, obj))
+                return false;
+            if (ReferenceEquals(this, obj))
+                return true;
+            if (obj.GetType() != GetType())
+                return false;
             return Equals((EDIPartner)obj);
         }
 
@@ -74,17 +79,22 @@ namespace EDILibrary
 
         public bool Equals(EDIFileInfo other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
             return Version == other.Version && Format == other.Format && Equals(Sender, other.Sender) && Equals(Empfänger, other.Empfänger) && ID == other.ID &&
                    Referenz == other.Referenz && Freigabenummer == other.Freigabenummer && Nachrichtenversion == other.Nachrichtenversion;
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
+            if (ReferenceEquals(null, obj))
+                return false;
+            if (ReferenceEquals(this, obj))
+                return true;
+            if (obj.GetType() != GetType())
+                return false;
             return Equals((EDIFileInfo)obj);
         }
 
@@ -121,7 +131,8 @@ namespace EDILibrary
         /// <returns>null if <paramref name="text"/> is null; BOM sanitized string other wise</returns>
         public static string RemoveByteOrderMark(string text)
         {
-            if (string.IsNullOrWhiteSpace(text)) return text;
+            if (string.IsNullOrWhiteSpace(text))
+                return text;
             if (text.StartsWith(ByteOrderMarkUtf8) && text[0] == ByteOrderMarkUtf8[0])
             {
                 return text.Remove(0, ByteOrderMarkUtf8.Length);
