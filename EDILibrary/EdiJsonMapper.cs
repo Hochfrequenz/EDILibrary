@@ -5,8 +5,10 @@ using System.Dynamic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 using EDILibrary.Exceptions;
 using EDILibrary.Helper;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -90,12 +92,12 @@ namespace EDILibrary
         }
 
         [Obsolete("Use strongly typed overload instead.")]
-        public async Task<string> CreateFromJson(string jsonInput, string pid, string formatPackage, bool convertFromUTC = false)
+        public async Task<string> CreateFromJson(string jsonInput, string pid, string formatPackage, TimeZoneInfo localTime, bool convertFromUTC = false)
         {
-            return await CreateFromJson(jsonInput, pid, formatPackage.ToEdifactFormatVersion(), convertFromUTC);
+            return await CreateFromJson(jsonInput, pid, formatPackage.ToEdifactFormatVersion(), localTime, convertFromUTC);
         }
 
-        public async Task<string> CreateFromJson(string jsonInput, string pid, EdifactFormatVersion formatPackage, bool convertFromUTC = false)
+        public async Task<string> CreateFromJson(string jsonInput, string pid, EdifactFormatVersion formatPackage, TimeZoneInfo localTime, bool convertFromUTC = false)
         {
             var format = EdifactFormatHelper.FromPruefidentifikator(pid);
             var jsonBodyTask = _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), $"{pid}.json");
@@ -140,7 +142,7 @@ namespace EDILibrary
             {
                 Format = format,
                 Version = version,
-            }, new List<string>(), _loader, convertFromUTC);
+            }, new List<string>(), _loader, localTime, convertFromUTC);
         }
         protected static void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool _)
         {

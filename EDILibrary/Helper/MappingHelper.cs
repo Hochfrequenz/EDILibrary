@@ -2,13 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using EDILibrary.Interfaces;
 
 namespace EDILibrary.Helper
 {
     public class MappingHelper
     {
-        public static async Task<string> ExecuteMappings(EdiObject edi, EDIFileInfo fileInfo, List<string> mappings, ITemplateLoader loader, bool bUseLocalTime = true)
+        public static async Task<string> ExecuteMappings(EdiObject edi, EDIFileInfo fileInfo, List<string> mappings, ITemplateLoader loader, TimeZoneInfo localZone, bool bUseLocalTime = true)
         {
             var createTemplate = await loader.LoadEDITemplate(fileInfo, "create.template");
             var extMapping = new ExtendedMappings();
@@ -25,6 +26,7 @@ namespace EDILibrary.Helper
             }
             var writer = new GenericEDIWriter();
             GenericEDIWriter.helper.useLocalTime = bUseLocalTime;
+            GenericEDIWriter.helper.LocalTimeZone = localZone ?? TimeZoneInfo.Local;
             var newEDI = writer.CompileTemplate(createTemplate, edi);
             extMapping.PrepareEDIMapping(newEDI);
             foreach (var map in mappings)

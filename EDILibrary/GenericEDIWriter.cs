@@ -11,6 +11,7 @@ namespace EDILibrary
     public class ScriptHelper
     {
         public bool useLocalTime = true;
+        public TimeZoneInfo LocalTimeZone { get; set; } = TimeZoneInfo.Local;
         public static string Escape(string input)
         {
             return input.Replace("+", "?+").Replace(":", "?:").Replace("'", "?'");
@@ -18,34 +19,44 @@ namespace EDILibrary
         public string FormatDate(string dateString, string format)
         {
             DateTime date;
-            var foundDate = false;
             var deDE = new CultureInfo("de-DE");
-            foundDate = DateTime.TryParseExact(dateString, new[] { "yyyyMMdd", "MMdd", "yyyyMMddHHmm", "yyyyMMddHHmmss" }, deDE, DateTimeStyles.AdjustToUniversal, out date);
+            bool foundDate = DateTime.TryParseExact(dateString, new[] { "yyyyMMdd", "MMdd", "yyyyMMddHHmm", "yyyyMMddHHmmss" }, deDE, DateTimeStyles.AdjustToUniversal, out date);
             if (!foundDate && !DateTime.TryParse(dateString, deDE, DateTimeStyles.AdjustToUniversal, out date))
+            {
                 return dateString;
+            }
 
             switch (format)
             {
                 case "102":
                     {
-                        return date.ToLocalTime().ToString("yyyyMMdd");
+                        return TimeZoneInfo.ConvertTimeFromUtc(date, LocalTimeZone).ToString("yyyyMMdd");
                     }
                 case "106":
                     {
                         if (useLocalTime)
-                            return date.ToLocalTime().ToString("MMdd");
+                        {
+                            return TimeZoneInfo.ConvertTimeFromUtc(date, LocalTimeZone).ToString("MMdd");
+                        }
+
                         return date.ToString("MMdd");
                     }
                 case "203":
                     {
                         if (useLocalTime)
-                            return date.ToLocalTime().ToString("yyyyMMddHHmm");
+                        {
+                            return TimeZoneInfo.ConvertTimeFromUtc(date, LocalTimeZone).ToString("yyyyMMddHHmm");
+                        }
+
                         return date.ToString("yyyyMMddHHmm");
                     }
                 case "204":
                     {
                         if (useLocalTime)
-                            return date.ToLocalTime().ToString("yyyyMMddHHmmss");
+                        {
+                            return TimeZoneInfo.ConvertTimeFromUtc(date, LocalTimeZone).ToString("yyyyMMddHHmmss");
+                        }
+
                         return date.ToString("yyyyMMddHHmmss");
                     }
                 case "303":
@@ -54,7 +65,7 @@ namespace EDILibrary
                         {
 
                             var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
-                            var offset = utcOffset.ToOffset(TimeZoneInfo.Local.GetUtcOffset(utcOffset)).Offset.Hours;
+                            var offset = utcOffset.ToOffset(LocalTimeZone.GetUtcOffset(utcOffset)).Offset.Hours;
                             return date.ToLocalTime().ToString("yyyyMMddHHmm") + "+0" + offset;
 
                         }
@@ -67,7 +78,7 @@ namespace EDILibrary
                         if (useLocalTime)
                         {
                             var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
-                            var offset = utcOffset.ToOffset(TimeZoneInfo.Local.GetUtcOffset(utcOffset)).Offset.Hours;
+                            var offset = utcOffset.ToOffset(LocalTimeZone.GetUtcOffset(utcOffset)).Offset.Hours;
                             return "+0" + offset + "00";
                         }
 
@@ -127,7 +138,10 @@ namespace EDILibrary
             {
                 beginIndex = template.IndexOf("<", currentIndex);// :warn: is culture specific
                 if (beginIndex == -1)
+                {
                     continue;
+                }
+
                 endIndex = template.IndexOf(">", beginIndex); // :warn: is culture specific
                 var codeTemplate = template.Substring(beginIndex, endIndex - beginIndex + 1);
                 var code = codeTemplate.Substring(1, codeTemplate.Length - 2);
@@ -183,12 +197,18 @@ namespace EDILibrary
                                     where ele.Key == node
                                     select ele.Value[0];
                     if (selection.Any())
+                    {
                         value = selection.Single();
+                    }
                     else
+                    {
                         value = "";
+                    }
 
                     if (value != null)
+                    {
                         value = EscapeValue(value.Trim());
+                    }
 
                     if (!string.IsNullOrEmpty(value))
                     {
@@ -211,9 +231,13 @@ namespace EDILibrary
                                     select ele.Value[0];
                     var enumerable = selection as string[] ?? selection.ToArray();
                     if (enumerable.Any())
+                    {
                         value = enumerable.Single();
+                    }
                     else
+                    {
                         value = "";
+                    }
 
                     value = value?.Trim();
 
@@ -226,12 +250,18 @@ namespace EDILibrary
                                     select ele.Value[0];
 
                         if (selection.Any())
+                        {
                             format = selection.Single();
+                        }
                         else
+                        {
                             format = "";
+                        }
 
                         if (format != null)
+                        {
                             format = EscapeValue(format.Trim());
+                        }
                     }
                     if (!string.IsNullOrEmpty(value))
                     {
@@ -345,9 +375,13 @@ namespace EDILibrary
                     if (code == parent.Name + ":Key")
                     {
                         if (parent.Field("Key") != null)
+                        {
                             value = parent.Field("Key");
+                        }
                         else
+                        {
                             value = parent.Key;
+                        }
                     }
                     else
                     {
@@ -360,16 +394,23 @@ namespace EDILibrary
                             value = enumerable.Single();
                         }
                         else
+                        {
                             value = "";
+                        }
 
                         if (value != null)
+                        {
                             value = EscapeValue(value.Trim());
+                        }
                     }
                     if (length != null)
                     {
                         var parts = new List<string>();
                         if (value == null)
+                        {
                             value = "";
+                        }
+
                         var temp_value = value;
                         var laenge = int.Parse(length);
                         if (maxCount != null) // gleiche Längen
