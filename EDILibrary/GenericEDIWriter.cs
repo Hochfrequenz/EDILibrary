@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -21,8 +20,8 @@ namespace EDILibrary
             DateTime date;
             var foundDate = false;
             var deDE = new CultureInfo("de-DE");
-            foundDate = DateTime.TryParseExact(dateString, new[] { "yyyyMMdd", "MMdd", "yyyyMMddHHmm", "yyyyMMddHHmmss" }, deDE, DateTimeStyles.None, out date);
-            if (!foundDate && !DateTime.TryParse(dateString, out date))
+            foundDate = DateTime.TryParseExact(dateString, new[] { "yyyyMMdd", "MMdd", "yyyyMMddHHmm", "yyyyMMddHHmmss" }, deDE, DateTimeStyles.AdjustToUniversal, out date);
+            if (!foundDate && !DateTime.TryParse(dateString, deDE, DateTimeStyles.AdjustToUniversal, out date))
                 return dateString;
 
             switch (format)
