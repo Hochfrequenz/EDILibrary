@@ -219,6 +219,46 @@ namespace EDILibrary
                     template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 5).Replace(template.Substring(beginIndex, endIndex - beginIndex + 5), resultBuilder.ToString()) + template.Substring(endIndex + 5);
                     beginIndex = 0;
                 }
+                else if (codeTemplate.StartsWith("<dateformat"))
+                {
+                    var nodeparts = code.Split(new[] { ' ' });
+                    var node = string.Join(" ", nodeparts.Skip(1));
+                    var innerNodeParts = node.Split(new[] { ';' });
+                    string value = null;
+
+                    var selection = from ele in parent.Fields
+                                    where ele.Key == innerNodeParts[0]
+                                    select ele.Value[0];
+                    var enumerable = selection as string[] ?? selection.ToArray();
+                    if (enumerable.Any())
+                    {
+                        value = enumerable.Single();
+                    }
+                    else
+                    {
+                        value = "";
+                    }
+
+                    value = value?.Trim();
+
+
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        //Special case handling for DTM 106 / 104 formats, that can only be determined by the length of the string
+                        if (value.Length == 4)
+                        {
+                            resultBuilder.Append("106");
+                        }
+                        else
+                        {
+                            resultBuilder.Append("104");
+                        }
+                    }
+                    beginIndex = template.IndexOf("<dateformat", 0);
+                    endIndex = template.IndexOf(">", beginIndex);
+                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, endIndex - beginIndex + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
+                    beginIndex = 0;
+                }
                 else if (codeTemplate.StartsWith("<date"))
                 {
                     var nodeparts = code.Split(new[] { ' ' });
@@ -272,46 +312,7 @@ namespace EDILibrary
                     template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, endIndex - beginIndex + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
                     beginIndex = 0;
                 }
-                else if (codeTemplate.StartsWith("<dateformat"))
-                {
-                    var nodeparts = code.Split(new[] { ' ' });
-                    var node = string.Join(" ", nodeparts.Skip(1));
-                    var innerNodeParts = node.Split(new[] { ';' });
-                    string value = null;
 
-                    var selection = from ele in parent.Fields
-                                    where ele.Key == innerNodeParts[0]
-                                    select ele.Value[0];
-                    var enumerable = selection as string[] ?? selection.ToArray();
-                    if (enumerable.Any())
-                    {
-                        value = enumerable.Single();
-                    }
-                    else
-                    {
-                        value = "";
-                    }
-
-                    value = value?.Trim();
-
-
-                    if (!string.IsNullOrEmpty(value))
-                    {
-                        //Special case handling for DTM 106 / 104 formats, that can only be determined by the length of the string
-                        if (value.Length == 4)
-                        {
-                            resultBuilder.Append("106");
-                        }
-                        else
-                        {
-                            resultBuilder.Append("104");
-                        }
-                    }
-                    beginIndex = template.IndexOf("<dateformat", 0);
-                    endIndex = template.IndexOf(">", beginIndex);
-                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, endIndex - beginIndex + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
-                    beginIndex = 0;
-                }
                 else if (codeTemplate.StartsWith("<!") || codeTemplate.StartsWith("<$"))
                 {
                     //determine segment counter
