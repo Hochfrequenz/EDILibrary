@@ -132,7 +132,7 @@ namespace EDILibrary
             JArray maskArray = null;
             if (json != null)
             {
-                new JArray();
+                maskArray = new JArray();
                 foreach (var step in json.Property("steps").Value)
                 {
                     foreach (var prop in ((step as JObject)?.Property("fields").Value as JObject).Properties())
