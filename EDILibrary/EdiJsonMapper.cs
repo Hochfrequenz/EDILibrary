@@ -156,6 +156,27 @@ namespace EDILibrary
                 Version = version,
             }, new List<string>(), _loader, localTime, convertFromUTC);
         }
+        public async Task<string> CreateFromEdiJson(string jsonInput, string pid, EdifactFormatVersion formatPackage, TimeZoneInfo localTime, bool convertFromUTC = false)
+        {
+            var format = EdifactFormatHelper.FromPruefidentifikator(pid);
+
+            var mappingsBody = await _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), format + ".json");
+
+
+            var inputJson = JsonConvert.DeserializeObject<JObject>(jsonInput);
+            var mappings = JsonConvert.DeserializeObject<JArray>(mappingsBody);
+
+            var version = mappings[0]["_meta"]["version"].Value<string>();
+            JArray maskArray = null;
+
+            EdiObject result = EdiObject.CreateFromJSON(jsonInput);
+            //apply scripts
+            return await MappingHelper.ExecuteMappings(result, new EDIFileInfo
+            {
+                Format = format,
+                Version = version,
+            }, new List<string>(), _loader, localTime, convertFromUTC);
+        }
         protected static void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool _)
         {
             foreach (var prop in value.Properties())
