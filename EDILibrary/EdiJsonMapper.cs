@@ -100,12 +100,20 @@ namespace EDILibrary
         public async Task<string> CreateFromJson(string jsonInput, string pid, EdifactFormatVersion formatPackage, TimeZoneInfo localTime, bool convertFromUTC = false)
         {
             var format = EdifactFormatHelper.FromPruefidentifikator(pid);
-            var jsonBodyTask = _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), $"{pid}.json");
-            var mappingsBodyTask = _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), format + ".json");
-            await Task.WhenAll(new List<Task> { jsonBodyTask, mappingsBodyTask });
-            var json = JsonConvert.DeserializeObject<JObject>(jsonBodyTask.Result);
+            string jsonBody = null;
+            try
+            {
+                jsonBody = await _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), $"{pid}.json");
+            }
+            catch (Exception ex)
+            {
+                //we don't have a mask for this pid, which is fine, go ahead
+            }
+            var mappingsBody = await _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), format + ".json");
+
+            var json = jsonBody != null ? JsonConvert.DeserializeObject<JObject>(jsonBody) : null;
             var inputJson = JsonConvert.DeserializeObject<JObject>(jsonInput);
-            var mappings = JsonConvert.DeserializeObject<JArray>(mappingsBodyTask.Result);
+            var mappings = JsonConvert.DeserializeObject<JArray>(mappingsBody);
             //map inputJson via fix values from mapping
             // if (((JObject)json.Where(entry => ((JObject)entry).Property("key").Value.Value<string>() == "utilmd").FirstOrDefault()) != null)
             //{
@@ -121,19 +129,23 @@ namespace EDILibrary
             //       throw new BadPIDException(pid);
             //    }
             var version = mappings[0]["_meta"]["version"].Value<string>();
-            var maskArray = new JArray();
-            foreach (var step in json.Property("steps").Value)
+            JArray maskArray = null;
+            if (json != null)
             {
-                foreach (var prop in ((step as JObject)?.Property("fields").Value as JObject).Properties())
+                new JArray();
+                foreach (var step in json.Property("steps").Value)
                 {
-                    var newObj = new JObject
+                    foreach (var prop in ((step as JObject)?.Property("fields").Value as JObject).Properties())
+                    {
+                        var newObj = new JObject
                     {
                         { "key", prop.Name },
                         { "type", (prop.Value as JObject).Property("obligType").Value }
                     };
-                    maskArray.Add(newObj);
+                        maskArray.Add(newObj);
+                    }
+                    //maskArray.Merge(((step as JObject)?.Property("fields").Value as JObject).Properties(), new JsonMergeSettings() { MergeArrayHandling = MergeArrayHandling.Union });
                 }
-                //maskArray.Merge(((step as JObject)?.Property("fields").Value as JObject).Properties(), new JsonMergeSettings() { MergeArrayHandling = MergeArrayHandling.Union });
             }
             var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, out var subParent, convertFromUTC);
             EdiObject result = EdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
@@ -254,13 +266,20 @@ namespace EDILibrary
         protected static bool FindMask(JArray mask, string maskKey)
         {
             if (mask == null)
-                return false;
+            {
+                //if we don't have a mask for this process allow all fields as default
+                return true;
+            }
+
             foreach (var maskEntry in mask)
             {
                 if (CompareKey((maskEntry as JObject).Property("key")?.Value.Value<string>(), maskKey))
                 {
                     if ((maskEntry as JObject).Property("type")?.Value.Value<string>() == "N")
+                    {
                         continue;
+                    }
+
                     return (maskEntry as JObject).Property("type")?.Value.Value<string>() != "N";
                 }
             }
