@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Linq;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 namespace EDILibrary
@@ -177,7 +178,7 @@ namespace EDILibrary
                 foreach (var (key, value) in cur.Fields)
                 {
                     i--;
-                    _builder.AppendLine("\"" + key + "\" : \"" + escapeSpecialChars(value.FirstOrDefault()) + "\"" + (i != 0 || hasClass ? "," : ""));
+                    _builder.AppendLine("\"" + key + "\" : \"" + escapeSpecialChars(value.Where(v => !string.IsNullOrWhiteSpace(v)).FirstOrDefault()) + "\"" + (i != 0 || hasClass ? "," : ""));
 
                 }
             }
