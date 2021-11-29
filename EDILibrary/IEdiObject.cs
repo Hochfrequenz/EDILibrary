@@ -178,7 +178,7 @@ namespace EDILibrary
                 foreach (var (key, value) in cur.Fields)
                 {
                     i--;
-                    _builder.AppendLine("\"" + key + "\" : \"" + escapeSpecialChars(value.Where(v => !string.IsNullOrWhiteSpace(v)).FirstOrDefault()) + "\"" + (i != 0 || hasClass ? "," : ""));
+                    _builder.AppendLine("\"" + key + "\" : \"" + escapeSpecialChars(value.Where(v => !string.IsNullOrWhiteSpace(v)).FirstOrDefault() ?? "") + "\"" + (i != 0 || hasClass ? "," : ""));
 
                 }
             }
