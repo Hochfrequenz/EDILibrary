@@ -189,7 +189,7 @@ namespace EDILibrary
         /// <param name="edifactFormatVersion"></param>
         /// <param name="compare"></param>
         /// <returns>-1 = smaller, 0 equal, 1 greater</returns>
-        public static int CompareTo(this EdifactFormatVersion edifactFormatVersion, EdifactFormatVersion compare)
+        public static int CompareToVersion(this EdifactFormatVersion edifactFormatVersion, EdifactFormatVersion compare)
         {
             return edifactFormatVersion.ToString().CompareTo(compare.ToString());
         }
