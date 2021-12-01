@@ -1,5 +1,7 @@
 ﻿using System;
+
 using EDILibrary;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EDILibraryTests
@@ -28,7 +30,13 @@ namespace EDILibraryTests
             var actualFormat = EdifactFormatHelper.FromPruefidentifikator(pruefi);
             Assert.AreEqual(expectedFormat, actualFormat);
         }
-
+        [TestMethod]
+        public void TestCompare()
+        {
+            EdifactFormatVersion a = EdifactFormatVersion.FV1710;
+            EdifactFormatVersion b = EdifactFormatVersion.FV1904;
+            Assert.IsTrue(a.CompareToVersion(b) == -1);
+        }
         [TestMethod]
         public void NoPruefiNoFormat()
         {
