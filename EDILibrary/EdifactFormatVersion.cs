@@ -183,7 +183,16 @@ namespace EDILibrary
                 _ => throw new NotImplementedException($"The legacy format for {edifactFormatVersion} is not yet implemented.")
             };
         }
-
+        /// <summary>
+        /// Compares two edifact versions alphanumerically
+        /// </summary>
+        /// <param name="edifactFormatVersion"></param>
+        /// <param name="compare"></param>
+        /// <returns>-1 = smaller, 0 equal, 1 greater</returns>
+        public static int CompareTo(this EdifactFormatVersion edifactFormatVersion, EdifactFormatVersion compare)
+        {
+            return edifactFormatVersion.ToString().CompareTo(compare.ToString());
+        }
         /// <summary>
         /// parses the <paramref name="legacyFormatString"/> as <see cref="EdifactFormatVersion"/>.
         /// If <paramref name="legacyFormatString"/> is null or white space, the current version is returned.
