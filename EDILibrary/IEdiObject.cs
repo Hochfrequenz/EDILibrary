@@ -111,7 +111,14 @@ namespace EDILibrary
                     }
                     else if (!(child.Value == null || child.Type == JTokenType.Null))
                     {
-                        Fields.Add(child.Name, new List<string> { child.Value.ToString() });
+                        if (child.Value.Type == JTokenType.Float)
+                        {
+                            Fields.Add(child.Name, new List<string> { child.Value.Value<float>().ToString() });
+                        }
+                        else
+                        {
+                            Fields.Add(child.Name, new List<string> { child.Value.ToString() });
+                        }
                     }
                 }
             }
