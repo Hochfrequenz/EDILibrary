@@ -86,7 +86,9 @@ namespace EDILibrary
                         var childNode = new EdiObject(child.Name, null, GenerateKey(child.Name));
                         childNode.ParseJSON(childValue);
                         if (childNode.Fields.Any() || childNode.Children.Any())
+                        {
                             AddChild(childNode);
+                        }
                     }
                 }
                 else
@@ -97,14 +99,20 @@ namespace EDILibrary
                         foreach (var childprop in (child.Value as JObject).Properties())
                         {
                             //only allow one nest level, so only strings allowed here
-                            if (childprop.Value != null && (childprop.Value.Type == JTokenType.String || childprop.Value.Type == JTokenType.Integer))
+                            if (childprop.Value != null && (childprop.Value.Type == JTokenType.Float))
+                            {
+                                Fields.Add(child.Name + "." + childprop.Name, new List<string> { childprop.Value.Value<float>().ToString() });
+                            }
+                            else if (childprop.Value != null && (childprop.Value.Type == JTokenType.String || childprop.Value.Type == JTokenType.Integer))
                             {
                                 Fields.Add(child.Name + "." + childprop.Name, new List<string> { childprop.Value.Value<string>() });
                             }
                         }
                     }
                     else if (!(child.Value == null || child.Type == JTokenType.Null))
+                    {
                         Fields.Add(child.Name, new List<string> { child.Value.ToString() });
+                    }
                 }
             }
 
@@ -169,7 +177,10 @@ namespace EDILibrary
                     }
                     i = oldI;
                     if (index + 1 < cur.Fields.First(f => f.Value.Count > 1).Value.Count)
+                    {
                         _builder.AppendLine("},{");
+                    }
+
                     index++;
                 }
             }
@@ -210,7 +221,10 @@ namespace EDILibrary
                     openElement = false;
                 }
                 else if (lastName != "")
+                {
                     _builder.AppendLine(",{");
+                }
+
                 j--;
                 if (elem.Name != lastName)
                 {
@@ -222,7 +236,9 @@ namespace EDILibrary
                 lastName = elem.Name;
             }
             if (openElement)
+            {
                 _builder.AppendLine("]" + (j != 0 ? "," : ""));
+            }
         }
         protected void RecurseJSON(XElement cur)
         {
@@ -368,7 +384,10 @@ namespace EDILibrary
         public void AddChild(EdiObject child)
         {
             if (child == null)
+            {
                 return;
+            }
+
             child.Parent = this;
             Children.Add(child);
         }
