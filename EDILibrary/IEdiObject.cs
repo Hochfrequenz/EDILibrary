@@ -113,7 +113,7 @@ namespace EDILibrary
                     {
                         if (child.Value.Type == JTokenType.Float)
                         {
-                            Fields.Add(child.Name, new List<string> { child.Value.ToString("F3") });
+                            Fields.Add(child.Name, new List<string> { child.Value.ToString("F") });
                         }
                         else
                         {
