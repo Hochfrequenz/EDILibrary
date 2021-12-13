@@ -63,7 +63,11 @@ namespace EDILibrary
         /// <summary>
         /// master data
         /// </summary>
-        UTILMD = 11
+        UTILMD = 11,
+        /// <summary>
+        /// master data
+        /// </summary>
+        CUSTOM = 99
     }
 
     /// <summary>
