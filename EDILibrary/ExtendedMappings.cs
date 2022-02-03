@@ -42,7 +42,10 @@ namespace EDILibrary
         public void LoadMappings(string mappingXML)
         {
             if (string.IsNullOrEmpty(mappingXML))
+            {
                 return;
+            }
+
             _mappingRoot = XElement.Parse(mappingXML).Descendants("Mapping").ToList();
 
         }
@@ -83,14 +86,23 @@ namespace EDILibrary
             //}
             edi = edi.Replace("??", "<<").Replace("?+", "?<").Replace("?:", "?>");
             if (string.IsNullOrEmpty(pos))
+            {
                 return null;
+            }
+
             var groups = edi.Split('+');
             var subPos = pos.Split(':');
             if (!edi.StartsWith(subPos[0]))
+            {
                 return null;
+            }
+
             var groupPos = int.Parse(subPos[1]);
             if (groups.Length <= groupPos)
+            {
                 return null;
+            }
+
             var subGroups = groups[groupPos].Split(':');
             if (subPos[2].Contains("("))
             {
@@ -101,7 +113,10 @@ namespace EDILibrary
                 for (var i = start; i <= end; i++)
                 {
                     if (subGroups.Length <= i)
+                    {
                         break;
+                    }
+
                     parts.Add(subGroups[i].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?"));
                 }
                 //Abweichend zur Behandlung im EDIReader bleiben hier die :-Trennzeichen erhalten um eine korrekte Ersetzung sicherzustellen
@@ -116,7 +131,10 @@ namespace EDILibrary
 
             var detailPos = int.Parse(subPos[2]);
             if (subGroups.Length <= detailPos)
+            {
                 return null;
+            }
+
             var result = subGroups[detailPos].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?");
             //if (!_valueCache.ContainsKey(edi))
             //{
@@ -137,7 +155,10 @@ namespace EDILibrary
         public void ExecuteEDIMapping(string mappingName)
         {
             if (_ediLines == null)
+            {
                 throw new Exception("Call PrepareEDIMapping before executing a mapping");
+            }
+
             var mapping = _mappingRoot.FirstOrDefault(mr => mr.Attribute("Name").Value == mappingName);
             if (mapping?.Attribute("type") != null && mapping.Attribute("type").Value == "edi")
             {
@@ -145,22 +166,34 @@ namespace EDILibrary
                 var selector = parts[0].Trim();
                 var newValue = "";
                 if (parts.Length > 1)
+                {
                     newValue = parts[1].Trim();
+                }
+
                 if (newValue == "<zuLang>")
                 {
                     newValue = _zuLang;
                 }
                 var klammerIndex = selector.IndexOf('[');
                 if (klammerIndex == -1)
+                {
                     klammerIndex = selector.Length;
+                }
+
                 var selection = selector.Substring(0, klammerIndex);
                 string path = null;
                 var sepIndex = selection.IndexOf(':');
                 if (sepIndex == -1)
+                {
                     sepIndex = selection.Length;
+                }
+
                 var segment = selection.Substring(0, sepIndex);
                 if (klammerIndex != selector.Length)
+                {
                     path = selector.Substring(klammerIndex + 1, selector.Length - 1 - klammerIndex - 1);
+                }
+
                 // string[] paths = path.Split(new char[] { '^', '|' }, StringSplitOptions.RemoveEmptyEntries);
                 string pathSelector = null;
                 string pathValue = null;
@@ -173,11 +206,16 @@ namespace EDILibrary
                     }
                     var opIndex = path.IndexOf(sepOp);
                     if (opIndex == -1)
+                    {
                         opIndex = path.Length;
+                    }
+
                     pathSelector = path.Substring(0, opIndex);
 
                     if (path.Length != sepIndex)
+                    {
                         pathValue = path.Substring(opIndex + sepOp.Length, path.Length - opIndex - sepOp.Length);
+                    }
                     else
                     {
                         pathValue = "";
@@ -187,7 +225,10 @@ namespace EDILibrary
                 {
                     var ediSegment = _ediLines[i];
                     if (ediSegment.StartsWith(segment) == false)
+                    {
                         continue;
+                    }
+
                     if (path != null)
                     {
                         var selectionPath = pathSelector;
@@ -199,18 +240,26 @@ namespace EDILibrary
                         {
                             var value = GetValue(selection, ediSegment);
                             if (newValue != "<entfernen>")
+                            {
                                 _ediLines[i] = ediSegment.Replace(value, newValue);
+                            }
                             else
+                            {
                                 _ediLines[i] = "";
+                            }
                         }
                     }
                     else
                     {
                         var value = GetValue(selection, ediSegment);
                         if (newValue != "<entfernen>")
+                        {
                             _ediLines[i] = ediSegment.Replace(value, newValue);
+                        }
                         else
+                        {
                             _ediLines[i] = "";
+                        }
                     }
                 }
             }

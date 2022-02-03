@@ -58,7 +58,9 @@ namespace EDILibrary
             {
                 //if the array is non empty, process properties, otherwise continue
                 if (!(prop.Value as JArray).Any())
+                {
                     return;
+                }
 
                 foreach (var subProp in ((prop.Value as JArray)[0] as JObject).Properties())
                 {
@@ -76,7 +78,9 @@ namespace EDILibrary
             {
                 builder.Append(prefix + prop.Name + ";");
                 if (valueBuilder != null)
+                {
                     valueBuilder.Append(prop.Value.Value<string>() + ";");
+                }
             }
         }
         public static string CreateCSVTemplateFromJSON(string json)

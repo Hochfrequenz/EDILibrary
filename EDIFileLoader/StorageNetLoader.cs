@@ -113,7 +113,10 @@ namespace EDIFileLoader
                     }
                     var ediCache = Cache["edi"];
                     if (ediCache == null)
+                    {
                         ediCache = new Dictionary<string, string>();
+                    }
+
                     ediCache[Path.Combine("edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type).Replace("\\", "/")] = text;
                 }
                 return text;
@@ -169,7 +172,10 @@ namespace EDIFileLoader
                     }
                     var ediCache = Cache[version.Replace("/", "")];
                     if (ediCache == null)
+                    {
                         ediCache = new Dictionary<string, string>();
+                    }
+
                     ediCache[fileName.Replace("\\", "/")] = text;
                 }
                 return text;

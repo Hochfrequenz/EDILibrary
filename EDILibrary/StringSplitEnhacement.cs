@@ -22,12 +22,17 @@ namespace EDILibrary
                     lastPos += seperator.Length;
                     pos = s.IndexOf(seperator, lastPos); // warn: string.IndexOf(string) is culture-specific
                     if (pos == -1)
+                    {
                         return list;
+                    }
                 }
 
                 var tmp = s.Substring(lastPos, pos - lastPos);
                 if (tmp.Trim().Length > 0)
+                {
                     list.Add(tmp);
+                }
+
                 lastPos = pos + seperator.Length;
                 pos = s.IndexOf(seperator, lastPos); // warn: string.IndexOf(string) is culture-specific
             }
@@ -36,7 +41,9 @@ namespace EDILibrary
             {
                 var tmp = s.Substring(lastPos, s.Length - lastPos);
                 if (tmp.Trim().Length > 0)
+                {
                     list.Add(tmp);
+                }
             }
 
             return list;
@@ -67,7 +74,9 @@ namespace EDILibrary
             {
                 var span = _str;
                 if (span.Length == 0) // Reach the end of the string
+                {
                     return false;
+                }
 
                 var index = span.IndexOf(separator);
                 if (index == -1) // The string is composed of only one line
