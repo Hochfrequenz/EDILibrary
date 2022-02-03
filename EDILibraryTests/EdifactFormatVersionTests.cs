@@ -55,11 +55,13 @@ namespace EDILibraryTests
                 EdifactFormatVersion.FV2204,
                 EdifactFormatVersion.FV2210
             };
+            var comparer = new EdifactFormatVersionComparer();
             for (int i = 0; i < expectedNaturalOrder.Count - 1; i++)
             {
                 for (int j = i + 1; j < expectedNaturalOrder.Count; j++)
                 {
                     Assert.IsTrue(expectedNaturalOrder[i] < expectedNaturalOrder[j]);
+                    Assert.IsTrue(comparer.Compare(expectedNaturalOrder[i], expectedNaturalOrder[j]) < 0);
                 }
             }
         }
