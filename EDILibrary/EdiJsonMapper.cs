@@ -228,19 +228,26 @@ namespace EDILibrary
                             var addObj = new JObject();
                             //if we already have an object in the array, just add the new property
                             if ((target[superValue] as JArray).Any())
+                            {
                                 addObj = (target[superValue] as JArray)[0] as JObject;
+                            }
+
                             // go through all new defined properties and add them to the JObject
                             foreach (var (key, o) in newProp)
                             {
                                 addObj.Add(key, JToken.FromObject(o));
                             }
                             if ((target[superValue] as JArray).Count == 0)
+                            {
                                 (target[superValue] as JArray).Add(addObj);
+                            }
                         }
                         else
                         {
                             if (!string.IsNullOrEmpty(prop.Value.Value<string>()))
+                            {
                                 AddProperty(target, ((JValue)propVal).Value<string>(), prop.Value);
+                            }
                         }
                     }
                 }
@@ -310,7 +317,10 @@ namespace EDILibrary
         {
             createInParent = false;
             if (input == null)
+            {
                 return null;
+            }
+
             var returnObject = new ExpandoObject();
             foreach (var prop in input.Properties())
             {
@@ -324,7 +334,10 @@ namespace EDILibrary
                         var newMappings = ((deps.First() as JObject).Property("requires").Value as JArray).Select(req =>
                         {
                             if ((req as JObject).Properties().FirstOrDefault()?.Value as JArray != null)
+                            {
                                 return (req as JObject).Properties().FirstOrDefault()?.Value as JArray;
+                            }
+
                             return null;
                         }).ToArray();
                         var newArray = new JArray();
@@ -336,10 +349,16 @@ namespace EDILibrary
                             // Das Array kann in einem groupBy-Fall immer nur ein Element haben
                             // war früher ein JObject, daher hier die Ausnahme abfangen
                             if (prop.Value.GetType() == typeof(JObject))
+                            {
                                 continue;
+                            }
+
                             var newSub = CreateMsgJSON((prop.Value as JArray)[0] as JObject, newArray, mask, out var subParent, convertFromUTC);
                             foreach (var (key, value) in newSub as IDictionary<string, object>)
+                            {
                                 (returnObject as IDictionary<string, object>).Add(key, value);
+                            }
+
                             continue;
                         }
                         if (!newArray.Any())
@@ -362,7 +381,10 @@ namespace EDILibrary
                             var virtualGroup = false;
                             var subObj = FindObjectByKey(deps.First(), prop.Name, out propVal, false);
                             if (subObj.SelectToken("_meta.virtual") != null)
+                            {
                                 virtualGroup = subObj.SelectToken("_meta.virtual").Value<bool>();
+                            }
+
                             if (FindMask(mask, prop.Name) || prop.Name == "Dokument" || prop.Name == "Nachricht" || virtualGroup)
                             {
                                 var newPropName = ((deps.First() as JObject).Property("requires").Value.Value<JArray>().FirstOrDefault() as JObject)?.Properties().FirstOrDefault()?.Name;
@@ -375,7 +397,9 @@ namespace EDILibrary
                                         {
                                             var newSub = CreateMsgJSON(sub as JObject, newArray, mask, out var subParent, convertFromUTC);
                                             if (!subParent)
+                                            {
                                                 ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newSub);
+                                            }
                                             else
                                             {
                                                 dynamic newObj = new ExpandoObject();
@@ -392,7 +416,9 @@ namespace EDILibrary
                                 {
                                     var newSub = CreateMsgJSON(prop.Value as JObject, newArray, mask, out var subParent, convertFromUTC);
                                     if (!subParent)
+                                    {
                                         (returnObject as IDictionary<string, object>).Add(newPropName, newSub);
+                                    }
                                     else
                                     {
                                         dynamic newObj = new ExpandoObject();
@@ -412,7 +438,9 @@ namespace EDILibrary
                         {
                             //check for validity mask
                             if (!FindMask(mask, foundObj.Property("key").Value.Value<string>()))
+                            {
                                 continue;
+                            }
                         }
 
                         switch (prop.Value.Type)
@@ -505,7 +533,10 @@ namespace EDILibrary
         protected static JObject ApplyFix(JObject input, JObject fix)
         {
             if (fix.SelectToken("fix") == null)
+            {
                 return null;
+            }
+
             foreach (JObject subFix in fix.SelectToken("fix") as JArray)
             {
                 var name = subFix.SelectToken("_name").Value<string>();
@@ -534,9 +565,15 @@ namespace EDILibrary
             propVal = null;
 
             if (val == null)
+            {
                 return null;
+            }
+
             if (val.Type != JTokenType.Object)
+            {
                 return null;
+            }
+
             var obj = (JObject)val;
             var requires = obj.SelectToken("requires");
             if (requires == null || requires.Type != JTokenType.Array)
@@ -552,7 +589,10 @@ namespace EDILibrary
             foreach (var req in (JArray)requires)
             {
                 if (req.Type != JTokenType.Object)
+                {
                     continue;
+                }
+
                 var reqObj = (JObject)req;
                 if (reqObj.Properties().FirstOrDefault()?.Name == key)
                 {
@@ -565,11 +605,16 @@ namespace EDILibrary
         protected static bool CheckFieldName(string name, string key)
         {
             if (name == key)
+            {
                 return true;
+            }
+
             if (name.Contains("."))
             {
                 if (name.Split('.').First() == key)
+                {
                     return true;
+                }
             }
             return false;
         }
@@ -580,9 +625,15 @@ namespace EDILibrary
 
             //if we don't provide a mapping (variable val) or it is not an object return
             if (val == null)
+            {
                 return null;
+            }
+
             if (val.Type != JTokenType.Object)
+            {
                 return null;
+            }
+
             var obj = (JObject)val;
             //we have found a top level match (val.key), check if we want top level matches and return
             if (!ignoreParentKey && obj.Property("key")?.Value.Value<string>() == key)
