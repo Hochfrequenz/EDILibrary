@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace EDILibrary
 {
@@ -215,7 +216,18 @@ namespace EDILibrary
         public static EdifactFormatVersion ToEdifactFormatVersion(this string legacyFormatString)
         {
             if (string.IsNullOrWhiteSpace(legacyFormatString))
+            {
                 return EdifactFormatVersionHelper.GetCurrent();
+            }
+#if NETSTANDARD2_1
+            foreach (EdifactFormatVersion efv in Enum.GetValues(typeof(EdifactFormatVersion)).Cast<EdifactFormatVersion>())
+            {
+                if (legacyFormatString == efv.ToLegacyVersionString())
+                {
+                    return efv;
+                }
+            }
+#else
             foreach (var efv in Enum.GetValues<EdifactFormatVersion>())
             {
                 if (legacyFormatString == efv.ToLegacyVersionString())
@@ -223,7 +235,7 @@ namespace EDILibrary
                     return efv;
                 }
             }
-
+#endif
             if (Enum.TryParse<EdifactFormatVersion>(legacyFormatString, out var result))
             {
                 // may we'll ever receive it in the new format. then transformer bee will be the last system to complain ;)
