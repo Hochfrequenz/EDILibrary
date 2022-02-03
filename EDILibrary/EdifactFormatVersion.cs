@@ -10,11 +10,6 @@ namespace EDILibrary
     public enum EdifactFormat
     {
         /// <summary>
-        /// Anwendungsfehler- und Bestätigungs-Nachricht
-        /// </summary>
-        APERAK = 99,
-
-        /// <summary>
         /// Handelsunstimmigkeit
         /// </summary>
         COMDIS = 29,
@@ -87,7 +82,19 @@ namespace EDILibrary
         /// <summary>
         /// Netznutzungszeiten-Nachricht
         /// </summary>
-        UTILTS = 25
+        UTILTS = 25,
+        /// <summary>
+        /// CONTRL-Nachrichten
+        /// </summary>
+        CONTRL = 91,
+        /// <summary>
+        /// APERAK-Messages
+        /// </summary>
+        APERAK = 92,
+        /// <summary>
+        /// Custom pruefis
+        /// </summary>
+        CUSTOM = 99
     }
 
     /// <summary>
@@ -152,9 +159,13 @@ namespace EDILibrary
         FV2110,
 
         /// <summary>
-        /// Format Version April 2022 (aka MaKo2022)
+        /// Format Version April 2022 (cancelled)
         /// </summary>
-        FV2204
+        FV2204,
+        /// <summary>
+        /// Format Version October 2022 (aka MaKo2022)
+        /// </summary>
+        FV2210
     }
 
     /// <summary>
@@ -180,6 +191,7 @@ namespace EDILibrary
                 EdifactFormatVersion.FV2104 => "04/21",
                 EdifactFormatVersion.FV2110 => "10/21",
                 EdifactFormatVersion.FV2204 => "04/22",
+                EdifactFormatVersion.FV2210 => "10/22",
                 _ => throw new NotImplementedException($"The legacy format for {edifactFormatVersion} is not yet implemented.")
             };
         }
@@ -249,10 +261,11 @@ namespace EDILibrary
         /// </summary>
         private static readonly DateTime KeyDate2110 = new(2021, 09, 30, 22, 0, 0, DateTimeKind.Utc);
 
+
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2110"/>
         /// </summary>
-        private static readonly DateTime KeyDate2204 = new(2022, 03, 31, 22, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime KeyDate2210 = new(2022, 09, 30, 22, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// returns the format version valid as of now.
@@ -261,9 +274,9 @@ namespace EDILibrary
         public static EdifactFormatVersion GetCurrent()
         {
             var now = DateTime.UtcNow;
-            if (now > KeyDate2204)
+            if (now > KeyDate2210)
             {
-                return EdifactFormatVersion.FV2204;
+                return EdifactFormatVersion.FV2210;
             }
 
             if (now > KeyDate2110)
