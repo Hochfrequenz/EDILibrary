@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EDILibrary
@@ -84,14 +85,17 @@ namespace EDILibrary
         /// Netznutzungszeiten-Nachricht
         /// </summary>
         UTILTS = 25,
+
         /// <summary>
         /// CONTRL-Nachrichten
         /// </summary>
         CONTRL = 91,
+
         /// <summary>
         /// APERAK-Messages
         /// </summary>
         APERAK = 92,
+
         /// <summary>
         /// Custom pruefis
         /// </summary>
@@ -166,10 +170,19 @@ namespace EDILibrary
         /// Format Version April 2022 (cancelled)
         /// </summary>
         FV2204,
+
         /// <summary>
         /// Format Version October 2022 (aka MaKo2022)
         /// </summary>
         FV2210
+    }
+
+    public class EdifactFormatVersionComparer : IComparer<EdifactFormatVersion>
+    {
+        public int Compare(EdifactFormatVersion x, EdifactFormatVersion y)
+        {
+            return ((int)x).CompareTo((int)y);
+        }
     }
 
     /// <summary>
@@ -199,16 +212,19 @@ namespace EDILibrary
                 _ => throw new NotImplementedException($"The legacy format for {edifactFormatVersion} is not yet implemented.")
             };
         }
+
         /// <summary>
         /// Compares two edifact versions alphanumerically
         /// </summary>
         /// <param name="edifactFormatVersion"></param>
         /// <param name="compare"></param>
         /// <returns>-1 = smaller, 0 equal, 1 greater</returns>
+        [Obsolete("Use the IComparer class " + nameof(EdifactFormatVersionComparer) + " instead")]
         public static int CompareToVersion(this EdifactFormatVersion edifactFormatVersion, EdifactFormatVersion compare)
         {
-            return edifactFormatVersion.ToString().CompareTo(compare.ToString());
+            return new EdifactFormatVersionComparer().Compare(edifactFormatVersion, compare);
         }
+
         /// <summary>
         /// parses the <paramref name="legacyFormatString"/> as <see cref="EdifactFormatVersion"/>.
         /// If <paramref name="legacyFormatString"/> is null or white space, the current version is returned.

@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using EDILibrary;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,10 +33,39 @@ namespace EDILibraryTests
         [TestMethod]
         public void TestCompare()
         {
-            EdifactFormatVersion a = EdifactFormatVersion.FV1710;
-            EdifactFormatVersion b = EdifactFormatVersion.FV1904;
+            const EdifactFormatVersion a = EdifactFormatVersion.FV1710;
+            const EdifactFormatVersion b = EdifactFormatVersion.FV1904;
             Assert.IsTrue(a.CompareToVersion(b) == -1);
+            Assert.IsTrue(b > a);
+            Assert.IsFalse(a > b);
         }
+
+        [TestMethod]
+        public void TestFormatVersionOrder()
+        {
+            var expectedNaturalOrder = new List<EdifactFormatVersion>
+            {
+                // this is the chronological order as it should be
+                EdifactFormatVersion.FV1710,
+                EdifactFormatVersion.FV1904,
+                EdifactFormatVersion.FV1912,
+                EdifactFormatVersion.FV2004,
+                EdifactFormatVersion.FV2104,
+                EdifactFormatVersion.FV2110,
+                EdifactFormatVersion.FV2204,
+                EdifactFormatVersion.FV2210
+            };
+            var comparer = new EdifactFormatVersionComparer();
+            for (int i = 0; i < expectedNaturalOrder.Count - 1; i++)
+            {
+                for (int j = i + 1; j < expectedNaturalOrder.Count; j++)
+                {
+                    Assert.IsTrue(expectedNaturalOrder[i] < expectedNaturalOrder[j]);
+                    Assert.IsTrue(comparer.Compare(expectedNaturalOrder[i], expectedNaturalOrder[j]) < 0);
+                }
+            }
+        }
+
         [TestMethod]
         public void NoPruefiNoFormat()
         {
@@ -51,6 +80,8 @@ namespace EDILibraryTests
         }
 
         [TestMethod]
+        [DataRow("10/22", EdifactFormatVersion.FV2210)]
+        [DataRow("04/22", EdifactFormatVersion.FV2204)]
         [DataRow("04/21", EdifactFormatVersion.FV2104)]
         [DataRow("FV2104", EdifactFormatVersion.FV2104)]
         [DataRow("04/20", EdifactFormatVersion.FV2004)]
