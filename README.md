@@ -1,3 +1,5 @@
+# Build status
+[![Build status](https://ci.appveyor.com/api/projects/status/bug7q8cj52n5mvam?svg=true)](https://ci.appveyor.com/project/JoschaMetze/edilibrary)
 # EDILibrary
 EDI Library for german energy market
 
