@@ -28,20 +28,35 @@ namespace EDILibrary
         public bool Equals(EDIPartner other)
         {
             if (ReferenceEquals(null, other))
+            {
                 return false;
+            }
+
             if (ReferenceEquals(this, other))
+            {
                 return true;
+            }
+
             return ID == other.ID && CodeList == other.CodeList && Rolle == other.Rolle;
         }
 
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj))
+            {
                 return false;
+            }
+
             if (ReferenceEquals(this, obj))
+            {
                 return true;
+            }
+
             if (obj.GetType() != GetType())
+            {
                 return false;
+            }
+
             return Equals((EDIPartner)obj);
         }
 
@@ -80,9 +95,15 @@ namespace EDILibrary
         public bool Equals(EDIFileInfo other)
         {
             if (ReferenceEquals(null, other))
+            {
                 return false;
+            }
+
             if (ReferenceEquals(this, other))
+            {
                 return true;
+            }
+
             return Version == other.Version && Format == other.Format && Equals(Sender, other.Sender) && Equals(Empfänger, other.Empfänger) && ID == other.ID &&
                    Referenz == other.Referenz && Freigabenummer == other.Freigabenummer && Nachrichtenversion == other.Nachrichtenversion;
         }
@@ -90,11 +111,20 @@ namespace EDILibrary
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj))
+            {
                 return false;
+            }
+
             if (ReferenceEquals(this, obj))
+            {
                 return true;
+            }
+
             if (obj.GetType() != GetType())
+            {
                 return false;
+            }
+
             return Equals((EDIFileInfo)obj);
         }
 
@@ -118,7 +148,10 @@ namespace EDILibrary
         {
             // for a better implementation use RemoveByteOrderMark
             if (edi[0] != 'U')
+            {
                 return edi.Substring(1);
+            }
+
             return edi;
         }
 
@@ -132,7 +165,10 @@ namespace EDILibrary
         public static string RemoveByteOrderMark(string text)
         {
             if (string.IsNullOrWhiteSpace(text))
+            {
                 return text;
+            }
+
             if (text.StartsWith(ByteOrderMarkUtf8) && text[0] == ByteOrderMarkUtf8[0])
             {
                 return text.Remove(0, ByteOrderMarkUtf8.Length);
@@ -201,7 +237,10 @@ namespace EDILibrary
         public static string NormalizeEDIHeader(string edi)
         {
             if (edi == null)
+            {
                 return null;
+            }
+
             edi = RemoveBOM(edi); // todo: check why RemoveBOM is still used and RemoveByteOrderMark does not work
             var specialChars = GetSpecialChars(edi);
             var message = GetActualMessage(edi, specialChars);
@@ -234,7 +273,10 @@ namespace EDILibrary
         public static EDIFileInfo GetEdiFileInfo(string edi)
         {
             if (edi == null)
+            {
                 return null;
+            }
+
             try
             {
                 edi = RemoveBOM(edi); // todo: check why RemoveBOM is still used and RemoveByteOrderMark does not work
@@ -269,7 +311,10 @@ namespace EDILibrary
                     Nachrichtenversion = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[1]
                 };
                 if (unbParts.Length >= 7)
+                {
                     file.Referenz = unbParts[7].Split(specialChars.ElementDelimiter.ToCharArray())[0];
+                }
+
                 return file;
             }
             catch (Exception)

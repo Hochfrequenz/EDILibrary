@@ -29,12 +29,16 @@ namespace EDILibrary
             if (child.Name.StartsWith("SG") || child.Name == "UNH")
             {
                 if (Children.ContainsKey(child.Name + "_" + child.Occurence) == false)
+                {
                     Children.Add(child.Name + "_" + child.Occurence, child);
+                }
             }
             else
             {
                 if (Children.ContainsKey(child.Name) == false)
+                {
                     Children.Add(child.Name, child);
+                }
             }
         }
         public TreeElement AddEdi(string edi, TreeElement currentRoot)
@@ -63,18 +67,24 @@ namespace EDILibrary
                     if (Occurence > 0)
                     {
                         if (Children.ContainsKey(newChild.Name + "_" + Occurence) == false)
+                        {
                             Children.Add(newChild.Name + "_" + Occurence, newChild);
+                        }
                     }
                     else
                     {
                         if (Children.ContainsKey(newChild.Name) == false)
+                        {
                             Children.Add(newChild.Name, newChild);
+                        }
                     }
                 }
                 else
                 {
                     if (Children.ContainsKey(newChild.Name) == false)
+                    {
                         Children.Add(newChild.Name, newChild);
+                    }
                 }
             }
             Occurence = old.Occurence + 1;
@@ -93,9 +103,14 @@ namespace EDILibrary
                 CONTRL_Status = nameParts[0];
                 APERAK_Status = nameParts[1];
                 if (nameParts.Length > 2)
+                {
                     CONTRL_Check_String = nameParts[2];
+                }
+
                 if (nameParts.Length > 3)
+                {
                     APERAK_Check_String = nameParts[3];
+                }
             }
             else
             {
@@ -154,7 +169,10 @@ namespace EDILibrary
         public TreeElement FindElement(string name, bool recursive = true)
         {
             if (Name == name)
+            {
                 return this;
+            }
+
             if (Children.ContainsKey(ExtractName(name)))
             {
                 return Children[ExtractName(name)];
@@ -189,7 +207,10 @@ namespace EDILibrary
         {
             var children = from elem in root.Children.Values where elem.Dirty && !elem.Children.Any() select elem;
             if (!children.Any())
+            {
                 root.Dirty = false;
+            }
+
             foreach (var child in root.Children.Values)
             {
                 RefreshDirtyFlags(child);
@@ -238,16 +259,25 @@ namespace EDILibrary
                     if (segName.StartsWith("UNH"))
                     {
                         if (treeRoot == null)
+                        {
                             treeRoot = root.Children[segName];
+                        }
+
                         var copy = new TreeElement(treeRoot);
                         var child = treeRoot;
                         treeRoot = copy;
                         //bei UNH muss ich dann schon die Anzahl der UNH-Kinder zählen und die Occurence manuell setzen
                         var unhCounter = root.Children.Values.Count(tempChild => tempChild.Name.StartsWith("UNH"));
                         foreach (var c in child.Children.Values)
+                        {
                             c.Dirty = false;
+                        }
+
                         foreach (var c in copy.Children.Values)
+                        {
                             c.Dirty = false;
+                        }
+
                         treeCopyMap["UNH"] = copy;
                         copy.Dirty = false;
                         copy.Occurence = unhCounter;
@@ -277,7 +307,10 @@ namespace EDILibrary
             foreach (var child in root.Children.Values)
             {
                 if (child.Dirty)
+                {
                     continue;
+                }
+
                 var ele = child.FindElement(segName, false);
                 // Wenn das Element existiert müssen wir tiefer navigieren und legen dafür eine Kopie an
                 if (ele != null)
@@ -291,7 +324,10 @@ namespace EDILibrary
                     root = child;
                     System.Diagnostics.Debug.Assert(root != null, segment, oldRoot.ToString());
                     if (child[segName].Key)
+                    {
                         child[segName].Dirty = true;
+                    }
+
                     return child[segName];
                 }
             }
@@ -337,7 +373,10 @@ namespace EDILibrary
         public static bool CleanTree(TreeElement ele)
         {
             if (ele.Edi.Count == 0 && ele.Children.Count == 0)
+            {
                 return true;
+            }
+
             if (ele.Children.Any())
             {
                 var delete = true;
@@ -354,7 +393,10 @@ namespace EDILibrary
                     }
                 }
                 foreach (var del in deleteList)
+                {
                     ele.Children.Remove(del);
+                }
+
                 if (delete)
                 {
                     ele.Children.Clear();

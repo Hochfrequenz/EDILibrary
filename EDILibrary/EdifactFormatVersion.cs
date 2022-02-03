@@ -111,7 +111,10 @@ namespace EDILibrary
         public static EdifactFormat FromPruefidentifikator(string pruefidentifikator)
         {
             if (string.IsNullOrWhiteSpace(pruefidentifikator))
+            {
                 throw new ArgumentNullException(nameof(pruefidentifikator));
+            }
+
             foreach (EdifactFormat ef in Enum.GetValues(typeof(EdifactFormat)))
             {
                 if (pruefidentifikator.StartsWith(((int)ef).ToString()))
