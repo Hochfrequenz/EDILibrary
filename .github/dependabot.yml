@@ -10,4 +10,4 @@ updates:
     schedule:
       interval: "daily"
     reviewers:
-      - "c-developers-review-team"
+      - "@Hochfrequenz/c-developers-review-team"
