@@ -64,7 +64,7 @@ namespace EDILibrary
         /// <summary>
         /// quotes
         /// </summary>
-        QUOTES = 35,
+        QUOTES = 15,
 
         /// <summary>
         /// Zahlungsavis
@@ -74,7 +74,7 @@ namespace EDILibrary
         /// <summary>
         /// Anfrage
         /// </summary>
-        REQOTE = 15,
+        REQOTE = 35,
 
         /// <summary>
         /// master data
