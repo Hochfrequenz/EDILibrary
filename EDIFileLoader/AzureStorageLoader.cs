@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
+// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
 
 using System;
 using System.Collections.Concurrent;
@@ -53,6 +53,7 @@ namespace EDIFileLoader
                                     if (blob.IsBlob)
                                     {
                                         var blockBlob = _container.GetBlobClient(blob.Blob.Name);
+                                        // if this stream reader failes, because the blockBlob comes without a ByteOrderMark, then use new UTF8Encoding(false) as encoding
                                         var text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
                                         text = EDIHelper.RemoveByteOrderMark(text);
                                         Cache[prefix.Prefix.TrimEnd('/')].TryAdd(blob.Blob.Name, text);

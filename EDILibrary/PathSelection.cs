@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
+// Copyright (c) 2017 Hochfrequenz Unternehmensberatung GmbH
 
 namespace EDILibrary
 {
