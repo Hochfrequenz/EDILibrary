@@ -203,7 +203,7 @@ namespace EDILibrary
                 var una = edi[..9];
                 var segmentDelimiter = una.Substring(8, 1);
                 // ReSharper disable once MergeIntoLogicalPattern (wegen abwärtskompatibilität)
-                if (segmentDelimiter == "U" || segmentDelimiter == "\n" || segmentDelimiter=="\r")
+                if (segmentDelimiter == "U" || segmentDelimiter == "\n" || segmentDelimiter == "\r")
                 {
                     // if your edifact starts with `UNA:+.?'` instead of `UNA:+.? '`
                     throw new ArgumentException($"The edifact is probably missing a space after \"{una.Substring(0, 8)}\"", nameof(edi));
