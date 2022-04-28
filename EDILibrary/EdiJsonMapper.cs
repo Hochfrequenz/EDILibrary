@@ -335,6 +335,7 @@ namespace EDILibrary
                         string sg = foundObj.SelectToken("_meta.sg")?.Value<string>();
                         string key = prop.Name;
                         string virtualKey = foundObj.SelectToken("_meta.virtualKey")?.Value<string>();
+                        var rootLikeSgKeys = new HashSet<string>() { "UNH", "/", "root" };
                         if (virtualKey is not null)
                         {
                             key = virtualKey;
@@ -397,8 +398,7 @@ namespace EDILibrary
                                 }
                             }
                         }
-
-                        else if (sg is not null && sg != "/" && sg != "UNH" && (sg == ahb.Discriminator))
+                        else if (sg is not null && rootLikeSgKeys.Contains(sg) && sg == ahb.Discriminator)
                         {
                             continue;
                         }
