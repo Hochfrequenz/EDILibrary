@@ -333,9 +333,9 @@ namespace EDILibrary
                     if (foundObj is not null)
                     {
                         bool skip = true;
-                        var sg = foundObj.SelectToken("_meta.sg")?.Value<string>();
-                        var key = prop.Name;
-                        var virtualKey = foundObj.SelectToken("_meta.virtualKey")?.Value<string>();
+                        string sg = foundObj.SelectToken("_meta.sg")?.Value<string>();
+                        string key = prop.Name;
+                        string virtualKey = foundObj.SelectToken("_meta.virtualKey")?.Value<string>();
                         if (virtualKey is not null)
                         {
                             key = virtualKey;
