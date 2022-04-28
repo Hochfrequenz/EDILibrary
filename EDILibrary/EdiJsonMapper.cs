@@ -332,7 +332,6 @@ namespace EDILibrary
                     var foundObj = FindObjectByKey(deps.First(), prop.Name, out var propVal, false);
                     if (foundObj is not null)
                     {
-                        bool skip = true;
                         string sg = foundObj.SelectToken("_meta.sg")?.Value<string>();
                         string key = prop.Name;
                         string virtualKey = foundObj.SelectToken("_meta.virtualKey")?.Value<string>();
@@ -345,7 +344,6 @@ namespace EDILibrary
                             if (localAhb.SegmentGroups.Any(s => s.Discriminator == sg))
                             {
                                 localAhb = localAhb.SegmentGroups.First(s => s.Discriminator == sg);
-                                skip = false;
                             }
                             else
                             {
@@ -368,7 +366,7 @@ namespace EDILibrary
                             {
                                 if (localsegment.DataElements.Any(s => s.DataElementId.Dehumanize() == id.Dehumanize()))
                                 {
-                                    skip = false;
+                                    // nothing
                                 }
                                 else
                                 {
@@ -391,7 +389,7 @@ namespace EDILibrary
                             {
                                 if (segment.DataElements.Any(s => s.DataElementId.Dehumanize() == id.Dehumanize()))
                                 {
-                                    skip = false;
+                                    // nothing
                                 }
                                 else
                                 {
@@ -400,7 +398,7 @@ namespace EDILibrary
                             }
                         }
 
-                        else if (sg is not null && sg != "/" && sg != "UNH" && (sg == ahb.Discriminator || skip))
+                        else if (sg is not null && sg != "/" && sg != "UNH" && (sg == ahb.Discriminator))
                         {
                             continue;
                         }
