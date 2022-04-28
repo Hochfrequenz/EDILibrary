@@ -44,7 +44,7 @@ namespace EDILibrary.MAUS
         [System.Text.Json.Serialization.JsonPropertyName("data_element_id")]
         public string DataElementId { get; set; }
         public string Discriminator { get; set; }
-        
+
     }
 
     public class FreeText : DataElement
@@ -58,7 +58,7 @@ namespace EDILibrary.MAUS
     }
 
     public class DataElementValuePool : DataElement
-    {        
+    {
         [System.Text.Json.Serialization.JsonPropertyName("value_pool")]
         public List<ValuePoolElement> ValuePool { get; set; }
         [System.Text.Json.Serialization.JsonPropertyName("value_type")]

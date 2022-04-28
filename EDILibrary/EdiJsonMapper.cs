@@ -107,7 +107,7 @@ namespace EDILibrary
             {
                 jsonBody = await _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), $"{pid}.json");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //we don't have a mask for this pid, which is fine, go ahead
             }
@@ -149,7 +149,7 @@ namespace EDILibrary
                     //maskArray.Merge(((step as JObject)?.Property("fields").Value as JObject).Properties(), new JsonMergeSettings() { MergeArrayHandling = MergeArrayHandling.Union });
                 }
             }
-            var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, ahb?.Lines?.FirstOrDefault(), null, false ,new Stack<string>(), out var subParent, convertFromUTC);
+            var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, ahb?.Lines?.FirstOrDefault(), null, false, new Stack<string>(), out var subParent, convertFromUTC);
             EdiObject result = EdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
             return await MappingHelper.ExecuteMappings(result, new EDIFileInfo
@@ -169,7 +169,6 @@ namespace EDILibrary
             var mappings = JsonConvert.DeserializeObject<JArray>(mappingsBody);
 
             var version = mappings[0]["_meta"]["version"].Value<string>();
-            JArray maskArray = null;
 
             EdiObject result = EdiObject.CreateFromJSON(jsonInput);
             //apply scripts
