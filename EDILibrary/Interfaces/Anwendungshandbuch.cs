@@ -11,7 +11,7 @@ namespace EDILibrary.MAUS
 
     //public class Line
     //{
-    //    [System.Text.Json.Serialization.JsonPropertyName("ahb_expression")]
+    //    [System.Text.Json.Serialization.JsonPropertyName("ahb_expression")]	
     //    public string AhbExpression { get; set; }
     //    public string Discriminator { get; set; }
     //    [System.Text.Json.Serialization.JsonPropertyName("segment_groups")]
