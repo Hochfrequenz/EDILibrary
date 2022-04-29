@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using EDILibrary.Exceptions;
 using EDILibrary.Helper;
 
+using Humanizer;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -92,12 +94,12 @@ namespace EDILibrary
         }
 
         [Obsolete("Use strongly typed overload instead.")]
-        public async Task<string> CreateFromJson(string jsonInput, string pid, string formatPackage, TimeZoneInfo localTime, bool convertFromUTC = false)
+        public async Task<string> CreateFromJson(string jsonInput, string pid, string formatPackage, TimeZoneInfo localTime, MAUS.Anwendungshandbuch? ahb, bool convertFromUTC = false)
         {
-            return await CreateFromJson(jsonInput, pid, formatPackage.ToEdifactFormatVersion(), localTime, convertFromUTC);
+            return await CreateFromJson(jsonInput, pid, formatPackage.ToEdifactFormatVersion(), localTime, ahb, convertFromUTC);
         }
 
-        public async Task<string> CreateFromJson(string jsonInput, string pid, EdifactFormatVersion formatPackage, TimeZoneInfo localTime, bool convertFromUTC = false)
+        public async Task<string> CreateFromJson(string jsonInput, string pid, EdifactFormatVersion formatPackage, TimeZoneInfo localTime, MAUS.Anwendungshandbuch? ahb, bool convertFromUTC = false)
         {
             var format = EdifactFormatHelper.FromPruefidentifikator(pid);
             string jsonBody = null;
@@ -105,7 +107,7 @@ namespace EDILibrary
             {
                 jsonBody = await _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), $"{pid}.json");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //we don't have a mask for this pid, which is fine, go ahead
             }
@@ -147,7 +149,7 @@ namespace EDILibrary
                     //maskArray.Merge(((step as JObject)?.Property("fields").Value as JObject).Properties(), new JsonMergeSettings() { MergeArrayHandling = MergeArrayHandling.Union });
                 }
             }
-            var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, out var subParent, convertFromUTC);
+            var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, ahb?.Lines?.FirstOrDefault(), null, false, new Stack<string>(), out var subParent, convertFromUTC);
             EdiObject result = EdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
             return await MappingHelper.ExecuteMappings(result, new EDIFileInfo
@@ -167,7 +169,6 @@ namespace EDILibrary
             var mappings = JsonConvert.DeserializeObject<JArray>(mappingsBody);
 
             var version = mappings[0]["_meta"]["version"].Value<string>();
-            JArray maskArray = null;
 
             EdiObject result = EdiObject.CreateFromJSON(jsonInput);
             //apply scripts
@@ -291,7 +292,7 @@ namespace EDILibrary
             return leftReplaced == rightReplaced;
         }
 
-        protected static bool FindMask(JArray mask, string maskKey)
+        protected static bool FindMask(JArray mask, string maskKey, MAUS.SegmentGroup? ahb, Stack<string> parentPath)
         {
             if (mask == null)
             {
@@ -313,7 +314,7 @@ namespace EDILibrary
             }
             return false;
         }
-        protected static dynamic CreateMsgJSON(JObject input, JArray mapping, JArray mask, out bool createInParent, bool convertFromUTC = false)
+        protected static dynamic CreateMsgJSON(JObject input, JArray mapping, JArray mask, MAUS.SegmentGroup? ahb, MAUS.Segment? segment, bool virtualChild, Stack<string> parentPath, out bool createInParent, bool convertFromUTC = false)
         {
             createInParent = false;
             if (input == null)
@@ -324,10 +325,84 @@ namespace EDILibrary
             var returnObject = new ExpandoObject();
             foreach (var prop in input.Properties())
             {
+                MAUS.SegmentGroup? localAhb = ahb;
                 var deps = mapping.Where(map => FindObjectByKey(map, prop.Name, out var propVal, false) != null).ToList();
                 if (deps.Any())
                 {
                     var foundObj = FindObjectByKey(deps.First(), prop.Name, out var propVal, false);
+                    if (foundObj is not null)
+                    {
+                        string sg = foundObj.SelectToken("_meta.sg")?.Value<string>();
+                        string key = prop.Name;
+                        string virtualKey = foundObj.SelectToken("_meta.virtualKey")?.Value<string>();
+                        var rootLikeSgKeys = new HashSet<string>() { "UNH", "/", "root" };
+                        if (virtualKey is not null)
+                        {
+                            key = virtualKey;
+                        }
+                        if (sg is not null && sg != "/" && sg != "UNH" && sg != ahb.Discriminator && virtualKey is null && !virtualChild)
+                        {
+                            if (localAhb.SegmentGroups.Any(s => s.Discriminator == sg))
+                            {
+                                localAhb = localAhb.SegmentGroups.First(s => s.Discriminator == sg);
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+                        else if (localAhb.Segments.Any(s => s.SectionName.Dehumanize() == key.Dehumanize())) // check segments
+                        {
+                            var localsegment = localAhb.Segments.First(s => s.SectionName.Dehumanize() == key.Dehumanize());
+                            var id = foundObj.SelectToken("_meta.id")?.Value<string>();
+                            if (id is null)
+                            {
+                                var group = foundObj.SelectToken("_meta.type")?.Value<string>();
+                                if (group != "group")
+                                {
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                if (localsegment.DataElements.Any(s => s.DataElementId.Dehumanize() == id.Dehumanize()))
+                                {
+                                    // nothing
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                        else if (segment is not null) // check segments
+                        {
+                            var id = foundObj.SelectToken("_meta.id")?.Value<string>();
+                            if (id is null)
+                            {
+                                var group = foundObj.SelectToken("_meta.type")?.Value<string>();
+                                if (group != "group")
+                                {
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                if (segment.DataElements.Any(s => s.DataElementId.Dehumanize() == id.Dehumanize()))
+                                {
+                                    // nothing
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                        else if (sg is not null && rootLikeSgKeys.Contains(sg) && sg == ahb.Discriminator)
+                        {
+                            continue;
+                        }
+                    }
                     if (propVal == null) // then create new target element and recurse
                     {
 
@@ -352,8 +427,8 @@ namespace EDILibrary
                             {
                                 continue;
                             }
-
-                            var newSub = CreateMsgJSON((prop.Value as JArray)[0] as JObject, newArray, mask, out var subParent, convertFromUTC);
+                            parentPath.Push(prop.Name);
+                            var newSub = CreateMsgJSON((prop.Value as JArray)[0] as JObject, newArray, mask, ahb, null, false, parentPath, out var subParent, convertFromUTC);
                             foreach (var (key, value) in newSub as IDictionary<string, object>)
                             {
                                 (returnObject as IDictionary<string, object>).Add(key, value);
@@ -385,17 +460,39 @@ namespace EDILibrary
                                 virtualGroup = subObj.SelectToken("_meta.virtual").Value<bool>();
                             }
 
-                            if (FindMask(mask, prop.Name) || prop.Name == "Dokument" || prop.Name == "Nachricht" || virtualGroup)
+                            if (FindMask(mask, prop.Name, ahb, parentPath) || prop.Name == "Dokument" || prop.Name == "Nachricht" || virtualGroup)
                             {
                                 var newPropName = ((deps.First() as JObject).Property("requires").Value.Value<JArray>().FirstOrDefault() as JObject)?.Properties().FirstOrDefault()?.Name;
                                 if (prop.Value.Type == JTokenType.Array)
                                 {
                                     (returnObject as IDictionary<string, object>).Add(newPropName, new List<dynamic>());
+                                    int index = 0;
                                     foreach (var sub in prop.Value as JArray)
                                     {
                                         if (sub is JObject)
                                         {
-                                            var newSub = CreateMsgJSON(sub as JObject, newArray, mask, out var subParent, convertFromUTC);
+                                            parentPath.Push($"{prop.Name}[{index}]");
+                                            MAUS.Segment? localSegment = null;
+                                            bool isVirtualKey = false;
+                                            if (localAhb is not null)
+                                            {
+                                                var key = prop.Name;
+                                                var virtualKey = foundObj.SelectToken("_meta.virtualKey")?.Value<string>();
+                                                if (virtualKey is not null)
+                                                {
+                                                    key = virtualKey;
+                                                    isVirtualKey = true;
+                                                }
+                                                if (localAhb?.Segments?.Any(s => s.SectionName == key) == true)
+                                                {
+                                                    localSegment = localAhb?.Segments?.First(s => s.SectionName == key);
+                                                }
+                                                else if (localAhb?.Discriminator != "root")
+                                                {
+
+                                                }
+                                            }
+                                            var newSub = CreateMsgJSON(sub as JObject, newArray, mask, localAhb, localSegment, virtualChild || isVirtualKey, parentPath, out var subParent, convertFromUTC);
                                             if (!subParent)
                                             {
                                                 ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newSub);
@@ -410,11 +507,13 @@ namespace EDILibrary
                                                 ((returnObject as IDictionary<string, object>)[newPropName] as List<dynamic>).Add(newObj);
                                             }
                                         }
+                                        index++;
                                     }
                                 }
                                 else
                                 {
-                                    var newSub = CreateMsgJSON(prop.Value as JObject, newArray, mask, out var subParent, convertFromUTC);
+                                    parentPath.Push(prop.Name);
+                                    var newSub = CreateMsgJSON(prop.Value as JObject, newArray, mask, localAhb, null, false, parentPath, out var subParent, convertFromUTC);
                                     if (!subParent)
                                     {
                                         (returnObject as IDictionary<string, object>).Add(newPropName, newSub);
@@ -437,7 +536,7 @@ namespace EDILibrary
                         if (foundObj.Property("key") != null)
                         {
                             //check for validity mask
-                            if (!FindMask(mask, foundObj.Property("key").Value.Value<string>()))
+                            if (!FindMask(mask, foundObj.Property("key").Value.Value<string>(), ahb, parentPath))
                             {
                                 continue;
                             }

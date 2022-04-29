@@ -31,6 +31,7 @@ namespace EDILibraryTests
             Assert.AreEqual(expectedFormat, actualFormat);
         }
         [TestMethod]
+        [Obsolete]
         public void TestCompare()
         {
             const EdifactFormatVersion a = EdifactFormatVersion.FV1710;
