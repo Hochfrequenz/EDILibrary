@@ -218,15 +218,15 @@ namespace EDIFileLoader
             }
             try
             {
-                var text = await GetUTF8TextFromPath(Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json"));
+                var text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", "maus", version.ToString(), format.ToString(), pid + "_maus.json"));
                 text = EDIHelper.RemoveByteOrderMark(text);
                 if (Cache != null)
                 {
-                    if (!Cache.ContainsKey("edi"))
+                    if (!Cache.ContainsKey("maus"))
                     {
-                        Cache["edi"] = new Dictionary<string, string>();
+                        Cache["maus"] = new Dictionary<string, string>();
                     }
-                    var ediCache = Cache["edi"];
+                    var ediCache = Cache["maus"];
                     if (ediCache == null)
                     {
                         ediCache = new Dictionary<string, string>();
