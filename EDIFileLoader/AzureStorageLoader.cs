@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 using Azure.Storage.Blobs;
@@ -26,6 +28,10 @@ namespace EDIFileLoader
         protected BlobContainerClient _container;
 
         protected ConcurrentDictionary<string, Dictionary<string, string>> Cache { get; set; } = new ConcurrentDictionary<string, Dictionary<string, string>>();
+        /// <summary>
+        /// JsonSerializer options
+        /// </summary>
+        protected JsonSerializerOptions JsonOptions { get; set; }
         public AzureStorageLoader(string accountName, string accountKey, string containerName, string connectionString)
         {
             _accountKey = accountKey;
@@ -35,6 +41,14 @@ namespace EDIFileLoader
             _blobClient = new BlobServiceClient(connectionString);
 
             _container = _blobClient.GetBlobContainerClient(_containerName);
+            JsonOptions = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            };
         }
         public async Task PreloadCache()
         {
@@ -119,13 +133,13 @@ namespace EDIFileLoader
         /// <summary>
         /// <see cref="EDILibrary.Interfaces.TemplateLoader.LoadMausTemplate"/>
         /// </summary>
-        public async Task<string> LoadMausTemplate(EdifactFormat? format, EdifactFormatVersion version, string pid)
+        public async Task<EDILibrary.MAUS.Anwendungshandbuch> LoadMausTemplate(EdifactFormat? format, EdifactFormatVersion version, string pid)
         {
             if (Cache != null)
             {
                 try
                 {
-                    return Cache["maus"][Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")];
+                    return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(Cache["maus"][Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")], JsonOptions);
                 }
                 catch (KeyNotFoundException)
                 {
@@ -135,7 +149,7 @@ namespace EDIFileLoader
 
             var text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
             text = EDIHelper.RemoveByteOrderMark(text);
-            return text;
+            return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(text, JsonOptions);
         }
     }
 }

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 using EDILibrary;
@@ -33,11 +35,23 @@ namespace EDIFileLoader
         /// Cache dictionary to not download every file again
         /// </summary>
         protected ConcurrentDictionary<string, Dictionary<string, string>> Cache { get; set; } = new ConcurrentDictionary<string, Dictionary<string, string>>();
+        /// <summary>
+        /// JsonSerializer options
+        /// </summary>
+        protected JsonSerializerOptions JsonOptions { get; set; }
         public StorageNetLoader(ILogger<StorageNetLoader> logger, Storage.Net.Blobs.IBlobStorage storage, string root = "/")
         {
             Storage = storage ?? throw new ArgumentNullException(nameof(storage));
             Logger = logger;
             Root = root;
+            JsonOptions = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            };
         }
         /// <summary>
         /// Loads all templates from the root of the blob in a cache (parallelizes per folder)
@@ -189,17 +203,18 @@ namespace EDIFileLoader
         /// <summary>
         /// <see cref="EDILibrary.Interfaces.TemplateLoader.LoadMausTemplate"/>
         /// </summary>
-        public async Task<string> LoadMausTemplate(EdifactFormat? format, EdifactFormatVersion version, string pid)
+        public async Task<EDILibrary.MAUS.Anwendungshandbuch> LoadMausTemplate(EdifactFormat? format, EdifactFormatVersion version, string pid)
         {
             if (Cache != null && Cache.Any())
             {
                 try
                 {
-                    return Cache["maus"][Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")];
+                    return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(Cache["maus"][Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")], JsonOptions);
                 }
                 catch (KeyNotFoundException)
                 {
                 }
+                catch (JsonException) { }
             }
             try
             {
@@ -219,12 +234,12 @@ namespace EDIFileLoader
 
                     ediCache[Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")] = text;
                 }
-                return text;
+                return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(text, JsonOptions);
             }
             catch (Exception exc)
             {
-                Logger.LogDebug(exc, $"Could not load edi template from storage: {exc.Message}");
-                return "";
+                Logger.LogDebug(exc, $"Could not load maus template from storage: {exc.Message}");
+                return null;
             }
         }
     }
