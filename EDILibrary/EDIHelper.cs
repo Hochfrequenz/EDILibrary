@@ -240,7 +240,6 @@ namespace EDILibrary
         /// </summary>
         /// <param name="edi"></param>
         /// <returns></returns>
-        [Obsolete]
         public static string NormalizeEDIHeader(string edi)
         {
             if (edi == null)
@@ -277,7 +276,6 @@ namespace EDILibrary
             return $"UNA{DefaultElementDelimiter}{DefaultGroupDelimiter}{DefaultDecimalChar}{DefaultEscapeChar} {DefaultSegmentDelimiter}{message}";
         }
 
-        [Obsolete]
         public static EDIFileInfo GetEdiFileInfo(string edi)
         {
             if (edi == null)
