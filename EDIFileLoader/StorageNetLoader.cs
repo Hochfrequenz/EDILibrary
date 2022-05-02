@@ -7,7 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using EDILibrary;
+
 using Microsoft.Extensions.Logging;
 namespace EDIFileLoader
 {
@@ -96,9 +98,8 @@ namespace EDIFileLoader
                 {
                     return Cache["edi"][Path.Combine("edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type).Replace("\\", "/")];
                 }
-                catch (Exception)
+                catch (KeyNotFoundException)
                 {
-                    // todo: no pokemon-catcher
                 }
             }
             try
@@ -155,9 +156,8 @@ namespace EDIFileLoader
                 {
                     return Cache[version.Replace("/", "")][fileName.Replace("\\", "/")];
                 }
-                catch (Exception)
+                catch (KeyNotFoundException)
                 {
-                    // todo: no pokemon-catcher
                 }
             }
             try
@@ -183,6 +183,47 @@ namespace EDIFileLoader
             catch (Exception exc)
             {
                 Logger.LogDebug($"Could not load edi template from storage: {exc}");
+                return "";
+            }
+        }
+        /// <summary>
+        /// <see cref="EDILibrary.Interfaces.TemplateLoader.LoadMausTemplate"/>
+        /// </summary>
+        public async Task<string> LoadMausTemplate(EdifactFormat? format, EdifactFormatVersion version, string pid)
+        {
+            if (Cache != null && Cache.Any())
+            {
+                try
+                {
+                    return Cache["maus"][Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")];
+                }
+                catch (KeyNotFoundException)
+                {
+                }
+            }
+            try
+            {
+                var text = await GetUTF8TextFromPath(Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json"));
+                text = EDIHelper.RemoveByteOrderMark(text);
+                if (Cache != null)
+                {
+                    if (!Cache.ContainsKey("edi"))
+                    {
+                        Cache["edi"] = new Dictionary<string, string>();
+                    }
+                    var ediCache = Cache["edi"];
+                    if (ediCache == null)
+                    {
+                        ediCache = new Dictionary<string, string>();
+                    }
+
+                    ediCache[Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")] = text;
+                }
+                return text;
+            }
+            catch (Exception exc)
+            {
+                Logger.LogDebug(exc, $"Could not load edi template from storage: {exc.Message}");
                 return "";
             }
         }

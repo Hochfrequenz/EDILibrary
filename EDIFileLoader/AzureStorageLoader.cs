@@ -7,7 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Azure.Storage.Blobs;
+
 using EDILibrary;
 
 namespace EDIFileLoader
@@ -74,9 +76,8 @@ namespace EDIFileLoader
                 {
                     return Cache["edi"][Path.Combine("edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type).Replace("\\", "/")];
                 }
-                catch (Exception)
+                catch (KeyNotFoundException)
                 {
-                    // todo: no pokemon-catcher
                 }
             }
             var blockBlob = _container.GetBlobClient(Path.Combine("edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type));
@@ -105,12 +106,32 @@ namespace EDIFileLoader
                 {
                     return Cache["edi"][Path.Combine(version.Replace("/", ""), fileName.Replace("\\", "/"))];
                 }
-                catch (Exception)
+                catch (KeyNotFoundException)
                 {
-                    // todo: no pokemon-catcher
                 }
             }
             var blockBlob = _container.GetBlobClient(Path.Combine(version.Replace("/", ""), fileName).Replace("\\", "/"));
+
+            var text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
+            text = EDIHelper.RemoveByteOrderMark(text);
+            return text;
+        }
+        /// <summary>
+        /// <see cref="EDILibrary.Interfaces.TemplateLoader.LoadMausTemplate"/>
+        /// </summary>
+        public async Task<string> LoadMausTemplate(EdifactFormat? format, EdifactFormatVersion version, string pid)
+        {
+            if (Cache != null)
+            {
+                try
+                {
+                    return Cache["maus"][Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")];
+                }
+                catch (KeyNotFoundException)
+                {
+                }
+            }
+            var blockBlob = _container.GetBlobClient(Path.Combine("maus", version.ToString(), format.ToString(), pid + "_maus.json"));
 
             var text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
             text = EDIHelper.RemoveByteOrderMark(text);
