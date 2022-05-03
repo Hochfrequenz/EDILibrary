@@ -314,7 +314,7 @@ namespace EDILibrary
             }
             return false;
         }
-        protected static dynamic CreateMsgJSON(JObject input, JArray mapping, JArray mask, MAUS.SegmentGroup? ahb, MAUS.Segment? segment, bool virtualChild, Stack<string> parentPath, out bool createInParent, bool convertFromUTC = false)
+        protected static dynamic CreateMsgJSON(JObject input, JArray mapping, JArray mask, MAUS.SegmentGroup? ahb, List<MAUS.Segment>? segments, bool virtualChild, Stack<string> parentPath, out bool createInParent, bool convertFromUTC = false)
         {
             createInParent = false;
             if (input == null)
@@ -340,42 +340,83 @@ namespace EDILibrary
                         {
                             key = virtualKey;
                         }
-                        if (sg is not null && sg != "/" && sg != "UNH" && sg != ahb.Discriminator && virtualKey is null && !virtualChild)
+                        if (ahb is not null || localAhb is not null)
                         {
-                            if (localAhb.SegmentGroups.Any(s => s.Discriminator == sg))
+                            if (sg is not null && sg != "/" && sg != "UNH" && sg.StartsWith("SG") && sg != ahb?.Discriminator && virtualKey is null && !virtualChild)
                             {
-                                localAhb = localAhb.SegmentGroups.First(s => s.Discriminator == sg);
+                                if (localAhb?.SegmentGroups.Any(s => s.Discriminator == sg) == true)
+                                {
+                                    localAhb = localAhb.SegmentGroups.First(s => s.Discriminator == sg);
+                                }
+                                else
+                                {
+                                    continue;
+                                }
                             }
-                            else
+                            else if (localAhb?.Segments.Any(s => s.SectionName.Replace(" ", "").Dehumanize() == key.Replace(" ", "").Dehumanize()) == true) // check segments
+                            {
+                                bool notFoundAnySegment = true;
+                                foreach (var segment in localAhb.Segments.Where(s => s.SectionName.Replace(" ", "").Dehumanize() == key.Replace(" ", "").Dehumanize()))
+                                {
+
+                                    var id = foundObj.SelectToken("_meta.id")?.Value<string>();
+                                    if (id is null)
+                                    {
+                                        var group = foundObj.SelectToken("_meta.type")?.Value<string>();
+                                        if (group == "group")
+                                        {
+                                            notFoundAnySegment = false;
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (segment.DataElements.Any(s => s.DataElementId.Dehumanize() == id.Dehumanize()))
+                                        {
+                                            notFoundAnySegment = false;
+                                        }
+                                    }
+
+                                }
+                                if (notFoundAnySegment)
+                                {
+                                    continue;
+                                }
+                            }
+                            else if (segments is not null && segments.Any()) // check segments
+                            {
+                                var id = foundObj.SelectToken("_meta.id")?.Value<string>();
+                                if (id is null)
+                                {
+                                    var group = foundObj.SelectToken("_meta.type")?.Value<string>();
+                                    if (group != "group")
+                                    {
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    bool notFoundAnySegment = true;
+                                    foreach (var segment in segments)
+                                    {
+                                        if (segment.DataElements.Any(s => s.DataElementId.Dehumanize() == id.Dehumanize()))
+                                        {
+                                            notFoundAnySegment = false;
+                                        }
+                                    }
+                                    if (notFoundAnySegment)
+                                    {
+                                        continue;
+                                    }
+                                }
+                            }
+                            else if (sg is not null && !rootLikeSgKeys.Contains(sg) && sg == ahb?.Discriminator)
                             {
                                 continue;
                             }
+
                         }
-                        else if (localAhb.Segments.Any(s => s.SectionName.Dehumanize() == key.Dehumanize())) // check segments
-                        {
-                            var localsegment = localAhb.Segments.First(s => s.SectionName.Dehumanize() == key.Dehumanize());
-                            var id = foundObj.SelectToken("_meta.id")?.Value<string>();
-                            if (id is null)
-                            {
-                                var group = foundObj.SelectToken("_meta.type")?.Value<string>();
-                                if (group != "group")
-                                {
-                                    continue;
-                                }
-                            }
-                            else
-                            {
-                                if (localsegment.DataElements.Any(s => s.DataElementId.Dehumanize() == id.Dehumanize()))
-                                {
-                                    // nothing
-                                }
-                                else
-                                {
-                                    continue;
-                                }
-                            }
-                        }
-                        else if (segment is not null) // check segments
+                        else if (segments is not null && segments.Any()) // check segments
                         {
                             var id = foundObj.SelectToken("_meta.id")?.Value<string>();
                             if (id is null)
@@ -388,17 +429,21 @@ namespace EDILibrary
                             }
                             else
                             {
-                                if (segment.DataElements.Any(s => s.DataElementId.Dehumanize() == id.Dehumanize()))
+                                bool notFoundAnySegment = true;
+                                foreach (var segment in segments)
                                 {
-                                    // nothing
+                                    if (segment.DataElements.Any(s => s.DataElementId.Dehumanize() == id.Dehumanize()))
+                                    {
+                                        notFoundAnySegment = false;
+                                    }
                                 }
-                                else
+                                if (notFoundAnySegment)
                                 {
                                     continue;
                                 }
                             }
                         }
-                        else if (sg is not null && rootLikeSgKeys.Contains(sg) && sg == ahb.Discriminator)
+                        else if (sg is not null && rootLikeSgKeys.Contains(sg) && sg == ahb?.Discriminator)
                         {
                             continue;
                         }
@@ -472,7 +517,7 @@ namespace EDILibrary
                                         if (sub is JObject)
                                         {
                                             parentPath.Push($"{prop.Name}[{index}]");
-                                            MAUS.Segment? localSegment = null;
+                                            List<MAUS.Segment?> localSegment = new List<MAUS.Segment?>();
                                             bool isVirtualKey = false;
                                             if (localAhb is not null)
                                             {
@@ -483,15 +528,54 @@ namespace EDILibrary
                                                     key = virtualKey;
                                                     isVirtualKey = true;
                                                 }
-                                                if (localAhb?.Segments?.Any(s => s.SectionName == key) == true)
+                                                if (localAhb?.Segments?.Any(s => s.SectionName.Replace(" ", "").Dehumanize() == key.Replace(" ", "").Dehumanize()) == true)
                                                 {
-                                                    localSegment = localAhb?.Segments?.First(s => s.SectionName == key);
-                                                }
-                                                else if (localAhb?.Discriminator != "root")
-                                                {
+                                                    foreach (var segment in localAhb?.Segments?.Where(s => s.SectionName.Replace(" ", "").Dehumanize() == key.Replace(" ", "").Dehumanize()))
+                                                    {
+                                                        if (segment.Discriminator == "CCI") //special handling for CCI/CAV
+                                                        {
+                                                            var seg_index = localAhb.Segments.IndexOf(segment);
+                                                            do
+                                                            {
+                                                                seg_index++;
+                                                                try
+                                                                {
+                                                                    if (localAhb.Segments[seg_index].Discriminator != "CAV")
+                                                                    {
+                                                                        break;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        if (!localSegment.Contains(localAhb.Segments[seg_index]))
+                                                                        {
+                                                                            localSegment.Add(localAhb.Segments[seg_index]);
+                                                                        }
+                                                                    }
+                                                                }
+                                                                catch (ArgumentOutOfRangeException)
+                                                                {
+                                                                    break;
+                                                                }
+                                                            }
+                                                            while (true);
 
+                                                        }
+                                                        if (!localSegment.Contains(segment))
+                                                        {
+                                                            localSegment.Add(segment);
+                                                        }
+                                                    }
                                                 }
                                             }
+                                            else if (localAhb?.Discriminator != "root")
+                                            {
+
+                                            }
+                                            if (localAhb is not null && localAhb?.Discriminator != "root" && !localSegment.Any())
+                                            {
+                                                continue;
+                                            }
+
                                             var newSub = CreateMsgJSON(sub as JObject, newArray, mask, localAhb, localSegment, virtualChild || isVirtualKey, parentPath, out var subParent, convertFromUTC);
                                             if (!subParent)
                                             {
