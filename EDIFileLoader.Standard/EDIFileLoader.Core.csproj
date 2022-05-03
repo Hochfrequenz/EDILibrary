@@ -7,7 +7,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Joscha Metze</Authors>
     <Company>Hochfrequenz Unternehmensberatung GmbH</Company>
-    <Version>1.4.3</Version>
+    <Version>1.4.4</Version>
     
     <!-- Optional: Declare that the Repository URL can be published to NuSpec -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
