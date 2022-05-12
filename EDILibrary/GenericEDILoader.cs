@@ -365,7 +365,7 @@ namespace EDILibrary
             {
                 root = XElement.Load(reader);
             }
-            catch (System.Xml.XmlException xmlException) when (xmlException.Message=="Root element is missing.")
+            catch (System.Xml.XmlException xmlException) when (xmlException.Message == "Root element is missing.")
             {
                 throw new System.Xml.XmlException(
                     $"The edifact template '{template}' could not be parsed. Are you sure the EDIFACT Format has been detected correctly?", innerException: xmlException);
