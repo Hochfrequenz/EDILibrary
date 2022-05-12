@@ -360,7 +360,16 @@ namespace EDILibrary
         public static XElement LoadTemplate(string template)
         {
             var reader = new StringReader(template);
-            var root = XElement.Load(reader);
+            XElement root;
+            try
+            {
+                root = XElement.Load(reader);
+            }
+            catch (System.Xml.XmlException xmlException) when (xmlException.Message == "Root element is missing.")
+            {
+                throw new System.Xml.XmlException(
+                    $"The edifact template '{template}' could not be parsed. Are you sure the EDIFACT Format has been detected correctly?", innerException: xmlException);
+            }
             return root;
         }
 

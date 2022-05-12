@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -290,7 +291,17 @@ namespace EDILibrary
                 var message = GetActualMessage(edi, specialChars);
                 var segments = message.LowMemSplit(specialChars.SegmentDelimiter).Take(2).ToArray();
                 var unb = segments[0];
-                var unh = segments[1];
+                string unh;
+                try
+                {
+                    unh = segments[1];
+                }
+                catch (IndexOutOfRangeException indexOutOfRangeException)
+                {
+                    throw new InvalidDataException("The EDIFACT seems invalid. Couldn't determine the necessary first two segments (UNB and UNH)",
+                        innerException: indexOutOfRangeException);
+                }
+
                 var unbParts = unb.Split(specialChars.GroupDelimiter.ToCharArray());
                 var unhParts = unh.Split(specialChars.GroupDelimiter.ToCharArray());
 
@@ -323,12 +334,12 @@ namespace EDILibrary
 
                 return file;
             }
-            catch (Exception)
+            catch (Exception) // todo: get rid of this pokemon catcher. If this returns format=null any following code will fail anyways.
             {
                 return new EDIFileInfo
                 {
                     Format = null,
-                    Referenz = Guid.NewGuid().ToString()
+                    Referenz = Guid.NewGuid().ToString(),
                 };
             }
         }
