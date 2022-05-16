@@ -201,9 +201,9 @@ namespace EDILibrary
     }
     public class TreeHelper
     {
-        public static Dictionary<string, TreeElement> treeCopyMap = new Dictionary<string, TreeElement>();
-        public static TreeElement treeRoot;
-        public static void RefreshDirtyFlags(TreeElement root)
+        public Dictionary<string, TreeElement> treeCopyMap = new Dictionary<string, TreeElement>();
+        public TreeElement treeRoot;
+        public void RefreshDirtyFlags(TreeElement root)
         {
             var children = from elem in root.Children.Values where elem.Dirty && !elem.Children.Any() select elem;
             if (!children.Any())
@@ -218,7 +218,7 @@ namespace EDILibrary
             treeRoot = null;
             treeCopyMap = new Dictionary<string, TreeElement>();
         }
-        public static TreeElement FindEdiElement(ref TreeElement root, string segment)
+        public TreeElement FindEdiElement(ref TreeElement root, string segment)
         {
             TreeElement oldRoot;// = null;
             var segName = segment.LowMemSplit("+").First();
@@ -351,9 +351,9 @@ namespace EDILibrary
             return null;
         }
         //  static SHA1 hash = System.Security.Cryptography.SHA1.Create();
-        static HashAlgorithm hash = Murmur.MurmurHash.Create128(seed: (uint)new DateTime().Ticks);
-        static UnicodeEncoding UE = new UnicodeEncoding();
-        public static string GetHash(string TextToHash)
+        HashAlgorithm hash = Murmur.MurmurHash.Create128(seed: (uint)new DateTime().Ticks);
+        UnicodeEncoding UE = new UnicodeEncoding();
+        public string GetHash(string TextToHash)
         {
             //Prüfen ob Daten übergeben wurden.
             if (string.IsNullOrEmpty(TextToHash))
@@ -370,7 +370,7 @@ namespace EDILibrary
 
             return BitConverter.ToString(result);
         }
-        public static bool CleanTree(TreeElement ele)
+        public bool CleanTree(TreeElement ele)
         {
             if (ele.Edi.Count == 0 && ele.Children.Count == 0)
             {
