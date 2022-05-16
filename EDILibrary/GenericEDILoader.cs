@@ -357,7 +357,7 @@ namespace EDILibrary
 
             return null;
         }
-        public static XElement LoadTemplate(string template)
+        public XElement LoadTemplate(string template)
         {
             var reader = new StringReader(template);
             XElement root;
@@ -404,7 +404,7 @@ namespace EDILibrary
             return ProcessSpecificTemplate(dokument, docElement, null);
 
         }
-        public static TreeElement LoadTree(string tree)
+        public TreeElement LoadTree(string tree)
         {
             TreeElement treeRoot;
             var seperator = "\n";
@@ -442,7 +442,7 @@ namespace EDILibrary
             }
             return treeRoot;
         }
-        public static TreeElement LoadEDI(string edi, TreeElement tree)
+        public TreeElement LoadEDI(string edi, TreeElement tree)
         {
             var elementDelimiter = ":";
             var groupDelimiter = "+";

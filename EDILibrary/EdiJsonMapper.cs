@@ -52,9 +52,9 @@ namespace EDILibrary
             var treeString = treeStringTask.Result;
             var templateString = templateStringTask.Result;
             var loader = new GenericEDILoader();
-            var template = GenericEDILoader.LoadTemplate(templateString);
-            var tree = GenericEDILoader.LoadTree(treeString);
-            var ediTree = GenericEDILoader.LoadEDI(ediString, tree);
+            var template = loader.LoadTemplate(templateString);
+            var tree = loader.LoadTree(treeString);
+            var ediTree = loader.LoadEDI(ediString, tree);
             TreeHelper.RefreshDirtyFlags(tree);
             var fileObject = loader.LoadTemplateWithLoadedTree(template, ediTree);
             var jsonResult = JsonConvert.DeserializeObject<JObject>(fileObject.SerializeToJSON());
