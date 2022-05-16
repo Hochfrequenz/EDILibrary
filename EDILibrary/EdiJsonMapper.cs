@@ -55,7 +55,8 @@ namespace EDILibrary
             var template = loader.LoadTemplate(templateString);
             var tree = loader.LoadTree(treeString);
             var ediTree = loader.LoadEDI(ediString, tree);
-            TreeHelper.RefreshDirtyFlags(tree);
+            var treeHelper = new TreeHelper();
+            treeHelper.RefreshDirtyFlags(tree);
             var fileObject = loader.LoadTemplateWithLoadedTree(template, ediTree);
             var jsonResult = JsonConvert.DeserializeObject<JObject>(fileObject.SerializeToJSON());
             Tuple<EdifactFormat?, string> package;

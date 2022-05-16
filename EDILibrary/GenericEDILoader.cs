@@ -9,6 +9,7 @@ namespace EDILibrary
 {
     public class GenericEDILoader
     {
+        protected TreeHelper TreeHelper { get; set; } = new TreeHelper();
         protected virtual EdiObject ProcessSpecificTemplate(XElement template, Dictionary<string, List<TreeElement>> objectMapping)
         {
             var treeRoot = objectMapping[TreeHelper.GetHash(template.ToString())][0];
