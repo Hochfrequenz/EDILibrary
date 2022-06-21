@@ -53,6 +53,7 @@ namespace EDILibrary
             if (string.IsNullOrWhiteSpace(treeString))
             {
                 // something is seriously wrong, don't expect things to work below this line if the treeString is empty
+                // just proceed and let things crash later. what should go wrong
             }
             var templateString = templateStringTask.Result;
             var loader = new GenericEDILoader();
@@ -185,6 +186,11 @@ namespace EDILibrary
         }
         protected static void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool _)
         {
+            if (value is null)
+            {
+                // instead of running into the NullReferenceException only one line later we can also just throw an Exception here
+                throw new ArgumentNullException(nameof(value), "This might be due to a missing tree object. Are you sure that template and tree have been loaded correctly?");
+            }
             foreach (var prop in value.Properties())
             {
                 var deps = mappings.Where(map => FindDependentObject(map, prop.Name, out var propVal) != null).ToList();
