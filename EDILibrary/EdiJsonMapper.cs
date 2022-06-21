@@ -50,6 +50,10 @@ namespace EDILibrary
             var templateStringTask = _loader.LoadEDITemplate(ediInfo, "template");
             await Task.WhenAll(new List<Task> { treeStringTask, templateStringTask });
             var treeString = treeStringTask.Result;
+            if (string.IsNullOrWhiteSpace(treeString))
+            {
+                // something is seriously wrong, don't expect things to work below this line if the treeString is empty
+            }
             var templateString = templateStringTask.Result;
             var loader = new GenericEDILoader();
             var template = loader.LoadTemplate(templateString);
