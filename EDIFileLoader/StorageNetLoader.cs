@@ -161,7 +161,7 @@ namespace EDIFileLoader
         /// <param name="format"></param>
         /// <param name="version"></param>
         /// <param name="fileName">template/create.template</param>
-        /// <returns></returns>
+        /// <returns>In case of any error (pokemon catcher!) returns an empty string</returns>
         public async Task<string> LoadJSONTemplate(EdifactFormat? format, string version, string fileName)
         {
             if (Cache != null && Cache.Any())
@@ -196,7 +196,8 @@ namespace EDIFileLoader
             }
             catch (Exception exc)
             {
-                Logger.LogDebug($"Could not load edi template from storage: {exc}");
+                Logger.LogWarning(exc, $"Could not load edi template from storage: {exc.Message}");
+                // why should we raise a meaningful error message when we can just return an empty string and fail somewhere else instead of the place where the error occured?
                 return "";
             }
         }
