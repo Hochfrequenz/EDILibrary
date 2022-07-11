@@ -167,11 +167,6 @@ namespace EDILibrary
         FV2110,
 
         /// <summary>
-        /// Format Version April 2022 (cancelled)
-        /// </summary>
-        FV2204,
-
-        /// <summary>
         /// Format Version October 2022 (aka MaKo2022)
         /// </summary>
         FV2210
@@ -207,7 +202,6 @@ namespace EDILibrary
                 EdifactFormatVersion.FV2004 => "04/20",
                 EdifactFormatVersion.FV2104 => "04/21",
                 EdifactFormatVersion.FV2110 => "10/21",
-                EdifactFormatVersion.FV2204 => "04/22",
                 EdifactFormatVersion.FV2210 => "10/22",
                 _ => throw new NotImplementedException($"The legacy format for {edifactFormatVersion} is not yet implemented.")
             };

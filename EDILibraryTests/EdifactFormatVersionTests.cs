@@ -53,7 +53,6 @@ namespace EDILibraryTests
                 EdifactFormatVersion.FV2004,
                 EdifactFormatVersion.FV2104,
                 EdifactFormatVersion.FV2110,
-                EdifactFormatVersion.FV2204,
                 EdifactFormatVersion.FV2210
             };
             var comparer = new EdifactFormatVersionComparer();
@@ -82,7 +81,6 @@ namespace EDILibraryTests
 
         [TestMethod]
         [DataRow("10/22", EdifactFormatVersion.FV2210)]
-        [DataRow("04/22", EdifactFormatVersion.FV2204)]
         [DataRow("04/21", EdifactFormatVersion.FV2104)]
         [DataRow("FV2104", EdifactFormatVersion.FV2104)]
         [DataRow("04/20", EdifactFormatVersion.FV2004)]
