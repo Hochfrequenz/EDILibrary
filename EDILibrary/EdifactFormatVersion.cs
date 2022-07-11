@@ -236,7 +236,7 @@ namespace EDILibrary
         {
             if (string.IsNullOrWhiteSpace(legacyFormatString))
             {
-                return EdifactFormatVersionHelper.GetCurrent();
+                new EdifactFormatVersionHelper().GetCurrent();
             }
 #if NETSTANDARD2_1
             foreach (EdifactFormatVersion efv in Enum.GetValues(typeof(EdifactFormatVersion)).Cast<EdifactFormatVersion>())
@@ -265,7 +265,23 @@ namespace EDILibrary
         }
     }
 
-    public static class EdifactFormatVersionHelper
+    public interface IEdifactFormatVersionProvider
+    {
+        /// <summary>
+        /// returns the valid Edifact Format Version at the given <paramref name="dto"/>
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public EdifactFormatVersion GetFormatVersion(DateTimeOffset dto);
+
+        /// <summary>
+        /// returns the valid Edifact Format Version used now
+        /// </summary>
+        /// <returns></returns>
+        public EdifactFormatVersion GetCurrent();
+    }
+
+    public class EdifactFormatVersionHelper : IEdifactFormatVersionProvider
     {
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV1904"/>
@@ -298,44 +314,49 @@ namespace EDILibrary
         /// </summary>
         private static readonly DateTime KeyDate2210 = new(2022, 09, 30, 22, 0, 0, DateTimeKind.Utc);
 
-        /// <summary>
-        /// returns the format version valid as of now.
-        /// </summary>
-        /// <returns>currently valid EdiFormatVersion (the oldest one implemented is <see cref="EdifactFormatVersion.FV1710"/></returns>
-        public static EdifactFormatVersion GetCurrent()
+
+        public EdifactFormatVersion GetFormatVersion(DateTimeOffset keydate)
         {
-            var now = DateTime.UtcNow;
-            if (now > KeyDate2210)
+            if (keydate > KeyDate2210)
             {
                 return EdifactFormatVersion.FV2210;
             }
 
-            if (now > KeyDate2110)
+            if (keydate > KeyDate2110)
             {
                 return EdifactFormatVersion.FV2110;
             }
 
-            if (now > Keydate2104)
+            if (keydate > Keydate2104)
             {
                 return EdifactFormatVersion.FV2104;
             }
 
-            if (now > Keydate2004)
+            if (keydate > Keydate2004)
             {
                 return EdifactFormatVersion.FV2004;
             }
 
-            if (now > Keydate1912)
+            if (keydate > Keydate1912)
             {
                 return EdifactFormatVersion.FV1912;
             }
 
-            if (now > Keydate1904)
+            if (keydate > Keydate1904)
             {
                 return EdifactFormatVersion.FV1904;
             }
 
             return EdifactFormatVersion.FV1710;
+        }
+        /// <summary>
+        /// returns the format version valid as of now.
+        /// </summary>
+        /// <returns>currently valid EdiFormatVersion (the oldest one implemented is <see cref="EdifactFormatVersion.FV1710"/></returns>
+        public EdifactFormatVersion GetCurrent()
+        {
+            var keydate = DateTime.UtcNow;
+            return GetFormatVersion(keydate);
         }
     }
 }

@@ -106,5 +106,26 @@ namespace EDILibraryTests
                 Assert.AreEqual(legacyString, expectedFormatVersion.ToString());
             }
         }
+
+        /// <summary>
+        /// this is just a placeholder for actual business logic
+        /// </summary>
+        /// <param name="versionProvider"></param>
+        /// <returns></returns>
+        private EdifactFormatVersion ActualCode(IEdifactFormatVersionProvider versionProvider)
+        {
+            return versionProvider.GetCurrent();
+        }
+
+        /// <summary>
+        /// This test is just to show how the <see cref="EdifactFormatHelper"/> is thought to be used: behind an interface!
+        /// </summary>
+        [TestMethod]
+        public void TestMockingVersionProvider()
+        {
+            var versionProviderMock = new Moq.Mock<IEdifactFormatVersionProvider>();
+            versionProviderMock.Setup(vp => vp.GetCurrent()).Returns(EdifactFormatVersion.FV1904);
+            Assert.AreEqual(EdifactFormatVersion.FV1904, ActualCode(versionProviderMock.Object));
+        }
     }
 }
