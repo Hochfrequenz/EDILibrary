@@ -317,32 +317,32 @@ namespace EDILibrary
 
         public EdifactFormatVersion GetFormatVersion(DateTimeOffset keydate)
         {
-            if (keydate > KeyDate2210)
+            if (keydate >= KeyDate2210)
             {
                 return EdifactFormatVersion.FV2210;
             }
 
-            if (keydate > KeyDate2110)
+            if (keydate >= KeyDate2110)
             {
                 return EdifactFormatVersion.FV2110;
             }
 
-            if (keydate > Keydate2104)
+            if (keydate >= Keydate2104)
             {
                 return EdifactFormatVersion.FV2104;
             }
 
-            if (keydate > Keydate2004)
+            if (keydate >= Keydate2004)
             {
                 return EdifactFormatVersion.FV2004;
             }
 
-            if (keydate > Keydate1912)
+            if (keydate >= Keydate1912)
             {
                 return EdifactFormatVersion.FV1912;
             }
 
-            if (keydate > Keydate1904)
+            if (keydate >= Keydate1904)
             {
                 return EdifactFormatVersion.FV1904;
             }

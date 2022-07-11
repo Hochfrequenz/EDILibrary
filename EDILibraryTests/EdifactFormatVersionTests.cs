@@ -127,5 +127,19 @@ namespace EDILibraryTests
             versionProviderMock.Setup(vp => vp.GetCurrent()).Returns(EdifactFormatVersion.FV1904);
             Assert.AreEqual(EdifactFormatVersion.FV1904, ActualCode(versionProviderMock.Object));
         }
+
+        /// <summary>
+        /// Test that the <see cref="EdifactFormatVersionHelper"/> returns <see cref="EdifactFormatVersion.FV2110"/> in for 2021-10-01&lt;=dt&lt;2022-10-01 (german local time)
+        /// </summary>
+        [TestMethod]
+        public void TestFV2110()
+        {
+            IEdifactFormatVersionProvider versionProvider = new EdifactFormatVersionHelper();
+            Assert.AreEqual(EdifactFormatVersion.FV2104, versionProvider.GetFormatVersion(new DateTimeOffset(2021, 9, 30, 21, 59, 59, TimeSpan.Zero)));
+            Assert.AreEqual(EdifactFormatVersion.FV2110, versionProvider.GetFormatVersion(new DateTimeOffset(2021, 9, 30, 22, 0, 0, TimeSpan.Zero)));
+            Assert.AreEqual(EdifactFormatVersion.FV2110, versionProvider.GetFormatVersion(new DateTimeOffset(2022, 3, 31, 22, 0, 0, TimeSpan.Zero)));
+            Assert.AreEqual(EdifactFormatVersion.FV2110, versionProvider.GetFormatVersion(new DateTimeOffset(2022, 9, 30, 21, 59, 59, TimeSpan.Zero)));
+            Assert.AreEqual(EdifactFormatVersion.FV2210, versionProvider.GetFormatVersion(new DateTimeOffset(2022, 9, 30, 22, 0, 0, TimeSpan.Zero)));
+        }
     }
 }
