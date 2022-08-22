@@ -53,7 +53,6 @@ namespace EDILibraryTests
                 EdifactFormatVersion.FV2004,
                 EdifactFormatVersion.FV2104,
                 EdifactFormatVersion.FV2110,
-                EdifactFormatVersion.FV2204,
                 EdifactFormatVersion.FV2210
             };
             var comparer = new EdifactFormatVersionComparer();
@@ -82,7 +81,6 @@ namespace EDILibraryTests
 
         [TestMethod]
         [DataRow("10/22", EdifactFormatVersion.FV2210)]
-        [DataRow("04/22", EdifactFormatVersion.FV2204)]
         [DataRow("04/21", EdifactFormatVersion.FV2104)]
         [DataRow("FV2104", EdifactFormatVersion.FV2104)]
         [DataRow("04/20", EdifactFormatVersion.FV2004)]
@@ -105,6 +103,41 @@ namespace EDILibraryTests
             {
                 Assert.AreEqual(legacyString, expectedFormatVersion.ToString());
             }
+        }
+
+        /// <summary>
+        /// this is just a placeholder for actual business logic
+        /// </summary>
+        /// <param name="versionProvider"></param>
+        /// <returns></returns>
+        private EdifactFormatVersion ActualCode(IEdifactFormatVersionProvider versionProvider)
+        {
+            return versionProvider.GetCurrent();
+        }
+
+        /// <summary>
+        /// This test is just to show how the <see cref="EdifactFormatHelper"/> is thought to be used: behind an interface!
+        /// </summary>
+        [TestMethod]
+        public void TestMockingVersionProvider()
+        {
+            var versionProviderMock = new Moq.Mock<IEdifactFormatVersionProvider>();
+            versionProviderMock.Setup(vp => vp.GetCurrent()).Returns(EdifactFormatVersion.FV1904);
+            Assert.AreEqual(EdifactFormatVersion.FV1904, ActualCode(versionProviderMock.Object));
+        }
+
+        /// <summary>
+        /// Test that the <see cref="EdifactFormatVersionHelper"/> returns <see cref="EdifactFormatVersion.FV2110"/> in for 2021-10-01&lt;=dt&lt;2022-10-01 (german local time)
+        /// </summary>
+        [TestMethod]
+        public void TestFV2110()
+        {
+            IEdifactFormatVersionProvider versionProvider = new EdifactFormatVersionHelper();
+            Assert.AreEqual(EdifactFormatVersion.FV2104, versionProvider.GetFormatVersion(new DateTimeOffset(2021, 9, 30, 21, 59, 59, TimeSpan.Zero)));
+            Assert.AreEqual(EdifactFormatVersion.FV2110, versionProvider.GetFormatVersion(new DateTimeOffset(2021, 9, 30, 22, 0, 0, TimeSpan.Zero)));
+            Assert.AreEqual(EdifactFormatVersion.FV2110, versionProvider.GetFormatVersion(new DateTimeOffset(2022, 3, 31, 22, 0, 0, TimeSpan.Zero)));
+            Assert.AreEqual(EdifactFormatVersion.FV2110, versionProvider.GetFormatVersion(new DateTimeOffset(2022, 9, 30, 21, 59, 59, TimeSpan.Zero)));
+            Assert.AreEqual(EdifactFormatVersion.FV2210, versionProvider.GetFormatVersion(new DateTimeOffset(2022, 9, 30, 22, 0, 0, TimeSpan.Zero)));
         }
     }
 }
