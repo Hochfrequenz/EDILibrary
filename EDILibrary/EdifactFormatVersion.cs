@@ -404,7 +404,7 @@ namespace EDILibrary
                 {
                     "5.2e" => EdifactFormatVersion.FV2210,
                     "5.2c" => EdifactFormatVersion.FV2110,
-                    _ =>GetCurrent()
+                    _ => GetCurrent()
                 },
                 EdifactFormat.MSCONS => version switch
                 {
@@ -414,7 +414,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.PARTIN => version switch
                 {
-                    "1.0a" => EdifactFormatVersion.FV2210,                    
+                    "1.0a" => EdifactFormatVersion.FV2210,
                     _ => GetCurrent()
                 },
                 EdifactFormat.IFTSTA => version switch
@@ -455,7 +455,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.ORDCHG => version switch
                 {
-                    "1.0" => EdifactFormatVersion.FV2210,                    
+                    "1.0" => EdifactFormatVersion.FV2210,
                     _ => GetCurrent()
                 },
                 EdifactFormat.ORDERS => version switch
