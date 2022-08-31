@@ -63,15 +63,23 @@ namespace EDILibrary
                     {
                         if (useLocalTime)
                         {
-
-                            var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
-                            var offset = utcOffset.ToOffset(LocalTimeZone.GetUtcOffset(utcOffset)).Offset.Hours;
-                            return date.ToLocalTime().ToString("yyyyMMddHHmm") + "+0" + offset;
-
+                            var dateMidnightInUtc = new DateTimeOffset(date, TimeSpan.Zero);
+                            var offsetHours = dateMidnightInUtc.ToOffset(LocalTimeZone.GetUtcOffset(dateMidnightInUtc)).Offset.Hours;
+                            return date.ToLocalTime().ToString("yyyyMMddHHmm") + "+0" + offsetHours; // assuming 0<=offsetHours<10 which is true for germany
                         }
-
                         // Zeitzone ist stets UTC
                         return date.ToString("yyyyMMddHHmm") + "+00";
+                    }
+                case "304":
+                    {
+                        if (useLocalTime)
+                        {
+                            var dateMidnightInUtc = new DateTimeOffset(date, TimeSpan.Zero);
+                            var offsetHours = dateMidnightInUtc.ToOffset(LocalTimeZone.GetUtcOffset(dateMidnightInUtc)).Offset.Hours;
+                            return date.ToLocalTime().ToString("yyyyMMddHHmmss") + "+0" + offsetHours; // assuming 0<=offsetHours<10 which is true for germany
+                        }
+                        // Zeitzone ist stets UTC
+                        return date.ToString("yyyyMMddHHmmss") + "+00";
                     }
                 case "406":
                     {
