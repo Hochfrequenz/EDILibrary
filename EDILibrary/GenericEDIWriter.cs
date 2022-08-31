@@ -73,6 +73,20 @@ namespace EDILibrary
                         // Zeitzone ist stets UTC
                         return date.ToString("yyyyMMddHHmm") + "+00";
                     }
+                case "304":
+                    {
+                        if (useLocalTime)
+                        {
+
+                            var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
+                            var offset = utcOffset.ToOffset(LocalTimeZone.GetUtcOffset(utcOffset)).Offset.Hours;
+                            return date.ToLocalTime().ToString("yyyyMMddHHmmss") + "+0" + offset;
+
+                        }
+
+                        // Zeitzone ist stets UTC
+                        return date.ToString("yyyyMMddHHmmss") + "+00";
+                    }
                 case "406":
                     {
                         if (useLocalTime)
