@@ -23,7 +23,7 @@ namespace EDILibrary
             bool foundDate = DateTime.TryParseExact(dateString, new[] { "yyyyMMdd", "MMdd", "yyyyMMddHHmm", "yyyyMMddHHmmss" }, deDE, DateTimeStyles.AdjustToUniversal, out date);
             if (!foundDate && !DateTime.TryParse(dateString, deDE, DateTimeStyles.AdjustToUniversal, out date))
             {
-                return dateString;
+                return dateString.Replace("+0000", "+00");
             }
 
             switch (format)
@@ -107,7 +107,7 @@ namespace EDILibrary
                     }
                 default:
                     {
-                        return dateString;
+                        return dateString.Replace("+0000", "+00");
                     }
 
 
