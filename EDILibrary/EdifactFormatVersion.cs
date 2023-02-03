@@ -488,7 +488,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.REMADV => version switch
                 {
-                    "2.9a"=> EdifactFormatVersion.FV2304,
+                    "2.9a" => EdifactFormatVersion.FV2304,
                     "2.9" => EdifactFormatVersion.FV2210,
                     "2.8" => EdifactFormatVersion.FV2110,
                     _ => GetCurrent()
