@@ -449,6 +449,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.INVOIC => version switch
                 {
+                    "2.8a" => EdifactFormatVersion.FV2304,
                     "2.8" => EdifactFormatVersion.FV2210,
                     "2.7a" => EdifactFormatVersion.FV2110,
                     _ => GetCurrent()
@@ -460,18 +461,21 @@ namespace EDILibrary
                 },
                 EdifactFormat.ORDERS => version switch
                 {
+                    "1.2b" => EdifactFormatVersion.FV2304,
                     "1.2a" => EdifactFormatVersion.FV2210,
                     "1.1m" => EdifactFormatVersion.FV2110,
                     _ => GetCurrent()
                 },
                 EdifactFormat.ORDRSP => version switch
                 {
+                    "1.2b" => EdifactFormatVersion.FV2304,
                     "1.2a" => EdifactFormatVersion.FV2210,
                     "1.1k" => EdifactFormatVersion.FV2110,
                     _ => GetCurrent()
                 },
                 EdifactFormat.PRICAT => version switch
                 {
+                    "2.0b" => EdifactFormatVersion.FV2304,
                     "2.0a" => EdifactFormatVersion.FV2210,
                     "1.1b" => EdifactFormatVersion.FV2110,
                     _ => GetCurrent()
@@ -484,6 +488,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.REMADV => version switch
                 {
+                    "2.9a" => EdifactFormatVersion.FV2304,
                     "2.9" => EdifactFormatVersion.FV2210,
                     "2.8" => EdifactFormatVersion.FV2110,
                     _ => GetCurrent()
