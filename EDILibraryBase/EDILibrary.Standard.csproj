@@ -8,7 +8,7 @@
     <Authors>EDILibrary.Standard</Authors>
     <Company>EDILibrary.Standard</Company>
     <Product>EDILibrary.Standard</Product>
-    <Version>1.4.2</Version>
+    <Version>1.5.3</Version>
     <LangVersion>9</LangVersion>
     <!-- Optional: Declare that the Repository URL can be published to NuSpec -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -38,6 +38,7 @@
     <Compile Include="..\EDILibrary\Interfaces\ITemplateLoader.cs" Link="Interfaces\ITemplateLoader.cs" />
     <Compile Include="..\EDILibrary\PathSelection.cs" Link="PathSelection.cs" />
     <Compile Include="..\EDILibrary\StringSplitEnhacement.cs" Link="StringSplitEnhacement.cs" />
+    <Compile Include="..\EDILibrary\TemplateHelper.cs" Link="TemplateHelper.cs" />
     <Compile Include="..\EDILibrary\TreeElement.cs" Link="TreeElement.cs" />
   </ItemGroup>
 

@@ -41,24 +41,14 @@ namespace EDILibrary
         {
             return (await ParseToJsonWithVersion(edi, packageVersion.ToEdifactFormatVersion(), includeEmptyValues)).EDI;
         }
-
-        public async Task<JsonResult> ParseToJsonWithVersion(string edi, EdifactFormatVersion? packageVersion, string includeEmptyValues = null)
+        public async Task<JsonResult> ParseToJsonWithTemplates(string edi, EdifactFormatVersion? packageVersion, string ediTemplate, string ediTreeTemplate, string ediJsonTemplate, string includeEmptyValues = null)
         {
             var ediInfo = EDIHelper.GetEdiFileInfo(edi.Substring(0, Math.Min(1000, edi.Length)));
             var ediString = EDIHelper.NormalizeEDIHeader(edi);
-            var treeStringTask = _loader.LoadEDITemplate(ediInfo, "tree");
-            var templateStringTask = _loader.LoadEDITemplate(ediInfo, "template");
-            await Task.WhenAll(new List<Task> { treeStringTask, templateStringTask });
-            var treeString = treeStringTask.Result;
-            if (string.IsNullOrWhiteSpace(treeString))
-            {
-                // something is seriously wrong, don't expect things to work below this line if the treeString is empty
-                // just proceed and let things crash later. what should go wrong
-            }
-            var templateString = templateStringTask.Result;
+            var templateString = ediTemplate;
             var loader = new GenericEDILoader();
             var template = loader.LoadTemplate(templateString);
-            var tree = loader.LoadTree(treeString);
+            var tree = loader.LoadTree(ediTreeTemplate);
             var ediTree = loader.LoadEDI(ediString, tree);
             var treeHelper = new TreeHelper();
             treeHelper.RefreshDirtyFlags(tree);
@@ -78,7 +68,7 @@ namespace EDILibrary
             JArray mappings;
             try
             {
-                mappings = JsonConvert.DeserializeObject<JArray>(await _loader.LoadJSONTemplate(package.Item1, package.Item2, ediInfo.Format + ".json"));
+                mappings = JsonConvert.DeserializeObject<JArray>(ediJsonTemplate);
             }
             catch (Exception e)
             {
@@ -98,13 +88,66 @@ namespace EDILibrary
             };
             return result;
         }
+        public async Task<JsonResult> ParseToJsonWithVersion(string edi, EdifactFormatVersion? packageVersion, string includeEmptyValues = null)
+        {
+            var ediInfo = EDIHelper.GetEdiFileInfo(edi.Substring(0, Math.Min(1000, edi.Length)));
+            var treeStringTask = _loader.LoadEDITemplate(ediInfo, "tree");
+            var templateStringTask = _loader.LoadEDITemplate(ediInfo, "template");
+            await Task.WhenAll(new List<Task> { treeStringTask, templateStringTask });
+            var treeString = treeStringTask.Result;
+            if (string.IsNullOrWhiteSpace(treeString))
+            {
+                // something is seriously wrong, don't expect things to work below this line if the treeString is empty
+                // just proceed and let things crash later. what should go wrong
+            }
+            var templateString = templateStringTask.Result;
+            Tuple<EdifactFormat?, string> package;
+            if (packageVersion.HasValue)
+            {
+                package = new Tuple<EdifactFormat?, string>(null, packageVersion.Value.ToLegacyVersionString());
+            }
+            else
+            {
+                //The template loader can try to read the package from the format and version (and the right table)
+                package = new Tuple<EdifactFormat?, string>(ediInfo.Format, ediInfo.Version);
+            }
+            //mapping laden
+            string mappingJson = null;
+            try
+            {
+                mappingJson = await _loader.LoadJSONTemplate(package.Item1, package.Item2, ediInfo.Format + ".json");
+            }
+            catch (Exception e)
+            {
+                throw new BadFormatException(ediInfo.Format, ediInfo.Version, e);
+            }
+            return await ParseToJsonWithTemplates(edi, packageVersion, templateString, treeString, mappingJson, includeEmptyValues);
+        }
 
         [Obsolete("Use strongly typed overload instead.")]
         public async Task<string> CreateFromJson(string jsonInput, string pid, string formatPackage, TimeZoneInfo localTime, MAUS.Anwendungshandbuch? ahb, bool convertFromUTC = false)
         {
             return await CreateFromJson(jsonInput, pid, formatPackage.ToEdifactFormatVersion(), localTime, ahb, convertFromUTC);
         }
+        public string CreateFromJsonWithTemplates(string jsonInput, string pid, EdifactFormatVersion formatPackage, string ediJsonTemplate, string createTemplate, TimeZoneInfo localTime, MAUS.Anwendungshandbuch? ahb, bool convertFromUTC = false)
+        {
+            var format = EdifactFormatHelper.FromPruefidentifikator(pid);
 
+            var mappingsBody = ediJsonTemplate;
+
+            var inputJson = JsonConvert.DeserializeObject<JObject>(jsonInput);
+            var mappings = JsonConvert.DeserializeObject<JArray>(mappingsBody);
+            var version = mappings[0]["_meta"]["version"].Value<string>();
+            var outputJson = CreateMsgJSON(inputJson, mappings, null, ahb?.Lines?.FirstOrDefault(), null, false, new Stack<string>(), out var subParent, convertFromUTC);
+            EdiObject result = EdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
+            //apply scripts
+
+            return MappingHelper.ExecuteMappings(result, new EDIFileInfo
+            {
+                Format = format,
+                Version = version,
+            }, new List<string>(), createTemplate, localTime, convertFromUTC);
+        }
         public async Task<string> CreateFromJson(string jsonInput, string pid, EdifactFormatVersion formatPackage, TimeZoneInfo localTime, MAUS.Anwendungshandbuch? ahb, bool convertFromUTC = false)
         {
             var format = EdifactFormatHelper.FromPruefidentifikator(pid);
@@ -158,11 +201,16 @@ namespace EDILibrary
             var outputJson = CreateMsgJSON(inputJson, mappings, maskArray, ahb?.Lines?.FirstOrDefault(), null, false, new Stack<string>(), out var subParent, convertFromUTC);
             EdiObject result = EdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
-            return await MappingHelper.ExecuteMappings(result, new EDIFileInfo
+            var createTemplate = await _loader.LoadEDITemplate(new EDIFileInfo
             {
                 Format = format,
                 Version = version,
-            }, new List<string>(), _loader, localTime, convertFromUTC);
+            }, "create.template");
+            return MappingHelper.ExecuteMappings(result, new EDIFileInfo
+            {
+                Format = format,
+                Version = version
+            }, new List<string>(), createTemplate, localTime, convertFromUTC);
         }
         public async Task<string> CreateFromEdiJson(string jsonInput, string pid, EdifactFormatVersion formatPackage, TimeZoneInfo localTime, bool convertFromUTC = false)
         {
@@ -178,11 +226,16 @@ namespace EDILibrary
 
             EdiObject result = EdiObject.CreateFromJSON(jsonInput);
             //apply scripts
-            return await MappingHelper.ExecuteMappings(result, new EDIFileInfo
+            var createTemplate = await _loader.LoadEDITemplate(new EDIFileInfo
             {
                 Format = format,
                 Version = version,
-            }, new List<string>(), _loader, localTime, convertFromUTC);
+            }, "create.template");
+            return MappingHelper.ExecuteMappings(result, new EDIFileInfo
+            {
+                Format = format,
+                Version = version,
+            }, new List<string>(), createTemplate, localTime, convertFromUTC);
         }
         protected static void ParseObject(JObject value, IDictionary<string, object> target, JArray mappings, bool _)
         {
