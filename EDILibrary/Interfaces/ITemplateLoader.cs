@@ -23,8 +23,9 @@ namespace EDILibrary.Interfaces
         /// <param name="format">UTLIMD, MSCONS,...</param>
         /// <param name="version">e.g. 5.2h</param>
         /// <param name="pid">The pruefidentifikator (e.g. 11001)</param>
+        /// <param name="useOlderVersionsAsFallback">set to true to use older maus versions in case no maus was found for the requested <paramref name="version"/></param>
         /// <returns>the deserialized anwendungshandbuch</returns>
-        Task<EDILibrary.MAUS.Anwendungshandbuch> LoadMausTemplate(EdifactFormat? format, EdifactFormatVersion version, string pid);
+        Task<EDILibrary.MAUS.Anwendungshandbuch> LoadMausTemplate(EdifactFormat? format, EdifactFormatVersion version, string pid, bool useOlderVersionsAsFallback);
 
         [Obsolete("Use strongly typed overload")]
         Task<string> LoadJSONTemplate(string formatPackage, string fileName);
