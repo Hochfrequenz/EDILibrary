@@ -204,23 +204,56 @@ namespace EDIFileLoader
         /// <summary>
         /// <see cref="EDILibrary.Interfaces.TemplateLoader.LoadMausTemplate"/>
         /// </summary>
-        public async Task<EDILibrary.MAUS.Anwendungshandbuch> LoadMausTemplate(EdifactFormat? format, EdifactFormatVersion version, string pid)
+        public async Task<EDILibrary.MAUS.Anwendungshandbuch> LoadMausTemplate(EdifactFormat? format, EdifactFormatVersion version, string pid, bool useOlderVersionsAsFallback)
         {
             if (Cache != null && Cache.Any())
             {
+                var mausPath = Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json");
                 try
                 {
-                    return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(Cache["maus"][Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")], JsonOptions);
+                    return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(Cache["maus"][mausPath], JsonOptions);
                 }
                 catch (KeyNotFoundException)
                 {
+                    Logger.LogDebug("The maus {MausPath} was not found in the cache", mausPath);
                 }
-                catch (JsonException) { }
+                catch (JsonException jsonException)// why shouldn't it be valid json?
+                {
+                    Logger.LogWarning("Invalid Json found: {JsonExceptionMessage}", jsonException.Message);
+                }
             }
             try
             {
-                var text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", "maus", version.ToString(), format.ToString(), pid + "_maus.json"));
-                text = EDIHelper.RemoveByteOrderMark(text);
+                var mausPath = Path.Combine(Root != "/" ? Root : "", "maus", version.ToString(), format.ToString(), pid + "_maus.json");
+                string fileContent = string.Empty;
+                try
+                {
+                     fileContent = await GetUTF8TextFromPath(mausPath);
+                }
+                // sorry for the broad except / pokemon catchers.
+                // I just don't know what kind of exception GetUTF8TextFromPath raises in case the path does not exist.
+                catch(Exception fnfe) when (useOlderVersionsAsFallback && version!=EdifactFormatVersion.FV1710)
+                {
+                    var olderVersions = Enum.GetValues(typeof(EdifactFormatVersion))
+                        .Cast<EdifactFormatVersion>().Where(fv => fv < version)
+                        .OrderByDescending(fv=>fv);
+                    foreach (var olderVersion in olderVersions)
+                    {
+                        var fallbackPath = mausPath.Replace(version.ToString(), olderVersion.ToString());
+                        Logger.LogDebug("Trying to load fallback maus from {FallbackPath}", fallbackPath);
+                        try
+                        {
+                            fileContent = await GetUTF8TextFromPath(fallbackPath);
+                            Logger.LogWarning("Using fallback maus from {FallbackPath} (instead of requested {MausPath})", fallbackPath, mausPath);
+                        }
+                        catch (Exception) when (olderVersion == EdifactFormatVersion.FV1710)
+                        {
+                            throw fnfe; // no fallback found
+                        }
+                    }
+                }
+
+                fileContent = EDIHelper.RemoveByteOrderMark(fileContent);
                 if (Cache != null)
                 {
                     if (!Cache.ContainsKey("maus"))
@@ -233,9 +266,9 @@ namespace EDIFileLoader
                         ediCache = new Dictionary<string, string>();
                     }
 
-                    ediCache[Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")] = text;
+                    ediCache[Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")] = fileContent;
                 }
-                return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(text, JsonOptions);
+                return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(fileContent, JsonOptions);
             }
             catch (Exception exc)
             {
