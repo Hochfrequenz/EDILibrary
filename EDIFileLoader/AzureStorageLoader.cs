@@ -133,7 +133,7 @@ namespace EDIFileLoader
         /// <summary>
         /// <see cref="EDILibrary.Interfaces.TemplateLoader.LoadMausTemplate"/>
         /// </summary>
-        public async Task<EDILibrary.MAUS.Anwendungshandbuch> LoadMausTemplate(EdifactFormat? format, EdifactFormatVersion version, string pid)
+        public async Task<EDILibrary.MAUS.Anwendungshandbuch> LoadMausTemplate(EdifactFormat? format, EdifactFormatVersion version, string pid, bool useFallback)
         {
             if (Cache != null)
             {
