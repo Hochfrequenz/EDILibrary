@@ -345,7 +345,7 @@ namespace EDILibrary
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2310"/>
         /// </summary>
-        private static readonly DateTime KeyDate2310 = new(2023, 09, 30, 23, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime KeyDate2310 = new(2023, 09, 30, 22, 0, 0, DateTimeKind.Utc);
 
 
         public EdifactFormatVersion GetFormatVersion(DateTimeOffset keydate)
