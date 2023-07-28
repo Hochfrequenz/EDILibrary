@@ -319,8 +319,9 @@ namespace EDILibrary
                 };
                 var version = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[4];
                 var format = Enum.Parse<EdifactFormat>(unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]);
-                if (format == EdifactFormat.UTILMD){
-                    format = version.StartsWith("G") ? EdifactFormat.UTILMDG: version.StartsWith("S") ? EdifactFormat.UTILMDS : format;  
+                if (format == EdifactFormat.UTILMD)
+                {
+                    format = version.StartsWith("G") ? EdifactFormat.UTILMDG : version.StartsWith("S") ? EdifactFormat.UTILMDS : format;
                 }
                 var file = new EDIFileInfo
                 {
