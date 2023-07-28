@@ -82,6 +82,16 @@ namespace EDILibrary
         UTILMD = 11,
 
         /// <summary>
+        /// master data gas
+        /// </summary>
+        UTILMDG = 44,
+
+        /// <summary>
+        /// master data electricity/ strom
+        /// </summary>
+        UTILMDS = 55,
+
+        /// <summary>
         /// Netznutzungszeiten-Nachricht
         /// </summary>
         UTILTS = 25,
@@ -175,7 +185,7 @@ namespace EDILibrary
         /// </summary>
         FV2304,
         /// <summary>
-        /// Format Version October 2023 (ako MaKo2023)
+        /// Format Version October 2023 (aka MaKo2023)
         /// </summary>
         FV2310
     }
@@ -406,6 +416,16 @@ namespace EDILibrary
                     "5.2c" => EdifactFormatVersion.FV2110,
                     _ => GetCurrent()
                 },
+                EdifactFormat.UTILMDG => version switch
+                {
+                    "G1.0a" => EdifactFormatVersion.FV2310,
+                    _ => GetCurrent()
+                },
+                EdifactFormat.UTILMDS => version switch
+                {
+                    "S1.1" => EdifactFormatVersion.FV2310,
+                    _ => GetCurrent()
+                },
                 EdifactFormat.MSCONS => version switch
                 {
                     "2.4a" => EdifactFormatVersion.FV2210,
@@ -511,3 +531,4 @@ namespace EDILibrary
         }
     }
 }
+

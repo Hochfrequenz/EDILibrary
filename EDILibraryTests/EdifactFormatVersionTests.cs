@@ -25,6 +25,8 @@ namespace EDILibraryTests
         [DataRow("35002", EdifactFormat.REQOTE)]
         [DataRow("33001", EdifactFormat.REMADV)]
         [DataRow("11042", EdifactFormat.UTILMD)]
+        [DataRow("44001", EdifactFormat.UTILMDG)]
+        [DataRow("55001", EdifactFormat.UTILMDS)]
         public void TestPruefiToFormat(string pruefi, EdifactFormat expectedFormat)
         {
             var actualFormat = EdifactFormatHelper.FromPruefidentifikator(pruefi);

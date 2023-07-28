@@ -19,7 +19,10 @@ namespace EDILibrary
             list = null;
             length = 0;
             if (aperak == "N")
+            {
                 return;
+            }
+
             dataType = aperak.Substring(1, 2); //data type
             var maxLength = aperak.Length;
             var valueIndex = aperak.IndexOf('{');
@@ -52,49 +55,101 @@ namespace EDILibrary
                 var newField = new JObject();
                 var name = elem.Attribute("name").Value;
                 if (elem.Attribute("ahbName") != null)
+                {
                     name = elem.Attribute("ahbName").Value;
+                }
+
                 newField.Add(elem.Attribute("name").Value, name);
                 // newField.Add("key", name);
                 var meta = new JObject();
                 if (elem.Attribute("meta.id") != null)
+                {
                     meta.Add("id", elem.Attribute("meta.id").Value);
+                }
+
                 if (elem.Attribute("meta.help") != null)
+                {
                     meta.Add("help", elem.Attribute("meta.help").Value);
+                }
+
                 if (elem.Attribute("meta.format") != null)
+                {
                     meta.Add("format", elem.Attribute("meta.format").Value);
+                }
+
                 if (elem.Attribute("meta.type") != null)
+                {
                     meta.Add("type", elem.Attribute("meta.type").Value);
+                }
+
                 if (elem.Attribute("meta.typeInfo") != null)
+                {
                     meta.Add("typeInfo", elem.Attribute("meta.typeInfo").Value);
+                }
+
                 if (elem.Attribute("meta.orderId") != null)
+                {
                     meta.Add("orderId", elem.Attribute("meta.orderId").Value);
+                }
+
                 if (elem.Attribute("meta.suppressCopy") != null)
+                {
                     meta.Add("suppressCopy", elem.Attribute("meta.suppressCopy").Value);
+                }
+
                 if (elem.Attribute("meta.virtual") != null)
+                {
                     meta.Add("virtual", elem.Attribute("meta.virtual").Value);
+                }
+
                 if (elem.Attribute("meta.virtualKey") != null)
+                {
                     meta.Add("virtualKey", elem.Attribute("meta.virtualKey").Value);
+                }
+
                 if (elem.Attribute("meta.ignoreNull") != null)
+                {
                     meta.Add("ignoreNull", elem.Attribute("meta.ignoreNull").Value);
+                }
+
                 if (elem.Attribute("meta.migMatch") != null)
+                {
                     meta.Add("migMatch", elem.Attribute("meta.migMatch").Value);
+                }
+
                 if (elem.Attribute("meta.forceNameMatch") != null)
+                {
                     meta.Add("forceNameMatch", elem.Attribute("meta.forceNameMatch").Value);
+                }
+
                 if (elem.Attribute("meta.ref") != null)
+                {
                     meta.Add("ref", elem.Attribute("meta.ref").Value);
+                }
+
                 if (elem.Attribute("meta.objType") != null)
+                {
                     meta.Add("objType", elem.Attribute("meta.objType").Value);
+                }
+
                 if (elem.Attribute("meta.sg") != null)
+                {
                     meta.Add("sg", elem.Attribute("meta.sg").Value);
+                }
                 //check for parent sg 
                 else if (cur.Attribute("ref") != null)
+                {
                     meta.Add("sg", cur.Attribute("ref").Value);
+                }
                 //add length, type? and list
                 if (elem.Attribute("ref") != null)
                 {
                     var refKey = elem.Attribute("ref").Value;
                     if (refKey.Contains("[")) //special case selection [blub=bla]
+                    {
                         refKey = refKey.Split('[').FirstOrDefault();
+                    }
+
                     if (refKey.Contains("(")) //special case multi-select (0,4)
                     {
                         var keyParts = refKey.Split('(');
@@ -110,24 +165,35 @@ namespace EDILibrary
                         {
                             string[] elements;
                             if (subElem.APERAK_Check_String.Contains("|"))
+                            {
                                 elements = subElem.CONTRL_Check_String.Split('+');
+                            }
                             else
+                            {
                                 elements = subElem.APERAK_Check_String.Split('+');
+                            }
 
                             if (elements.Length >= int.Parse(refKeys[1]))
+                            {
                                 try
                                 {
                                     var key = elements[int.Parse(refKeys[1]) - 1].Split('*')[int.Parse(refKeys[2]) + 1];
                                     if (key.Contains("|"))
+                                    {
                                         key = key.Split('|').First();
+                                    }
 
                                     ParseAPERAKString(key, out var dataType, out var length, out var list);
                                     if (meta.Property("typeInfo") == null)
+                                    {
                                         meta.Add("typeInfo", dataType);
+                                    }
 
                                     meta.Add("length", length);
                                     if (list != null)
+                                    {
                                         meta.Add("list", JArray.FromObject(list));
+                                    }
                                 }
                                 catch (IndexOutOfRangeException)
                                 {
@@ -138,6 +204,7 @@ namespace EDILibrary
                                     // errors must not pass silently
                                     Console.Out.WriteLineAsync($"Error while processing: {e}");
                                 }
+                            }
                         }
                     }
                     else if (refKey.StartsWith("SG"))
@@ -147,9 +214,15 @@ namespace EDILibrary
                 }
 
                 if (meta.Properties().Any())
+                {
                     newField.Add("_meta", meta);
+                }
+
                 if (elem.Attribute("ahbName") != null)
+                {
                     newField.Add("_ahbName", elem.Attribute("ahbName").Value);
+                }
+
                 if (elem.Attribute("groupBy") != null)
                 {
                     var groupName = elem.Attribute("groupBy").Value;
@@ -158,8 +231,9 @@ namespace EDILibrary
                     if (subGroup.Any())
                     {
                         if (elem.Attribute("groupKey")?.Value != null)
+                        {
                             (subGroup.First() as JObject).Property("_meta").Value.Value<JObject>().Add("key", name);
-                        (subGroup.First() as JObject).Property("requires").Value.Value<JArray>().Add(newField);
+                        } (subGroup.First() as JObject).Property("requires").Value.Value<JArray>().Add(newField);
                     }
                     else
                     {
@@ -174,9 +248,15 @@ namespace EDILibrary
                             {"max", "1"}
                         };
                         if (elem.Attribute("groupKey")?.Value != null)
+                        {
                             subMeta.Add("key", name);
+                        }
+
                         if (elem.Attribute("groupCounterKey")?.Value != null)
+                        {
                             subMeta.Add("counterKey", name);
+                        }
+
                         subObj.Add("_meta", subMeta);
                         subObj.Add("requires", subArray);
                         subArray.Add(newField);
@@ -204,33 +284,67 @@ namespace EDILibrary
                 var newChild = new JObject();
                 var name = elem.Attribute("name").Value;
                 if (elem.Attribute("ahbName") != null)
+                {
                     name = elem.Attribute("ahbName").Value;
+                }
+
                 newChild.Add("key", name);
                 var meta = new JObject();
                 if (elem.Attribute("meta.id") != null)
+                {
                     meta.Add("id", elem.Attribute("meta.id").Value);
+                }
+
                 if (elem.Attribute("meta.help") != null)
+                {
                     meta.Add("help", elem.Attribute("meta.help").Value);
+                }
+
                 if (elem.Attribute("meta.format") != null)
+                {
                     meta.Add("format", elem.Attribute("meta.format").Value);
+                }
 
                 meta.Add("type", elem.Attribute("meta.type") != null ? elem.Attribute("meta.type").Value : "group");
                 if (elem.Attribute("meta.objType") != null)
+                {
                     meta.Add("objType", elem.Attribute("meta.objType").Value);
+                }
+
                 if (elem.Attribute("meta.typeInfo") != null)
+                {
                     meta.Add("typeInfo", elem.Attribute("meta.typeInfo").Value);
+                }
+
                 if (elem.Attribute("meta.suppressCopy") != null)
+                {
                     meta.Add("suppressCopy", elem.Attribute("meta.suppressCopy").Value);
+                }
+
                 if (elem.Attribute("meta.virtual") != null)
+                {
                     meta.Add("virtual", elem.Attribute("meta.virtual").Value);
+                }
+
                 if (elem.Attribute("meta.virtualKey") != null)
+                {
                     meta.Add("virtualKey", elem.Attribute("meta.virtualKey").Value);
+                }
+
                 if (elem.Attribute("meta.ref") != null)
+                {
                     meta.Add("ref", elem.Attribute("meta.ref").Value);
+                }
+
                 if (elem.Attribute("meta.ignore") != null)
+                {
                     meta.Add("ignore", elem.Attribute("meta.ignore").Value);
+                }
+
                 if (elem.Attribute("meta.changeTrigger") != null)
+                {
                     meta.Add("changeTrigger", elem.Attribute("meta.changeTrigger").Value);
+                }
 
                 meta.Add("max", elem.Attribute("max") != null ? elem.Attribute("max").Value : "1");
                 //find key element in fields
@@ -243,9 +357,13 @@ namespace EDILibrary
                     if (keyField != null)
                     {
                         if (keyField.Attribute("ahbName") != null)
+                        {
                             meta.Add("groupKey", keyField.Attribute("ahbName")?.Value);
+                        }
                         else
+                        {
                             meta.Add("groupKey", keyField.Attribute("name")?.Value);
+                        }
                     }
                     else if (elem.Attribute("groupKey") != null)
                     {
@@ -258,13 +376,23 @@ namespace EDILibrary
                 }
 
                 if (elem.Attribute("groupCounterKey") != null)
+                {
                     meta.Add("counterKey", elem.Attribute("groupCounterKey")?.Value);
+                }
+
                 if (elem.Attribute("meta.sg") != null)
+                {
                     meta.Add("sg", elem.Attribute("meta.sg").Value);
+                }
                 else if (elem.Attribute("ref") != null)
+                {
                     meta.Add("sg", elem.Attribute("ref")?.Value);
+                }
+
                 if (meta.Properties().Any())
+                {
                     newChild.Add("_meta", meta);
+                }
 
                 var refKey = elem.Attribute("ref").Value;
                 var refKeys = refKey.Split(':');
@@ -280,11 +408,15 @@ namespace EDILibrary
                     {
                         newTree = treeUp.Parent.FindElement(refKeys.First());
                         if (newTree == null)
+                        {
                             treeUp = treeUp.Parent;
+                        }
                     }
 
                     if (newTree != null)
+                    {
                         tree = newTree;
+                    }
                 }
 
                 var requires = new JArray();
@@ -307,7 +439,10 @@ namespace EDILibrary
             var srcXml = XElement.Parse(File.ReadAllText(inputFileName));
             TreeElement tree = null;
             if (!string.IsNullOrEmpty(treeFileName))
+            {
                 tree = new GenericEDILoader().LoadTree(File.ReadAllText(treeFileName));
+            }
+
             var tmp = new JArray();
             Recurse(srcXml, tmp, tree);
             //retriev version information from inputFileName
