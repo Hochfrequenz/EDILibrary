@@ -20,14 +20,14 @@ namespace EDILibrary
             length = 0;
             if (aperak == "N")
 
-/* Nicht gemergte Änderung aus Projekt "EDILibrary.Standard"
-Vor:
-                return;
-Nach:
-            {
-                return;
-            }
-*/
+            /* Nicht gemergte Änderung aus Projekt "EDILibrary.Standard"
+            Vor:
+                            return;
+            Nach:
+                        {
+                            return;
+                        }
+            */
             {
                 return;
             }
