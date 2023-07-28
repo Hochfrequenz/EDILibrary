@@ -317,13 +317,18 @@ namespace EDILibrary
                         unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray()).Length > 1 ? unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray())[1] : "500",
                     ID = unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray())[0]
                 };
+                var version = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[4];
+                var format = Enum.Parse<EdifactFormat>(unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]);
+                if (format == EdifactFormat.UTILMD){
+                    format = version.StartsWith("G") ? EdifactFormat.UTILMDG: version.StartsWith("S") ? EdifactFormat.UTILMDS : format;  
+                }
                 var file = new EDIFileInfo
                 {
                     Empfänger = receiver,
                     Sender = sender,
                     ID = unbParts[5].Split(specialChars.ElementDelimiter.ToCharArray())[0],
-                    Format = Enum.Parse<EdifactFormat>(unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]),
-                    Version = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[4],
+                    Format = format,
+                    Version = version,
                     Freigabenummer = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[2],
                     Nachrichtenversion = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[1]
                 };
