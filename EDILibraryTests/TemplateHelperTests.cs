@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using EDILibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
