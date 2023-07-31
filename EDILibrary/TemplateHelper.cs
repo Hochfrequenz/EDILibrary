@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -11,8 +11,10 @@ namespace EDILibrary
 {
     public class TemplateHelper
     {
-        // Todo @JoschaMetze: Add a docstring
-        protected static void ParseAPERAKString(string aperak, out string dataType, out int length,
+
+        private static readonly Regex FormatVersionRegex = new(@"^(?<format>[A-Z]{6,7})(?<version>[A-Z]?\d+\.\d+[a-z]?)$");
+
+        private static void ParseAPERAKString(string aperak, out string dataType, out int length,
             out List<string> list)
         {
             dataType = null;
@@ -44,8 +46,8 @@ namespace EDILibrary
             }
         }
 
-        // Todo @JoschaMetze: Add a docstring
-        protected static void Recurse(XElement cur, JArray refObj, TreeElement tree)
+
+        private static void Recurse(XElement cur, JArray refObj, TreeElement tree)
         {
             var i = cur.Descendants("field").Count(d => d.Parent == cur);
             var hasClass = cur.Descendants("class").Any(d => d.Parent == cur);
@@ -136,7 +138,7 @@ namespace EDILibrary
                 {
                     meta.Add("sg", elem.Attribute("meta.sg").Value);
                 }
-                //check for parent sg 
+                //check for parent sg
                 else if (cur.Attribute("ref") != null)
                 {
                     meta.Add("sg", cur.Attribute("ref").Value);
@@ -442,17 +444,37 @@ namespace EDILibrary
             {
                 tree = new GenericEDILoader().LoadTree(File.ReadAllText(treeFileName));
             }
-
             var tmp = new JArray();
             Recurse(srcXml, tmp, tree);
-            //retriev version information from inputFileName
-            var part = inputFileName.Split(new[] { ".template" }, StringSplitOptions.None)[0].Split(System.IO.Path.DirectorySeparatorChar).Last();
-            var version = part.Substring(part.IndexOf('.') - 1);
+            string version = RetrieveFormatVersionFromInputFileName(inputFileName);
             ((tmp[0] as JObject)["_meta"] as JObject).Add("version", version);
             File.WriteAllText(outputFileName, JsonConvert.SerializeObject(tmp));
             return JsonConvert.SerializeObject(tmp);
 
         }
+
+        /// <summary>
+        /// Extract the Format version (e.g. "1.0a") from a given template file name (e.g. "COMDIS1.0a.template")
+        /// </summary>
+        /// <param name="inputFileName">path of name of the template file</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static string RetrieveFormatVersionFromInputFileName(string inputFileName)
+        {
+            var actualFileName = inputFileName.Split(new[] { ".template" }, StringSplitOptions.None)[0].Split(Path.DirectorySeparatorChar).Last();
+            var match = FormatVersionRegex.Match(actualFileName);
+            if (match.Success)
+            {
+                return match.Groups["version"].Value;
+            }
+
+            if (inputFileName.Contains(".create.template"))
+            {
+                throw new ArgumentException("Pass the name of the \".template\" file, not \".create.template\"", nameof(inputFileName));
+            }
+            throw new ArgumentException($"Format version could not be determined: {actualFileName}", nameof(inputFileName));
+        }
+
         // the format version will be written to the json template file, thus needs to be passed
         public string ConvertToJSON(string xmlTemplate, string treeTemplate, string formatVersion)
         {
