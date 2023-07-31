@@ -12,7 +12,7 @@ namespace EDILibrary
     public class TemplateHelper
     {
 
-        private const string FormatVersionPattern = "^(?<format>[A-Z]{6,7})(?<version>[A-Z]?\\d+\\.\\d+[a-z]?)$";
+        private static readonly Regex FormatVersionRegex = new(@"^(?<format>[A-Z]{6,7})(?<version>[A-Z]?\d+\.\d+[a-z]?)$");
 
         private static void ParseAPERAKString(string aperak, out string dataType, out int length,
             out List<string> list)
@@ -138,7 +138,7 @@ namespace EDILibrary
                 {
                     meta.Add("sg", elem.Attribute("meta.sg").Value);
                 }
-                //check for parent sg 
+                //check for parent sg
                 else if (cur.Attribute("ref") != null)
                 {
                     meta.Add("sg", cur.Attribute("ref").Value);
@@ -453,19 +453,26 @@ namespace EDILibrary
 
         }
 
-        private static string RetrieveFormatVersionFromInputFileName(string inputFileName)
+        /// <summary>
+        /// Extract the Format version (e.g. "1.0a") from a given template file name (e.g. "COMDIS1.0a.template")
+        /// </summary>
+        /// <param name="inputFileName">path of name of the template file</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static string RetrieveFormatVersionFromInputFileName(string inputFileName)
         {
-            var formatVersionRegex = new Regex(FormatVersionPattern);
-            var part = inputFileName.Split(new[] { ".template" }, StringSplitOptions.None)[0].Split(System.IO.Path.DirectorySeparatorChar).Last();
-            var match = formatVersionRegex.Match(part);
+            var actualFileName = inputFileName.Split(new[] { ".template" }, StringSplitOptions.None)[0].Split(Path.DirectorySeparatorChar).Last();
+            var match = FormatVersionRegex.Match(actualFileName);
             if (match.Success)
             {
                 return match.Groups["version"].Value;
             }
-            else
+
+            if (inputFileName.Contains(".create.template"))
             {
-                throw new ArgumentException($"Format version could not be determined: {part}", nameof(inputFileName));
+                throw new ArgumentException("Pass the name of the \".template\" file, not \".create.template\"", nameof(inputFileName));
             }
+            throw new ArgumentException($"Format version could not be determined: {actualFileName}", nameof(inputFileName));
         }
 
         // the format version will be written to the json template file, thus needs to be passed
