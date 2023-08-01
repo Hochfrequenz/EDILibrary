@@ -55,7 +55,10 @@ namespace EDILibraryTests
                 EdifactFormatVersion.FV2004,
                 EdifactFormatVersion.FV2104,
                 EdifactFormatVersion.FV2110,
-                EdifactFormatVersion.FV2210
+                EdifactFormatVersion.FV2210,
+                EdifactFormatVersion.FV2304,
+                EdifactFormatVersion.FV2310,
+                EdifactFormatVersion.FV2404,
             };
             var comparer = new EdifactFormatVersionComparer();
             for (int i = 0; i < expectedNaturalOrder.Count - 1; i++)
@@ -93,6 +96,8 @@ namespace EDILibraryTests
         [DataRow("FV1904", EdifactFormatVersion.FV1904)]
         [DataRow("10/17", EdifactFormatVersion.FV1710)]
         [DataRow("FV1710", EdifactFormatVersion.FV1710)]
+        [DataRow("FV2404", EdifactFormatVersion.FV2404)]
+        [DataRow("04/24", EdifactFormatVersion.FV2404)]
         public void TestLegacyStrings(string legacyString, EdifactFormatVersion expectedFormatVersion)
         {
             var actualFormatVersion = legacyString.ToEdifactFormatVersion();
@@ -140,6 +145,8 @@ namespace EDILibraryTests
             Assert.AreEqual(EdifactFormatVersion.FV2110, versionProvider.GetFormatVersion(new DateTimeOffset(2022, 3, 31, 22, 0, 0, TimeSpan.Zero)));
             Assert.AreEqual(EdifactFormatVersion.FV2110, versionProvider.GetFormatVersion(new DateTimeOffset(2022, 9, 30, 21, 59, 59, TimeSpan.Zero)));
             Assert.AreEqual(EdifactFormatVersion.FV2210, versionProvider.GetFormatVersion(new DateTimeOffset(2022, 9, 30, 22, 0, 0, TimeSpan.Zero)));
+            Assert.AreEqual(EdifactFormatVersion.FV2310, versionProvider.GetFormatVersion(new DateTimeOffset(2023, 9, 30, 22, 0, 0, TimeSpan.Zero)));
+            Assert.AreEqual(EdifactFormatVersion.FV2404, versionProvider.GetFormatVersion(new DateTimeOffset(2024, 3, 31, 22, 0, 0, TimeSpan.Zero)));
         }
     }
 }
