@@ -187,7 +187,12 @@ namespace EDILibrary
         /// <summary>
         /// Format Version October 2023 (aka MaKo2023)
         /// </summary>
-        FV2310
+        FV2310,
+
+        /// <summary>
+        /// Format Version April 2024
+        /// </summary>
+        FV2404,
     }
 
     public class EdifactFormatVersionComparer : IComparer<EdifactFormatVersion>
@@ -223,6 +228,7 @@ namespace EDILibrary
                 EdifactFormatVersion.FV2210 => "10/22",
                 EdifactFormatVersion.FV2304 => "04/23",
                 EdifactFormatVersion.FV2310 => "10/23",
+                EdifactFormatVersion.FV2404 => "04/24",
                 _ => throw new NotImplementedException($"The legacy format for {edifactFormatVersion} is not yet implemented.")
             };
         }
@@ -347,9 +353,16 @@ namespace EDILibrary
         /// </summary>
         private static readonly DateTime KeyDate2310 = new(2023, 09, 30, 22, 0, 0, DateTimeKind.Utc);
 
-
+        /// <summary>
+        /// validity date of <see cref="EdifactFormatVersion.FV2310"/>
+        /// </summary>
+        private static readonly DateTime KeyDate2404 = new(2024, 03, 31, 22, 0, 0, DateTimeKind.Utc);
         public EdifactFormatVersion GetFormatVersion(DateTimeOffset keydate)
         {
+            if (keydate >= KeyDate2404)
+            {
+                return EdifactFormatVersion.FV2404;
+            }
             if (keydate >= KeyDate2310)
             {
                 return EdifactFormatVersion.FV2310;
@@ -544,4 +557,3 @@ namespace EDILibrary
         }
     }
 }
-
