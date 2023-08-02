@@ -1,6 +1,7 @@
 namespace EDILibrary.Constants.German
 {/// <summary>
  /// Prüfidentifikatoren
+ /// Basieren auf https://www.edi-energy.de/ => Dokumente => Anwendungsübersicht der Prüfidentifikatoren 2.2 und 2.1
  /// Excel code generator snipet : =TEXTKETTE("public const string UTILMD_";E2;"_";WECHSELN(WECHSELN(GROSS2(WECHSELN(WECHSELN(WECHSELN(WECHSELN(KLEIN(F2);"ä";"ae");"ö";"oe");"ü";"ue");".";""));" ";"");"/";"_");" = """;E2;""";")
  /// </summary>
     public static class Pruefidentifikatoren
