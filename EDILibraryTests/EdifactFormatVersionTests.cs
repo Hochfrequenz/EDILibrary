@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using EDILibrary;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute;
 
 namespace EDILibraryTests
 {
@@ -128,9 +129,9 @@ namespace EDILibraryTests
         [TestMethod]
         public void TestMockingVersionProvider()
         {
-            var versionProviderMock = new Moq.Mock<IEdifactFormatVersionProvider>();
-            versionProviderMock.Setup(vp => vp.GetCurrent()).Returns(EdifactFormatVersion.FV1904);
-            Assert.AreEqual(EdifactFormatVersion.FV1904, ActualCode(versionProviderMock.Object));
+            var versionProviderMock = Substitute.For<IEdifactFormatVersionProvider>();
+            versionProviderMock.GetCurrent().Returns(EdifactFormatVersion.FV1904);
+            Assert.AreEqual(EdifactFormatVersion.FV1904, ActualCode(versionProviderMock));
         }
 
         /// <summary>
