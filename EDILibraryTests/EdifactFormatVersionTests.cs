@@ -26,13 +26,23 @@ namespace EDILibraryTests
         [DataRow("35002", EdifactFormat.REQOTE)]
         [DataRow("33001", EdifactFormat.REMADV)]
         [DataRow("11042", EdifactFormat.UTILMD)]
-        [DataRow("44001", EdifactFormat.UTILMDG)]
-        [DataRow("55001", EdifactFormat.UTILMDS)]
+        [DataRow("44001", EdifactFormat.UTILMD)]
+        [DataRow("55001", EdifactFormat.UTILMD)]
         public void TestPruefiToFormat(string pruefi, EdifactFormat expectedFormat)
         {
             var actualFormat = EdifactFormatHelper.FromPruefidentifikator(pruefi);
             Assert.AreEqual(expectedFormat, actualFormat);
         }
+
+        [TestMethod]
+        [DataRow("44001", EdifactFormat.UTILMDG)]
+        [DataRow("55001", EdifactFormat.UTILMDS)]
+        public void TestPruefiToFormatUnMaskUTILMDX(string pruefi, EdifactFormat expectedFormat)
+        {
+            var actualFormat = EdifactFormatHelper.FromPruefidentifikator(pruefi,false);
+            Assert.AreEqual(expectedFormat, actualFormat);
+        }
+
         [TestMethod]
         [Obsolete]
         public void TestCompare()

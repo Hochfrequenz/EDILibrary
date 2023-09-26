@@ -121,8 +121,9 @@ namespace EDILibrary
         /// get fact for a message class ID ("Prüfidentifikator")
         /// </summary>
         /// <param name="pruefidentifikator">prüfidentifikator, e.g. '11042'</param>
+        /// <param name="maskUTILMDX">is true, UTILMD is returned instead of UTILMDG bzw. UTILMDS</param>
         /// <returns>the EdifactFormat, e.g. <see cref="EdifactFormat.UTILMD"/> or throws a NotImplementedException iff EdiFormat was found</returns>
-        public static EdifactFormat FromPruefidentifikator(string pruefidentifikator)
+        public static EdifactFormat FromPruefidentifikator(string pruefidentifikator,bool maskUTILMDX = true)
         {
             if (string.IsNullOrWhiteSpace(pruefidentifikator))
             {
@@ -133,7 +134,7 @@ namespace EDILibrary
             {
                 if (pruefidentifikator.StartsWith(((int)ef).ToString()))
                 {
-                    return ef;
+                    return maskUTILMDX && ef is EdifactFormat.UTILMDG or EdifactFormat.UTILMDS ? EdifactFormat.UTILMD : ef;
                 }
             }
 
