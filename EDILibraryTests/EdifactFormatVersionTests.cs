@@ -39,7 +39,7 @@ namespace EDILibraryTests
         [DataRow("55001", EdifactFormat.UTILMDS)]
         public void TestPruefiToFormatUnMaskUTILMDX(string pruefi, EdifactFormat expectedFormat)
         {
-            var actualFormat = EdifactFormatHelper.FromPruefidentifikator(pruefi,false);
+            var actualFormat = EdifactFormatHelper.FromPruefidentifikator(pruefi, false);
             Assert.AreEqual(expectedFormat, actualFormat);
         }
 

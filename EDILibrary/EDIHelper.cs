@@ -277,7 +277,7 @@ namespace EDILibrary
             return $"UNA{DefaultElementDelimiter}{DefaultGroupDelimiter}{DefaultDecimalChar}{DefaultEscapeChar} {DefaultSegmentDelimiter}{message}";
         }
 
-        public static EDIFileInfo GetEdiFileInfo(string edi,bool maskUTILMDX = true)
+        public static EDIFileInfo GetEdiFileInfo(string edi, bool maskUTILMDX = true)
         {
             if (edi == null)
             {

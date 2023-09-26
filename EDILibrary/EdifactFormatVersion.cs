@@ -123,7 +123,7 @@ namespace EDILibrary
         /// <param name="pruefidentifikator">prüfidentifikator, e.g. '11042'</param>
         /// <param name="maskUTILMDX">is true, UTILMD is returned instead of UTILMDG bzw. UTILMDS</param>
         /// <returns>the EdifactFormat, e.g. <see cref="EdifactFormat.UTILMD"/> or throws a NotImplementedException iff EdiFormat was found</returns>
-        public static EdifactFormat FromPruefidentifikator(string pruefidentifikator,bool maskUTILMDX = true)
+        public static EdifactFormat FromPruefidentifikator(string pruefidentifikator, bool maskUTILMDX = true)
         {
             if (string.IsNullOrWhiteSpace(pruefidentifikator))
             {
