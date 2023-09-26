@@ -277,7 +277,7 @@ namespace EDILibrary
             return $"UNA{DefaultElementDelimiter}{DefaultGroupDelimiter}{DefaultDecimalChar}{DefaultEscapeChar} {DefaultSegmentDelimiter}{message}";
         }
 
-        public static EDIFileInfo GetEdiFileInfo(string edi)
+        public static EDIFileInfo GetEdiFileInfo(string edi, bool maskUTILMDX = true)
         {
             if (edi == null)
             {
@@ -319,7 +319,7 @@ namespace EDILibrary
                 };
                 var version = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[4];
                 var format = Enum.Parse<EdifactFormat>(unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]);
-                if (format == EdifactFormat.UTILMD)
+                if (!maskUTILMDX && format == EdifactFormat.UTILMD)
                 {
                     format = version.StartsWith("G") ? EdifactFormat.UTILMDG : version.StartsWith("S") ? EdifactFormat.UTILMDS : format;
                 }
