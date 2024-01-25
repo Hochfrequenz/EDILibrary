@@ -437,11 +437,13 @@ namespace EDILibrary
                 },
                 EdifactFormat.UTILMDS => version switch
                 {
+                    "S1.1a" => EdifactFormatVersion.FV2404,
                     "S1.1" => EdifactFormatVersion.FV2310,
                     _ => GetCurrent()
                 },
                 EdifactFormat.MSCONS => version switch
                 {
+                    "2.4c" => EdifactFormatVersion.FV2404,
                     "2.4b" => EdifactFormatVersion.FV2310,
                     "2.4a" => EdifactFormatVersion.FV2210,
                     "2.3c" => EdifactFormatVersion.FV2110,
@@ -468,6 +470,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.COMDIS => version switch
                 {
+                    "1.0d" => EdifactFormatVersion.FV2404,
                     "1.0c" => EdifactFormatVersion.FV2310,
                     "1.0b" => EdifactFormatVersion.FV2210,
                     "1.0a" => EdifactFormatVersion.FV2110,
@@ -487,6 +490,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.INVOIC => version switch
                 {
+                    "2.8c" => EdifactFormatVersion.FV2404,
                     "2.8b" => EdifactFormatVersion.FV2310,
                     "2.8a" => EdifactFormatVersion.FV2304,
                     "2.8" => EdifactFormatVersion.FV2210,
@@ -532,6 +536,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.REMADV => version switch
                 {
+                    "2.9c" => EdifactFormatVersion.FV2404,
                     "2.9b" => EdifactFormatVersion.FV2310,
                     "2.9a" => EdifactFormatVersion.FV2304,
                     "2.9" => EdifactFormatVersion.FV2210,
@@ -547,6 +552,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.UTILTS => version switch
                 {
+                    "1.1c" => EdifactFormatVersion.FV2404,
                     "1.1b" => EdifactFormatVersion.FV2310,
                     "1.1a" => EdifactFormatVersion.FV2210,
                     "1.0a" => EdifactFormatVersion.FV2110,
