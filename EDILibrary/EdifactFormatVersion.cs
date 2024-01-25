@@ -451,6 +451,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.PARTIN => version switch
                 {
+                    "1.0d" => EdifactFormatVersion.FV2404,
                     "1.0c" => EdifactFormatVersion.FV2310,
                     "1.0a" => EdifactFormatVersion.FV2210,
                     _ => GetCurrent()
