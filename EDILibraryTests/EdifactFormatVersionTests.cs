@@ -157,7 +157,8 @@ namespace EDILibraryTests
             Assert.AreEqual(EdifactFormatVersion.FV2110, versionProvider.GetFormatVersion(new DateTimeOffset(2022, 9, 30, 21, 59, 59, TimeSpan.Zero)));
             Assert.AreEqual(EdifactFormatVersion.FV2210, versionProvider.GetFormatVersion(new DateTimeOffset(2022, 9, 30, 22, 0, 0, TimeSpan.Zero)));
             Assert.AreEqual(EdifactFormatVersion.FV2310, versionProvider.GetFormatVersion(new DateTimeOffset(2023, 9, 30, 22, 0, 0, TimeSpan.Zero)));
-            Assert.AreEqual(EdifactFormatVersion.FV2404, versionProvider.GetFormatVersion(new DateTimeOffset(2024, 3, 31, 22, 0, 0, TimeSpan.Zero)));
+            Assert.AreEqual(EdifactFormatVersion.FV2310, versionProvider.GetFormatVersion(new DateTimeOffset(2024, 3, 31, 22, 0, 0, TimeSpan.Zero)));
+            Assert.AreEqual(EdifactFormatVersion.FV2404, versionProvider.GetFormatVersion(new DateTimeOffset(2024, 4, 2, 22, 0, 0, TimeSpan.Zero)));
         }
     }
 }
