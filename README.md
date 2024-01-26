@@ -12,4 +12,4 @@ These are distributed separately by Hochfrequenz. Please contact info (at) hochf
 # Development
 ## I want to debug this library
 EDILibrary comes with SourceLink enabled, so you can load its debugging symbols from nuget.
-Follow the instructions here: https://stackoverflow.com/a/654711/10009545
+In Visual Studio, under Settings➡Debugging **un**check "Enable Just My Code" (or follow the instructions [here](https://stackoverflow.com/a/654711/10009545))
