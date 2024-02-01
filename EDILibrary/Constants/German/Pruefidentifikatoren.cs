@@ -672,6 +672,11 @@ namespace EDILibrary.Constants.German
         public const string UTILMD_55232_SdaeStrom_NichtBilarelAnfrageAbrechnungBlindarbeitAnLf = "55232";
         public const string UTILMD_55233_SdaeStrom_AntwortAufAnfrageAbrechnungBlindarbeitAnLf = "55233";
         public const string UTILMD_55234_SdaeStrom_AblehnungAnfrageAbrechnungBlindarbeitAnLf = "55234";
+        public const string UTILMD_55557_SdaeStrom_AenderungVonMSBAbrechnungsdaten = "55557";
+        public const string UTILMD_55558_SdaeStrom_AntwortAufAenderungVonMSBAbrechnungsdaten = "55558";
+        public const string UTILMD_55559_SdaeStrom_AnfrageVonMSBAbrechnungsdaten = "55559";
+        public const string UTILMD_55560_SdaeStrom_AntwortAufAnfrageVonMSBAbrechnungsdaten = "55560";
+        public const string UTILMD_55561_SdaeStrom_AblehnungDerAnfrageVonMSBAbrechnungsdaten = "55561";
         public const string UTILMD_55235_Mabis_ZuordnungZpDerNgzZurNzr = "55235";
         public const string UTILMD_55236_Mabis_BeendigungZuordnungZpDerNgzZurNzr = "55236";
         public const string UTILMD_55237_Mabis_AntwortAufZuordnung_BeendigungZuordnungZpDerNgzZurNzr = "55237";
