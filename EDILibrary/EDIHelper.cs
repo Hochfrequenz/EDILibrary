@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+using EDILibrary.Interfaces;
+
 namespace EDILibrary
 {
     /// <summary>
@@ -321,7 +323,24 @@ namespace EDILibrary
                 var format = Enum.Parse<EdifactFormat>(unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]);
                 if (!maskUTILMDX && format == EdifactFormat.UTILMD)
                 {
-                    format = version.StartsWith("G") ? EdifactFormat.UTILMDG : version.StartsWith("S") ? EdifactFormat.UTILMDS : format;
+                    if (version.StartsWith("G"))
+                    {
+                        // Wasser oder GAS
+                        SpartenHelper spartenHelper = new SpartenHelper();
+                        Sparte sparte = spartenHelper.GetSparte(sender.ID, receiver.ID);
+                        if (sparte is Sparte.GAS)
+                        {
+                            format = EdifactFormat.UTILMDG;
+                        }
+                        else
+                        {
+                            format = EdifactFormat.UTILMDW;
+                        }
+                    }
+                    else if (version.StartsWith("S"))
+                    {
+                        format = EdifactFormat.UTILMDS;
+                    }
                 }
                 var file = new EDIFileInfo
                 {

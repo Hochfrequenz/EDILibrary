@@ -10,6 +10,7 @@ public class TemplateHelperTests
     [TestMethod]
     [DataRow("COMDIS1.0c.template", "1.0c")]
     [DataRow("UTILMDGG1.0a.template", "G1.0a")]
+    [DataRow("UTILMDWG1.0a.template", "G1.0a")]
     public void Test_RetrieveFormatVersionFromInputFileName(string filename, string expectedFormatVersion)
     {
         var actualFormatVersion = TemplateHelper.RetrieveFormatVersionFromInputFileName(filename);
