@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
+
+using EDILibrary.Interfaces;
 
 namespace EDILibrary.Helper
 {
@@ -10,38 +13,9 @@ namespace EDILibrary.Helper
         /// <summary>
         /// All known GS1 providers of Strom
         /// </summary>
-        public ISet<string> STROM { get; set; } = new HashSet<string>();
-
-        /// <summary>
-        /// All known GS1 providers of Gas
-        /// </summary>
-        public ISet<string> GAS { get; set; } = new HashSet<string>();
-
-        /// <summary>
-        /// All known marktpartnerIds of Water
-        /// </summary>
-        public ISet<string> WASSER { get; set; } = new HashSet<string>();
-    }
-
-    public enum Sparte
-    {
-        STROM,
-        GAS,
-        WASSER,
-        ABWASSER
-    }
-
-    /// <summary>
-    /// an extension class to retrieve the division from a market partner 13digit id (basically guessing)
-    /// </summary>
-    public class SpartenHelper
-    {
-        private static Sparten sparten =
-            new()
-            {
-                // this is the information that was previously hardcoded in "gs1_codes_sparte.json"
-                STROM = new HashSet<string>
+        public ISet<string> STROM { get; } = new HashSet<string>
                 {
+                    // Strom provider IDs
                     "4033872000041",
                     "4038777000004",
                     "4041408000007",
@@ -62,9 +36,13 @@ namespace EDILibrary.Helper
                     "4399902114356",
                     "4399902196468",
                     "4399902232050"
-                },
-                GAS = new HashSet<string>
+                };
+        /// <summary>
+        /// All known GS1 providers of Gas
+        /// </summary>
+        public ISet<string> GAS { get; } = new HashSet<string>
                 {
+                    // Gas provider IDs
                     "4041408700013",
                     "4042322100002",
                     "4042322100002",
@@ -73,20 +51,35 @@ namespace EDILibrary.Helper
                     "4048454000012",
                     "4260016042005",
                     "4043581000034"
-                },
-                WASSER = new HashSet<string> { "L34SWH", "N34ENG" }
-            };
+                };
 
         /// <summary>
-        /// <inheritdoc cref="IDivisionResolver.GetSparte"/>
-        /// Tries to determine the Sparte from the code numbers of sender and receiver, defaults to STROM
+        /// All known marktpartnerIds of Water
         /// </summary>
-        /// <param name="absenderCode"></param>
-        /// <param name="empfaengerCode"></param>
-        /// <returns>the sparte or STROM as default</returns>
-        public Sparte GetSparte(string absenderCode, string empfaengerCode)
+        public ISet<string> WASSER { get; set; } = new HashSet<string>();
+    }
+    public enum Sparte
+    {
+        STROM,
+        GAS,
+        WASSER,
+        ABWASSER
+    }
+
+    /// <summary>
+    /// an extension class to retrieve the division from a market partner 13digit id (basically guessing)
+    /// </summary>
+    public class SpartenHelper : IDivisionResolver
+    {
+
+        private static readonly Sparten sparten = new();
+
+        /// <summary>
+        /// Tries to determine the division from the sender and receiver's code numbers.
+        /// </summary>
+        public Sparte GetSparte(string? absenderCode, string? empfaengerCode)
         {
-            if (string.IsNullOrWhiteSpace(absenderCode))
+            if (absenderCode is null)
             {
                 return Sparte.STROM;
             }
@@ -96,7 +89,7 @@ namespace EDILibrary.Helper
                 return Sparte.GAS;
             }
 
-            if (sparten.WASSER.Contains(absenderCode))
+            if (absenderCode[0] != '9' && absenderCode[0] != '4')
             {
                 return Sparte.WASSER;
             }
@@ -126,10 +119,11 @@ namespace EDILibrary.Helper
 
                     if (sparten.GAS.Contains(empfaengerCode))
                     {
-                        return Sparte.GAS;
+                        Task.FromResult(Sparte.GAS);
                     }
                 }
             }
+
             return Sparte.STROM;
         }
     }
