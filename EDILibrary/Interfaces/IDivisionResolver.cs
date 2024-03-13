@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using EDILibrary.Helper;
 
 namespace EDILibrary.Interfaces
 {
     /// <summary>
-    /// An interface that allows to determine the <see cref="BO4E.ENUM.Sparte"/> ("division") of a market partner.
+    /// An interface that allows to determine the <see cref="Sparte"/> ("division") of a market partner.
     /// </summary>
     /// <remarks>
     /// The classes implementing this interface might be hardcoded mappings to start with;
