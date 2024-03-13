@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace EDILibrary.Interfaces
+namespace EDILibrary.Helper
 {
     /// <summary>
     /// Lists of MP-Ids per Sparte
@@ -85,9 +84,9 @@ namespace EDILibrary.Interfaces
         /// <param name="absenderCode"></param>
         /// <param name="empfaengerCode"></param>
         /// <returns>the sparte or STROM as default</returns>
-        public Sparte GetSparte(string? absenderCode, string? empfaengerCode)
+        public Sparte GetSparte(string absenderCode, string empfaengerCode)
         {
-            if (absenderCode is null)
+            if (string.IsNullOrWhiteSpace(absenderCode))
             {
                 return Sparte.STROM;
             }

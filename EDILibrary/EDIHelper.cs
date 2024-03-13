@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-
-using EDILibrary.Interfaces;
+using EDILibrary.Helper;
 
 namespace EDILibrary
 {
