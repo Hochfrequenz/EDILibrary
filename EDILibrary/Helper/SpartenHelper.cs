@@ -119,7 +119,7 @@ namespace EDILibrary.Helper
 
                     if (sparten.GAS.Contains(empfaengerCode))
                     {
-                        Task.FromResult(Sparte.GAS);
+                        return Sparte.GAS;
                     }
                 }
             }
