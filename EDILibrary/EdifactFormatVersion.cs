@@ -92,6 +92,11 @@ namespace EDILibrary
         UTILMDS = 55,
 
         /// <summary>
+        /// master data Wasser
+        /// </summary>
+        UTILMDW = 111,
+
+        /// <summary>
         /// Netznutzungszeiten-Nachricht
         /// </summary>
         UTILTS = 25,
@@ -122,14 +127,18 @@ namespace EDILibrary
         /// </summary>
         /// <param name="pruefidentifikator">prüfidentifikator, e.g. '11042'</param>
         /// <param name="maskUTILMDX">is true, UTILMD is returned instead of UTILMDG bzw. UTILMDS</param>
+        /// <param name="formatPackage">optional EdifactFormatVersion, in case of >= than FV2310 will return UTILMDW for '11xxxx' PIDs. <see cref="EdifactFormatVersion"/></param>
         /// <returns>the EdifactFormat, e.g. <see cref="EdifactFormat.UTILMD"/> or throws a NotImplementedException iff EdiFormat was found</returns>
-        public static EdifactFormat FromPruefidentifikator(string pruefidentifikator, bool maskUTILMDX = true)
+        public static EdifactFormat FromPruefidentifikator(string pruefidentifikator, bool maskUTILMDX = true, EdifactFormatVersion? formatPackage = null)
         {
             if (string.IsNullOrWhiteSpace(pruefidentifikator))
             {
                 throw new ArgumentNullException(nameof(pruefidentifikator));
             }
-
+            if (formatPackage is not null && formatPackage >= EdifactFormatVersion.FV2310 && pruefidentifikator.StartsWith("11"))
+            {
+                return EdifactFormat.UTILMDW;
+            }
             foreach (EdifactFormat ef in Enum.GetValues(typeof(EdifactFormat)))
             {
                 if (pruefidentifikator.StartsWith(((int)ef).ToString()))
@@ -433,6 +442,13 @@ namespace EDILibrary
                 },
                 EdifactFormat.UTILMDG => version switch
                 {
+                    "G1.0a" => EdifactFormatVersion.FV2310,
+                    _ => GetCurrent()
+                },
+                EdifactFormat.UTILMDW => version switch
+                {
+                    "5.2e" => EdifactFormatVersion.FV2210,
+                    "5.2c" => EdifactFormatVersion.FV2110,
                     "G1.0a" => EdifactFormatVersion.FV2310,
                     _ => GetCurrent()
                 },

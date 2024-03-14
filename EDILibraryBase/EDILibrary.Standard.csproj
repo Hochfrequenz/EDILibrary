@@ -33,9 +33,11 @@
     <Compile Include="..\EDILibrary\GenericEDILoader.cs" Link="GenericEDILoader.cs" />
     <Compile Include="..\EDILibrary\GenericEDIWriter.cs" Link="GenericEDIWriter.cs" />
     <Compile Include="..\EDILibrary\Helper\MappingHelper.cs" Link="Helper\MappingHelper.cs" />
+    <Compile Include="..\EDILibrary\Helper\SpartenHelper.cs" Link="Helper\SpartenHelper.cs" />
     <Compile Include="..\EDILibrary\IEdiObject.cs" Link="IEdiObject.cs" />
     <Compile Include="..\EDILibrary\Interfaces\Anwendungshandbuch.cs" Link="Interfaces\Anwendungshandbuch.cs" />
     <Compile Include="..\EDILibrary\Interfaces\ITemplateLoader.cs" Link="Interfaces\ITemplateLoader.cs" />
+    <Compile Include="..\EDILibrary\Interfaces\IDivisionResolver.cs" Link="Interfaces\IDivisionResolver.cs" />
     <Compile Include="..\EDILibrary\PathSelection.cs" Link="PathSelection.cs" />
     <Compile Include="..\EDILibrary\StringSplitEnhacement.cs" Link="StringSplitEnhacement.cs" />
     <Compile Include="..\EDILibrary\TemplateHelper.cs" Link="TemplateHelper.cs" />
