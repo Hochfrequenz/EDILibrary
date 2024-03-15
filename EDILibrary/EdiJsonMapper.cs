@@ -131,7 +131,7 @@ namespace EDILibrary
         }
         public string CreateFromJsonWithTemplates(string jsonInput, string pid, EdifactFormatVersion formatPackage, string ediJsonTemplate, string createTemplate, TimeZoneInfo localTime, MAUS.Anwendungshandbuch? ahb, bool convertFromUTC = false)
         {
-            var format = EdifactFormatHelper.FromPruefidentifikator(pid, false);
+            var format = EdifactFormatHelper.FromPruefidentifikator(pid, false, formatPackage);
 
             var mappingsBody = ediJsonTemplate;
 
@@ -150,7 +150,7 @@ namespace EDILibrary
         }
         public async Task<string> CreateFromJson(string jsonInput, string pid, EdifactFormatVersion formatPackage, TimeZoneInfo localTime, MAUS.Anwendungshandbuch? ahb, bool convertFromUTC = false)
         {
-            var format = EdifactFormatHelper.FromPruefidentifikator(pid, false);
+            var format = EdifactFormatHelper.FromPruefidentifikator(pid, false, formatPackage);
             string jsonBody = null;
             try
             {
@@ -214,7 +214,7 @@ namespace EDILibrary
         }
         public async Task<string> CreateFromEdiJson(string jsonInput, string pid, EdifactFormatVersion formatPackage, TimeZoneInfo localTime, bool convertFromUTC = false)
         {
-            var format = EdifactFormatHelper.FromPruefidentifikator(pid, false);
+            var format = EdifactFormatHelper.FromPruefidentifikator(pid, false, formatPackage);
 
             var mappingsBody = await _loader.LoadJSONTemplate(format, formatPackage.ToLegacyVersionString(), format + ".json");
 
