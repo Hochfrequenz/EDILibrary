@@ -116,7 +116,7 @@ namespace EDILibrary
     }
     public class GenericEDIWriter
     {
-        public static ScriptHelper helper = new ScriptHelper();
+        public ScriptHelper helper = new ScriptHelper();
         static readonly Regex numericRegex = new Regex("^[0-9]+$", RegexOptions.Compiled);
         public GenericEDIWriter()
         {

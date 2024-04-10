@@ -21,8 +21,8 @@ namespace EDILibrary.Helper
                 }
             }
             var writer = new GenericEDIWriter();
-            GenericEDIWriter.helper.useLocalTime = bUseLocalTime;
-            GenericEDIWriter.helper.LocalTimeZone = localZone ?? TimeZoneInfo.Local;
+            writer.helper.useLocalTime = bUseLocalTime;
+            writer.helper.LocalTimeZone = localZone ?? TimeZoneInfo.Local;
             var newEDI = writer.CompileTemplate(createTemplate, edi);
             extMapping.PrepareEDIMapping(newEDI);
             foreach (var map in mappings)
@@ -52,8 +52,8 @@ namespace EDILibrary.Helper
                 }
             }
             var writer = new GenericEDIWriter();
-            GenericEDIWriter.helper.useLocalTime = bUseLocalTime;
-            GenericEDIWriter.helper.LocalTimeZone = localZone ?? TimeZoneInfo.Local;
+            writer.helper.useLocalTime = bUseLocalTime;
+            writer.helper.LocalTimeZone = localZone ?? TimeZoneInfo.Local;
             var newEDI = writer.CompileTemplate(createTemplate, edi);
             extMapping.PrepareEDIMapping(newEDI);
             foreach (var map in mappings)
