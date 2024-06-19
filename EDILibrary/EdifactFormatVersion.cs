@@ -203,6 +203,16 @@ namespace EDILibrary
         /// Format Version April 2024
         /// </summary>
         FV2404,
+
+        /// <summary>
+        /// Format Version valid since October 2024
+        /// </summary>
+        FV2410,
+
+        /// <summary>
+        /// Format Version valid since April 2025
+        /// </summary>
+        FV2504
     }
 
     public class EdifactFormatVersionComparer : IComparer<EdifactFormatVersion>
@@ -239,6 +249,8 @@ namespace EDILibrary
                 EdifactFormatVersion.FV2304 => "04/23",
                 EdifactFormatVersion.FV2310 => "10/23",
                 EdifactFormatVersion.FV2404 => "04/24",
+                EdifactFormatVersion.FV2410 => "10/24",
+                EdifactFormatVersion.FV2504 => "04/25",
                 _ => throw new NotImplementedException($"The legacy format for {edifactFormatVersion} is not yet implemented.")
             };
         }
@@ -368,8 +380,29 @@ namespace EDILibrary
         /// </summary>
         /// <remarks>Note that this is _not_ April 1st</remarks>
         private static readonly DateTime KeyDate2404 = new(2024, 04, 02, 22, 0, 0, DateTimeKind.Utc);
+
+        /// <summary>
+        /// validity date of <see cref="EdifactFormatVersion.FV2410"/>
+        /// </summary>
+        private static readonly DateTime KeyDate2410 = new(2024, 09, 30, 22, 0, 0, DateTimeKind.Utc);
+
+        /// <summary>
+        /// validity date of <see cref="EdifactFormatVersion.FV2504"/>
+        /// </summary>
+        /// <remarks>Note that this is _not_ April 1st</remarks>
+        private static readonly DateTime KeyDate2504 = new(2025, 04, 03, 22, 0, 0, DateTimeKind.Utc);
+
+
         public EdifactFormatVersion GetFormatVersion(DateTimeOffset keydate)
         {
+            if (keydate >= KeyDate2504)
+            {
+                return EdifactFormatVersion.FV2504;
+            }
+            if (keydate >= KeyDate2410)
+            {
+                return EdifactFormatVersion.FV2410;
+            }
             if (keydate >= KeyDate2404)
             {
                 return EdifactFormatVersion.FV2404;

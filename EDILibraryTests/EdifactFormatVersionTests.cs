@@ -72,6 +72,8 @@ namespace EDILibraryTests
                 EdifactFormatVersion.FV2304,
                 EdifactFormatVersion.FV2310,
                 EdifactFormatVersion.FV2404,
+                EdifactFormatVersion.FV2410,
+                EdifactFormatVersion.FV2504,
             };
             var comparer = new EdifactFormatVersionComparer();
             for (int i = 0; i < expectedNaturalOrder.Count - 1; i++)
@@ -111,6 +113,8 @@ namespace EDILibraryTests
         [DataRow("FV1710", EdifactFormatVersion.FV1710)]
         [DataRow("FV2404", EdifactFormatVersion.FV2404)]
         [DataRow("04/24", EdifactFormatVersion.FV2404)]
+        [DataRow("10/24", EdifactFormatVersion.FV2410)]
+        [DataRow("04/25", EdifactFormatVersion.FV2504)]
         public void TestLegacyStrings(string legacyString, EdifactFormatVersion expectedFormatVersion)
         {
             var actualFormatVersion = legacyString.ToEdifactFormatVersion();
@@ -150,17 +154,22 @@ namespace EDILibraryTests
         /// Test that the <see cref="EdifactFormatVersionHelper"/> returns <see cref="EdifactFormatVersion.FV2110"/> in for 2021-10-01&lt;=dt&lt;2022-10-01 (german local time)
         /// </summary>
         [TestMethod]
-        public void TestFV2110()
+        [DataRow("2021-09-30T21:59:59+00:00", EdifactFormatVersion.FV2104)]
+        [DataRow("2021-09-30T22:00:00+00:00", EdifactFormatVersion.FV2110)]
+        [DataRow("2022-03-31T22:00:00+00:00", EdifactFormatVersion.FV2110)]
+        [DataRow("2022-09-30T21:59:59+00:00", EdifactFormatVersion.FV2110)]
+        [DataRow("2022-09-30T22:00:00+00:00", EdifactFormatVersion.FV2210)]
+        [DataRow("2023-09-30T22:00:00+00:00", EdifactFormatVersion.FV2310)]
+        [DataRow("2024-03-31T22:00:00+00:00", EdifactFormatVersion.FV2310)]
+        [DataRow("2024-04-02T22:00:00+00:00", EdifactFormatVersion.FV2404)]
+        [DataRow("2024-09-30T22:00:00+00:00", EdifactFormatVersion.FV2410)]
+        [DataRow("2025-03-31T22:00:00+00:00", EdifactFormatVersion.FV2410)]
+        [DataRow("2025-04-03T22:00:00+00:00", EdifactFormatVersion.FV2504)]
+        public void TestFormatVersionProvider(string dateTimeOffset, EdifactFormatVersion expectedVersion)
         {
             IEdifactFormatVersionProvider versionProvider = new EdifactFormatVersionHelper();
-            Assert.AreEqual(EdifactFormatVersion.FV2104, versionProvider.GetFormatVersion(new DateTimeOffset(2021, 9, 30, 21, 59, 59, TimeSpan.Zero)));
-            Assert.AreEqual(EdifactFormatVersion.FV2110, versionProvider.GetFormatVersion(new DateTimeOffset(2021, 9, 30, 22, 0, 0, TimeSpan.Zero)));
-            Assert.AreEqual(EdifactFormatVersion.FV2110, versionProvider.GetFormatVersion(new DateTimeOffset(2022, 3, 31, 22, 0, 0, TimeSpan.Zero)));
-            Assert.AreEqual(EdifactFormatVersion.FV2110, versionProvider.GetFormatVersion(new DateTimeOffset(2022, 9, 30, 21, 59, 59, TimeSpan.Zero)));
-            Assert.AreEqual(EdifactFormatVersion.FV2210, versionProvider.GetFormatVersion(new DateTimeOffset(2022, 9, 30, 22, 0, 0, TimeSpan.Zero)));
-            Assert.AreEqual(EdifactFormatVersion.FV2310, versionProvider.GetFormatVersion(new DateTimeOffset(2023, 9, 30, 22, 0, 0, TimeSpan.Zero)));
-            Assert.AreEqual(EdifactFormatVersion.FV2310, versionProvider.GetFormatVersion(new DateTimeOffset(2024, 3, 31, 22, 0, 0, TimeSpan.Zero)));
-            Assert.AreEqual(EdifactFormatVersion.FV2404, versionProvider.GetFormatVersion(new DateTimeOffset(2024, 4, 2, 22, 0, 0, TimeSpan.Zero)));
+            DateTimeOffset date = DateTimeOffset.Parse(dateTimeOffset);
+            Assert.AreEqual(expectedVersion, versionProvider.GetFormatVersion(date));
         }
     }
 }
