@@ -35,15 +35,25 @@ jobs:
           tagRegex: "v(\\d+\\.\\d+\\.\\d+)"
       - name: Build/Check for compile errors (dotnet build)
         run: dotnet build --configuration Release
-      - name: Create Package EdiLibrary (dotnet pack)
+      - name: Create Package EDILibrary (dotnet pack)
         working-directory: "EDILibrary"
         run: dotnet pack EDILibrary.csproj --configuration Release -p:PackageVersion="${{ steps.tagTBC.outputs.tag }}"
       - name: Setup Nuget.exe
         uses: warrenbuckley/Setup-Nuget@v1
-      - name: Nuget push EDILibrary
+      - name: Nuget push EDILibrary and EDILibrary.Core
         working-directory: "EDILibrary"
         # token: https://github.com/Hochfrequenz/EDILibrary/settings/secrets/actions/NUGET_ORG_PUSH_TOKEN
-        # expires 2025-02-01
+        run: |
+          nuget setApiKey ${{ secrets.NUGET_ORG_PUSH_TOKEN }}
+          nuget push .\bin\Release\*.nupkg -Source https://api.nuget.org/v3/index.json -SkipDuplicate -NoSymbols
+      - name: Create Package EDILibrary.Standard (dotnet pack)
+        working-directory: "EDILibraryBase"
+        run: dotnet pack EDILibrary.Standard.csproj --configuration Release -p:PackageVersion="${{ steps.tagTBC.outputs.tag }}"
+      - name: Setup Nuget.exe
+        uses: warrenbuckley/Setup-Nuget@v1
+      - name: Nuget push EDILibrary.Standard
+        working-directory: "EDILibraryBase"
+        # token: https://github.com/Hochfrequenz/EDILibrary/settings/secrets/actions/NUGET_ORG_PUSH_TOKEN
         run: |
           nuget setApiKey ${{ secrets.NUGET_ORG_PUSH_TOKEN }}
           nuget push .\bin\Release\*.nupkg -Source https://api.nuget.org/v3/index.json -SkipDuplicate -NoSymbols
