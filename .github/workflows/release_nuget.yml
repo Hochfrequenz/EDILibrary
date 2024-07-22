@@ -57,3 +57,25 @@ jobs:
         run: |
           nuget setApiKey ${{ secrets.NUGET_ORG_PUSH_TOKEN }}
           nuget push .\bin\Release\*.nupkg -Source https://api.nuget.org/v3/index.json -SkipDuplicate -NoSymbols
+      - name: Create Package EDIFileLoader.Core (dotnet pack)
+        working-directory: "EDILibraryBase"
+        run: dotnet pack EDIFileLoader.Core.csproj --configuration Release -p:PackageVersion="${{ steps.tagTBC.outputs.tag }}"
+      - name: Setup Nuget.exe
+        uses: warrenbuckley/Setup-Nuget@v1
+      - name: Nuget push EDIFileLoader.Core
+        working-directory: "EDILibraryBase"
+        # token: https://github.com/Hochfrequenz/EDILibrary/settings/secrets/actions/NUGET_ORG_PUSH_TOKEN
+        run: |
+          nuget setApiKey ${{ secrets.NUGET_ORG_PUSH_TOKEN }}
+          nuget push .\bin\Release\*.nupkg -Source https://api.nuget.org/v3/index.json -SkipDuplicate -NoSymbols
+      - name: Create Package EDIFileLoader.Standard (dotnet pack)
+        working-directory: "EDILibraryBase"
+        run: dotnet pack EDIFileLoader.Standard.csproj --configuration Release -p:PackageVersion="${{ steps.tagTBC.outputs.tag }}"
+      - name: Setup Nuget.exe
+        uses: warrenbuckley/Setup-Nuget@v1
+      - name: Nuget push EDIFileLoader.Standard
+        working-directory: "EDILibraryBase"
+        # token: https://github.com/Hochfrequenz/EDILibrary/settings/secrets/actions/NUGET_ORG_PUSH_TOKEN
+        run: |
+          nuget setApiKey ${{ secrets.NUGET_ORG_PUSH_TOKEN }}
+          nuget push .\bin\Release\*.nupkg -Source https://api.nuget.org/v3/index.json -SkipDuplicate -NoSymbols
