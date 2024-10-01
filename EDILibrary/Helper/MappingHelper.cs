@@ -6,7 +6,14 @@ namespace EDILibrary.Helper
 {
     public class MappingHelper
     {
-        public static string ExecuteMappingsWithTemplates(EdiObject edi, EDIFileInfo fileInfo, List<string> mappings, string createTemplate, TimeZoneInfo localZone, bool bUseLocalTime = true)
+        public static string ExecuteMappingsWithTemplates(
+            EdiObject edi,
+            EDIFileInfo fileInfo,
+            List<string> mappings,
+            string createTemplate,
+            TimeZoneInfo localZone,
+            bool bUseLocalTime = true
+        )
         {
             var extMapping = new ExtendedMappings();
             extMapping.LoadMappings("");
@@ -17,8 +24,7 @@ namespace EDILibrary.Helper
                     extMapping.ExecuteMapping(map, edi, "S", fileInfo.Format);
                 }
                 catch (Exception) // todo: fix pokemon catching
-                {
-                }
+                { }
             }
             var writer = new GenericEDIWriter();
             writer.helper.useLocalTime = bUseLocalTime;
@@ -32,12 +38,19 @@ namespace EDILibrary.Helper
                     extMapping.ExecuteEDIMapping(map);
                 }
                 catch (Exception) // todo: fix pokemon catching
-                {
-                }
+                { }
             }
             return extMapping.GetFinalEDIMapping();
         }
-        public static string ExecuteMappings(EdiObject edi, EDIFileInfo fileInfo, List<string> mappings, string createTemplate, TimeZoneInfo localZone, bool bUseLocalTime = true)
+
+        public static string ExecuteMappings(
+            EdiObject edi,
+            EDIFileInfo fileInfo,
+            List<string> mappings,
+            string createTemplate,
+            TimeZoneInfo localZone,
+            bool bUseLocalTime = true
+        )
         {
             var extMapping = new ExtendedMappings();
             extMapping.LoadMappings("");
@@ -48,8 +61,7 @@ namespace EDILibrary.Helper
                     extMapping.ExecuteMapping(map, edi, "S", fileInfo.Format);
                 }
                 catch (Exception) // todo: fix pokemon catching
-                {
-                }
+                { }
             }
             var writer = new GenericEDIWriter();
             writer.helper.useLocalTime = bUseLocalTime;
@@ -63,8 +75,7 @@ namespace EDILibrary.Helper
                     extMapping.ExecuteEDIMapping(map);
                 }
                 catch (Exception) // todo: fix pokemon catching
-                {
-                }
+                { }
             }
             return extMapping.GetFinalEDIMapping();
         }

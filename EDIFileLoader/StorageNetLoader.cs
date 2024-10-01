@@ -9,10 +9,9 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-
 using EDILibrary;
-
 using Microsoft.Extensions.Logging;
+
 namespace EDIFileLoader
 {
     public class StorageNetLoader : EDILibrary.Interfaces.ITemplateLoader
@@ -31,15 +30,23 @@ namespace EDIFileLoader
         /// Logger
         /// </summary>
         protected ILogger Logger { get; set; }
+
         /// <summary>
         /// Cache dictionary to not download every file again
         /// </summary>
-        protected ConcurrentDictionary<string, Dictionary<string, string>> Cache { get; set; } = new ConcurrentDictionary<string, Dictionary<string, string>>();
+        protected ConcurrentDictionary<string, Dictionary<string, string>> Cache { get; set; } =
+            new ConcurrentDictionary<string, Dictionary<string, string>>();
+
         /// <summary>
         /// JsonSerializer options
         /// </summary>
         protected JsonSerializerOptions JsonOptions { get; set; }
-        public StorageNetLoader(ILogger<StorageNetLoader> logger, Storage.Net.Blobs.IBlobStorage storage, string root = "/")
+
+        public StorageNetLoader(
+            ILogger<StorageNetLoader> logger,
+            Storage.Net.Blobs.IBlobStorage storage,
+            string root = "/"
+        )
         {
             Storage = storage ?? throw new ArgumentNullException(nameof(storage));
             Logger = logger;
@@ -53,6 +60,7 @@ namespace EDIFileLoader
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             };
         }
+
         /// <summary>
         /// Loads all templates from the root of the blob in a cache (parallelizes per folder)
         /// </summary>
@@ -61,29 +69,43 @@ namespace EDIFileLoader
         {
             var tasks = new ConcurrentBag<Task>();
             // go through all folders
-            foreach (var folder in await Storage.ListAsync(new Storage.Net.Blobs.ListOptions() { FolderPath = Root }))
+            foreach (
+                var folder in await Storage.ListAsync(
+                    new Storage.Net.Blobs.ListOptions() { FolderPath = Root }
+                )
+            )
             {
-
-                tasks.Add(Task.Run(async () =>
-                 {
-                     if (folder.IsFolder)
-                     {
-                         Cache.TryAdd(folder.Name.TrimEnd('/'), new Dictionary<string, string>());
-                         foreach (var blob in await Storage.ListAsync(new Storage.Net.Blobs.ListOptions() { FolderPath = folder.FolderPath }))
-                         {
-                             if (blob.IsFile)
-                             {
-                                 var text = await GetUTF8TextFromPath(blob.FullPath);
-                                 Cache[folder.Name.TrimEnd('/')].TryAdd(blob.Name, text);
-                             }
-
-                         }
-                     }
-                 }));
-
+                tasks.Add(
+                    Task.Run(async () =>
+                    {
+                        if (folder.IsFolder)
+                        {
+                            Cache.TryAdd(
+                                folder.Name.TrimEnd('/'),
+                                new Dictionary<string, string>()
+                            );
+                            foreach (
+                                var blob in await Storage.ListAsync(
+                                    new Storage.Net.Blobs.ListOptions()
+                                    {
+                                        FolderPath = folder.FolderPath,
+                                    }
+                                )
+                            )
+                            {
+                                if (blob.IsFile)
+                                {
+                                    var text = await GetUTF8TextFromPath(blob.FullPath);
+                                    Cache[folder.Name.TrimEnd('/')].TryAdd(blob.Name, text);
+                                }
+                            }
+                        }
+                    })
+                );
             }
             await Task.WhenAll(tasks);
         }
+
         /// <summary>
         /// Helper method to download a UTF-8 string from the blob storage
         /// </summary>
@@ -98,6 +120,7 @@ namespace EDIFileLoader
             await ss.CopyToAsync(s);
             return Encoding.UTF8.GetString(s.ToArray());
         }
+
         /// <summary>
         /// Load an edifact template specified by file info and type
         /// </summary>
@@ -110,15 +133,28 @@ namespace EDIFileLoader
             {
                 try
                 {
-                    return Cache["edi"][Path.Combine("edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type).Replace("\\", "/")];
+                    return Cache["edi"][
+                        Path.Combine(
+                                "edi",
+                                info.Format.ToString(),
+                                info.Format.ToString() + info.Version + "." + type
+                            )
+                            .Replace("\\", "/")
+                    ];
                 }
-                catch (KeyNotFoundException)
-                {
-                }
+                catch (KeyNotFoundException) { }
             }
             try
             {
-                var text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", "edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type).Replace("\\", "/"));
+                var text = await GetUTF8TextFromPath(
+                    Path.Combine(
+                            Root != "/" ? Root : "",
+                            "edi",
+                            info.Format.ToString(),
+                            info.Format.ToString() + info.Version + "." + type
+                        )
+                        .Replace("\\", "/")
+                );
                 text = EDIHelper.RemoveByteOrderMark(text);
                 if (Cache != null)
                 {
@@ -132,7 +168,14 @@ namespace EDIFileLoader
                         ediCache = new Dictionary<string, string>();
                     }
 
-                    ediCache[Path.Combine("edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type).Replace("\\", "/")] = text;
+                    ediCache[
+                        Path.Combine(
+                                "edi",
+                                info.Format.ToString(),
+                                info.Format.ToString() + info.Version + "." + type
+                            )
+                            .Replace("\\", "/")
+                    ] = text;
                 }
                 return text;
             }
@@ -142,6 +185,7 @@ namespace EDIFileLoader
                 return "";
             }
         }
+
         [Obsolete("Use strongly typed version instead.", true)]
         public Task<string> LoadJSONTemplate(string fileName)
         {
@@ -155,6 +199,7 @@ namespace EDIFileLoader
             var version = formatPackage.Split("|").Last();
             return await LoadJSONTemplate(format, version, fileName);
         }
+
         /// <summary>
         /// Load a template or create.template for a specifig format and version
         /// </summary>
@@ -162,7 +207,11 @@ namespace EDIFileLoader
         /// <param name="version"></param>
         /// <param name="fileName">template/create.template</param>
         /// <returns>In case of any error (pokemon catcher!) returns an empty string</returns>
-        public async Task<string> LoadJSONTemplate(EdifactFormat? format, string version, string fileName)
+        public async Task<string> LoadJSONTemplate(
+            EdifactFormat? format,
+            string version,
+            string fileName
+        )
         {
             if (Cache != null && Cache.Any())
             {
@@ -170,13 +219,14 @@ namespace EDIFileLoader
                 {
                     return Cache[version.Replace("/", "")][fileName.Replace("\\", "/")];
                 }
-                catch (KeyNotFoundException)
-                {
-                }
+                catch (KeyNotFoundException) { }
             }
             try
             {
-                var text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", version.Replace("/", ""), fileName).Replace("\\", "/"));
+                var text = await GetUTF8TextFromPath(
+                    Path.Combine(Root != "/" ? Root : "", version.Replace("/", ""), fileName)
+                        .Replace("\\", "/")
+                );
                 text = EDIHelper.RemoveByteOrderMark(text);
                 if (Cache != null)
                 {
@@ -201,25 +251,41 @@ namespace EDIFileLoader
                 return "";
             }
         }
+
         /// <summary>
         /// <see cref="EDILibrary.Interfaces.TemplateLoader.LoadMausTemplate"/>
         /// </summary>
-        public async Task<EDILibrary.MAUS.Anwendungshandbuch> LoadMausTemplate(EdifactFormat? format, EdifactFormatVersion version, string pid)
+        public async Task<EDILibrary.MAUS.Anwendungshandbuch> LoadMausTemplate(
+            EdifactFormat? format,
+            EdifactFormatVersion version,
+            string pid
+        )
         {
             if (Cache != null && Cache.Any())
             {
                 try
                 {
-                    return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(Cache["maus"][Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")], JsonOptions);
+                    return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(
+                        Cache["maus"][
+                            Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")
+                        ],
+                        JsonOptions
+                    );
                 }
-                catch (KeyNotFoundException)
-                {
-                }
+                catch (KeyNotFoundException) { }
                 catch (JsonException) { }
             }
             try
             {
-                var text = await GetUTF8TextFromPath(Path.Combine(Root != "/" ? Root : "", "maus", version.ToString(), format.ToString(), pid + "_maus.json"));
+                var text = await GetUTF8TextFromPath(
+                    Path.Combine(
+                        Root != "/" ? Root : "",
+                        "maus",
+                        version.ToString(),
+                        format.ToString(),
+                        pid + "_maus.json"
+                    )
+                );
                 text = EDIHelper.RemoveByteOrderMark(text);
                 if (Cache != null)
                 {
@@ -233,9 +299,14 @@ namespace EDIFileLoader
                         ediCache = new Dictionary<string, string>();
                     }
 
-                    ediCache[Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")] = text;
+                    ediCache[
+                        Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")
+                    ] = text;
                 }
-                return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(text, JsonOptions);
+                return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(
+                    text,
+                    JsonOptions
+                );
             }
             catch (Exception exc)
             {

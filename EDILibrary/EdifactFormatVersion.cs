@@ -114,7 +114,7 @@ namespace EDILibrary
         /// <summary>
         /// Custom pruefis
         /// </summary>
-        CUSTOM = 99
+        CUSTOM = 99,
     }
 
     /// <summary>
@@ -226,7 +226,7 @@ namespace EDILibrary
         /// <summary>
         /// Format Version valid since April 2025
         /// </summary>
-        FV2504
+        FV2504,
     }
 
     public class EdifactFormatVersionComparer : IComparer<EdifactFormatVersion>
@@ -265,10 +265,9 @@ namespace EDILibrary
                 EdifactFormatVersion.FV2404 => "04/24",
                 EdifactFormatVersion.FV2410 => "10/24",
                 EdifactFormatVersion.FV2504 => "04/25",
-                _
-                    => throw new NotImplementedException(
-                        $"The legacy format for {edifactFormatVersion} is not yet implemented."
-                    )
+                _ => throw new NotImplementedException(
+                    $"The legacy format for {edifactFormatVersion} is not yet implemented."
+                ),
             };
         }
 
@@ -501,169 +500,149 @@ namespace EDILibrary
         {
             EdifactFormatVersion determinedVersion = format switch
             {
-                EdifactFormat.UTILMD
-                    => version switch
-                    {
-                        "5.2e" => EdifactFormatVersion.FV2210,
-                        "5.2c" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.UTILMDG
-                    => version switch
-                    {
-                        "G1.0a" => EdifactFormatVersion.FV2310,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.UTILMDW
-                    => version switch
-                    {
-                        "5.2e" => EdifactFormatVersion.FV2210,
-                        "5.2c" => EdifactFormatVersion.FV2110,
-                        "G1.0a" => EdifactFormatVersion.FV2310,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.UTILMDS
-                    => version switch
-                    {
-                        "S1.1a" => EdifactFormatVersion.FV2404,
-                        "S1.1" => EdifactFormatVersion.FV2310,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.MSCONS
-                    => version switch
-                    {
-                        "2.4c" => EdifactFormatVersion.FV2404,
-                        "2.4b" => EdifactFormatVersion.FV2310,
-                        "2.4a" => EdifactFormatVersion.FV2210,
-                        "2.3c" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.PARTIN
-                    => version switch
-                    {
-                        "1.0d" => EdifactFormatVersion.FV2404,
-                        "1.0c" => EdifactFormatVersion.FV2310,
-                        "1.0a" => EdifactFormatVersion.FV2210,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.IFTSTA
-                    => version switch
-                    {
-                        "2.0e" => EdifactFormatVersion.FV2310,
-                        "2.0d" => EdifactFormatVersion.FV2210,
-                        "2.0c" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.APERAK
-                    => version switch
-                    {
-                        "2.1h" => EdifactFormatVersion.FV2210,
-                        "2.1f" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.COMDIS
-                    => version switch
-                    {
-                        "1.0d" => EdifactFormatVersion.FV2404,
-                        "1.0c" => EdifactFormatVersion.FV2310,
-                        "1.0b" => EdifactFormatVersion.FV2210,
-                        "1.0a" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.CONTRL
-                    => version switch
-                    {
-                        "2.0b" => EdifactFormatVersion.FV2210,
-                        "2.0a" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.INSRPT
-                    => version switch
-                    {
-                        "1.1a" => EdifactFormatVersion.FV2210,
-                        "1.1" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.INVOIC
-                    => version switch
-                    {
-                        "2.8c" => EdifactFormatVersion.FV2404,
-                        "2.8b" => EdifactFormatVersion.FV2310,
-                        "2.8a" => EdifactFormatVersion.FV2304,
-                        "2.8" => EdifactFormatVersion.FV2210,
-                        "2.7a" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.ORDCHG
-                    => version switch
-                    {
-                        "1.1" => EdifactFormatVersion.FV2310,
-                        "1.0" => EdifactFormatVersion.FV2210,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.ORDERS
-                    => version switch
-                    {
-                        "1.3" => EdifactFormatVersion.FV2310,
-                        "1.2b" => EdifactFormatVersion.FV2304,
-                        "1.2a" => EdifactFormatVersion.FV2210,
-                        "1.1m" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.ORDRSP
-                    => version switch
-                    {
-                        "1.3" => EdifactFormatVersion.FV2310,
-                        "1.2b" => EdifactFormatVersion.FV2304,
-                        "1.2a" => EdifactFormatVersion.FV2210,
-                        "1.1k" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.PRICAT
-                    => version switch
-                    {
-                        "2.0c" => EdifactFormatVersion.FV2310,
-                        "2.0b" => EdifactFormatVersion.FV2304,
-                        "2.0a" => EdifactFormatVersion.FV2210,
-                        "1.1b" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.QUOTES
-                    => version switch
-                    {
-                        "1.3" => EdifactFormatVersion.FV2310,
-                        "1.2" => EdifactFormatVersion.FV2210,
-                        "1.1b" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.REMADV
-                    => version switch
-                    {
-                        "2.9c" => EdifactFormatVersion.FV2404,
-                        "2.9b" => EdifactFormatVersion.FV2310,
-                        "2.9a" => EdifactFormatVersion.FV2304,
-                        "2.9" => EdifactFormatVersion.FV2210,
-                        "2.8" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.REQOTE
-                    => version switch
-                    {
-                        "1.3" => EdifactFormatVersion.FV2310,
-                        "1.2" => EdifactFormatVersion.FV2210,
-                        "1.1d" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                EdifactFormat.UTILTS
-                    => version switch
-                    {
-                        "1.1c" => EdifactFormatVersion.FV2404,
-                        "1.1b" => EdifactFormatVersion.FV2310,
-                        "1.1a" => EdifactFormatVersion.FV2210,
-                        "1.0a" => EdifactFormatVersion.FV2110,
-                        _ => GetCurrent()
-                    },
-                _ => GetCurrent()
+                EdifactFormat.UTILMD => version switch
+                {
+                    "5.2e" => EdifactFormatVersion.FV2210,
+                    "5.2c" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.UTILMDG => version switch
+                {
+                    "G1.0a" => EdifactFormatVersion.FV2310,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.UTILMDW => version switch
+                {
+                    "5.2e" => EdifactFormatVersion.FV2210,
+                    "5.2c" => EdifactFormatVersion.FV2110,
+                    "G1.0a" => EdifactFormatVersion.FV2310,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.UTILMDS => version switch
+                {
+                    "S1.1a" => EdifactFormatVersion.FV2404,
+                    "S1.1" => EdifactFormatVersion.FV2310,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.MSCONS => version switch
+                {
+                    "2.4c" => EdifactFormatVersion.FV2404,
+                    "2.4b" => EdifactFormatVersion.FV2310,
+                    "2.4a" => EdifactFormatVersion.FV2210,
+                    "2.3c" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.PARTIN => version switch
+                {
+                    "1.0d" => EdifactFormatVersion.FV2404,
+                    "1.0c" => EdifactFormatVersion.FV2310,
+                    "1.0a" => EdifactFormatVersion.FV2210,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.IFTSTA => version switch
+                {
+                    "2.0e" => EdifactFormatVersion.FV2310,
+                    "2.0d" => EdifactFormatVersion.FV2210,
+                    "2.0c" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.APERAK => version switch
+                {
+                    "2.1h" => EdifactFormatVersion.FV2210,
+                    "2.1f" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.COMDIS => version switch
+                {
+                    "1.0d" => EdifactFormatVersion.FV2404,
+                    "1.0c" => EdifactFormatVersion.FV2310,
+                    "1.0b" => EdifactFormatVersion.FV2210,
+                    "1.0a" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.CONTRL => version switch
+                {
+                    "2.0b" => EdifactFormatVersion.FV2210,
+                    "2.0a" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.INSRPT => version switch
+                {
+                    "1.1a" => EdifactFormatVersion.FV2210,
+                    "1.1" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.INVOIC => version switch
+                {
+                    "2.8c" => EdifactFormatVersion.FV2404,
+                    "2.8b" => EdifactFormatVersion.FV2310,
+                    "2.8a" => EdifactFormatVersion.FV2304,
+                    "2.8" => EdifactFormatVersion.FV2210,
+                    "2.7a" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.ORDCHG => version switch
+                {
+                    "1.1" => EdifactFormatVersion.FV2310,
+                    "1.0" => EdifactFormatVersion.FV2210,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.ORDERS => version switch
+                {
+                    "1.3" => EdifactFormatVersion.FV2310,
+                    "1.2b" => EdifactFormatVersion.FV2304,
+                    "1.2a" => EdifactFormatVersion.FV2210,
+                    "1.1m" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.ORDRSP => version switch
+                {
+                    "1.3" => EdifactFormatVersion.FV2310,
+                    "1.2b" => EdifactFormatVersion.FV2304,
+                    "1.2a" => EdifactFormatVersion.FV2210,
+                    "1.1k" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.PRICAT => version switch
+                {
+                    "2.0c" => EdifactFormatVersion.FV2310,
+                    "2.0b" => EdifactFormatVersion.FV2304,
+                    "2.0a" => EdifactFormatVersion.FV2210,
+                    "1.1b" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.QUOTES => version switch
+                {
+                    "1.3" => EdifactFormatVersion.FV2310,
+                    "1.2" => EdifactFormatVersion.FV2210,
+                    "1.1b" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.REMADV => version switch
+                {
+                    "2.9c" => EdifactFormatVersion.FV2404,
+                    "2.9b" => EdifactFormatVersion.FV2310,
+                    "2.9a" => EdifactFormatVersion.FV2304,
+                    "2.9" => EdifactFormatVersion.FV2210,
+                    "2.8" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.REQOTE => version switch
+                {
+                    "1.3" => EdifactFormatVersion.FV2310,
+                    "1.2" => EdifactFormatVersion.FV2210,
+                    "1.1d" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                EdifactFormat.UTILTS => version switch
+                {
+                    "1.1c" => EdifactFormatVersion.FV2404,
+                    "1.1b" => EdifactFormatVersion.FV2310,
+                    "1.1a" => EdifactFormatVersion.FV2210,
+                    "1.0a" => EdifactFormatVersion.FV2110,
+                    _ => GetCurrent(),
+                },
+                _ => GetCurrent(),
             };
             return determinedVersion;
         }

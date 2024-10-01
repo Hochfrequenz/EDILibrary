@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+
 namespace EDILibrary
 {
     public class TreeElement : IDisposable
@@ -19,10 +20,12 @@ namespace EDILibrary
         public string APERAK_Status;
         public string CONTRL_Check_String;
         public string APERAK_Check_String;
+
         public static string ExtractName(string name)
         {
             return name.Contains("_") ? name.Substring(0, name.IndexOf('_')) : name;
         }
+
         public void AddChild(TreeElement child)
         {
             child.Parent = this;
@@ -41,11 +44,13 @@ namespace EDILibrary
                 }
             }
         }
+
         public TreeElement AddEdi(string edi, TreeElement currentRoot)
         {
             Edi.Add(edi);
             return Parent;
         }
+
         public TreeElement(TreeElement old)
         {
             Name = old.Name;
@@ -57,10 +62,12 @@ namespace EDILibrary
             APERAK_Status = old.APERAK_Status;
             CONTRL_Check_String = old.CONTRL_Check_String;
             APERAK_Check_String = old.APERAK_Check_String;
-            foreach (var newChild in old.Children.Values.Select(child => new TreeElement(child)
-            {
-                Parent = this
-            }))
+            foreach (
+                var newChild in old.Children.Values.Select(child => new TreeElement(child)
+                {
+                    Parent = this,
+                })
+            )
             {
                 if (newChild.Name.StartsWith("SG") || newChild.Name == "UNH")
                 {
@@ -91,6 +98,7 @@ namespace EDILibrary
             Edi = new List<string>();
             Dirty = old.Dirty;
         }
+
         public TreeElement(string name, int lineCounter = -1)
         {
             if (name.Contains('['))
@@ -123,7 +131,13 @@ namespace EDILibrary
             Occurence = 0;
             Key = false;
         }
-        public void FindElements(string name, bool recursive, ref List<TreeElement> list, int recursionDepth = int.MaxValue)
+
+        public void FindElements(
+            string name,
+            bool recursive,
+            ref List<TreeElement> list,
+            int recursionDepth = int.MaxValue
+        )
         {
             if (Name == name)
             {
@@ -180,7 +194,9 @@ namespace EDILibrary
 
             if (recursive)
             {
-                return Children.Values.Select(child => child.FindElement(name)).FirstOrDefault(ret => ret != null);
+                return Children
+                    .Values.Select(child => child.FindElement(name))
+                    .FirstOrDefault(ret => ret != null);
             }
             return null;
         }
@@ -199,13 +215,18 @@ namespace EDILibrary
             set { Children[ExtractName(name)] = value; }
         }
     }
+
     public class TreeHelper
     {
         public Dictionary<string, TreeElement> treeCopyMap = new Dictionary<string, TreeElement>();
         public TreeElement treeRoot;
+
         public void RefreshDirtyFlags(TreeElement root)
         {
-            var children = from elem in root.Children.Values where elem.Dirty && !elem.Children.Any() select elem;
+            var children =
+                from elem in root.Children.Values
+                where elem.Dirty && !elem.Children.Any()
+                select elem;
             if (!children.Any())
             {
                 root.Dirty = false;
@@ -218,9 +239,10 @@ namespace EDILibrary
             treeRoot = null;
             treeCopyMap = new Dictionary<string, TreeElement>();
         }
+
         public TreeElement FindEdiElement(ref TreeElement root, string segment)
         {
-            TreeElement oldRoot;// = null;
+            TreeElement oldRoot; // = null;
             var segName = segment.LowMemSplit("+").First();
             /*if (segName.StartsWith("UNS"))
             {
@@ -235,8 +257,11 @@ namespace EDILibrary
                         //foreach (TreeElement child in root.Children.Values)
                         //    child.Dirty = true;
                     }
-                    TreeElement ele;// = null;
-                    if (treeCopyMap.ContainsKey(root.Name) && treeCopyMap[root.Name].Occurence != root.Occurence)
+                    TreeElement ele; // = null;
+                    if (
+                        treeCopyMap.ContainsKey(root.Name)
+                        && treeCopyMap[root.Name].Occurence != root.Occurence
+                    )
                     {
                         var linkRoot = treeCopyMap[root.Name];
                         ele = FindEdiElement(ref linkRoot, segment);
@@ -267,7 +292,9 @@ namespace EDILibrary
                         var child = treeRoot;
                         treeRoot = copy;
                         //bei UNH muss ich dann schon die Anzahl der UNH-Kinder zählen und die Occurence manuell setzen
-                        var unhCounter = root.Children.Values.Count(tempChild => tempChild.Name.StartsWith("UNH"));
+                        var unhCounter = root.Children.Values.Count(tempChild =>
+                            tempChild.Name.StartsWith("UNH")
+                        );
                         foreach (var c in child.Children.Values)
                         {
                             c.Dirty = false;
@@ -285,11 +312,9 @@ namespace EDILibrary
                         root = child;
                         return child;
                     }
-
                 }
                 if (root.Children[segName].Key)
                 {
-
                     var child = root.Children[segName];
                     if (child.Parent.Name != "/" && child.Parent.Name != "UNH")
                     {
@@ -350,9 +375,11 @@ namespace EDILibrary
             //System.Diagnostics.Debug.Assert(root != null, segment, oldRoot.ToString());
             return null;
         }
+
         //  static SHA1 hash = System.Security.Cryptography.SHA1.Create();
         HashAlgorithm hash = Murmur.MurmurHash.Create128(seed: (uint)new DateTime().Ticks);
         UnicodeEncoding UE = new UnicodeEncoding();
+
         public string GetHash(string TextToHash)
         {
             //Prüfen ob Daten übergeben wurden.
@@ -370,6 +397,7 @@ namespace EDILibrary
 
             return BitConverter.ToString(result);
         }
+
         public bool CleanTree(TreeElement ele)
         {
             if (ele.Edi.Count == 0 && ele.Children.Count == 0)
