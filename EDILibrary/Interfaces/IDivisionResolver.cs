@@ -17,9 +17,6 @@ namespace EDILibrary.Interfaces
         /// <param name="senderMarketPartnerId">the 13 digit market partner ID of the sending marktpartner</param>
         /// <param name="receiverMarketPartnerId">the 13 digit market partner ID of the sending marktpartner</param>
         /// <returns>the sparte</returns>
-        public Sparte GetSparte(
-            string? senderMarketPartnerId,
-            string? receiverMarketPartnerId
-        );
+        public Sparte GetSparte(string? senderMarketPartnerId, string? receiverMarketPartnerId);
     }
 }

@@ -74,6 +74,7 @@ namespace EDILibrary
         /// e.g. 5.2h
         /// </summary>
         public string Version;
+
         /// <summary>
         /// EDIFACT format if set. Null in case of error (formerly: "ERROR")
         /// </summary>
@@ -87,11 +88,18 @@ namespace EDILibrary
 
         public override string ToString()
         {
-            return string.Join("_",
+            return string.Join(
+                "_",
                 new List<string>
                 {
-                    Format.ToString(), Referenz, Sender != null ? Sender.ToString() : "", Empfänger != null ? Empfänger.ToString() : "", DateTime.UtcNow.ToString("yyyyMMdd"), ID
-                });
+                    Format.ToString(),
+                    Referenz,
+                    Sender != null ? Sender.ToString() : "",
+                    Empfänger != null ? Empfänger.ToString() : "",
+                    DateTime.UtcNow.ToString("yyyyMMdd"),
+                    ID,
+                }
+            );
         }
 
         public bool Equals(EDIFileInfo other)
@@ -106,8 +114,14 @@ namespace EDILibrary
                 return true;
             }
 
-            return Version == other.Version && Format == other.Format && Equals(Sender, other.Sender) && Equals(Empfänger, other.Empfänger) && ID == other.ID &&
-                   Referenz == other.Referenz && Freigabenummer == other.Freigabenummer && Nachrichtenversion == other.Nachrichtenversion;
+            return Version == other.Version
+                && Format == other.Format
+                && Equals(Sender, other.Sender)
+                && Equals(Empfänger, other.Empfänger)
+                && ID == other.ID
+                && Referenz == other.Referenz
+                && Freigabenummer == other.Freigabenummer
+                && Nachrichtenversion == other.Nachrichtenversion;
         }
 
         public override bool Equals(object obj)
@@ -132,7 +146,16 @@ namespace EDILibrary
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Version, Format, Sender, Empfänger, ID, Referenz, Freigabenummer, Nachrichtenversion);
+            return HashCode.Combine(
+                Version,
+                Format,
+                Sender,
+                Empfänger,
+                ID,
+                Referenz,
+                Freigabenummer,
+                Nachrichtenversion
+            );
         }
     }
 
@@ -157,7 +180,9 @@ namespace EDILibrary
             return edi;
         }
 
-        private static readonly string ByteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
+        private static readonly string ByteOrderMarkUtf8 = Encoding.UTF8.GetString(
+            Encoding.UTF8.GetPreamble()
+        );
 
         /// <summary>
         /// Removes a byte order mark from <paramref name="text"/>
@@ -208,7 +233,10 @@ namespace EDILibrary
                 if (segmentDelimiter == "U" || segmentDelimiter == "\n" || segmentDelimiter == "\r")
                 {
                     // if your edifact starts with `UNA:+.?'` instead of `UNA:+.? '`
-                    throw new ArgumentException($"The edifact is probably missing a space after \"{una.Substring(0, 8)}\"", nameof(edi));
+                    throw new ArgumentException(
+                        $"The edifact is probably missing a space after \"{una.Substring(0, 8)}\"",
+                        nameof(edi)
+                    );
                 }
                 return new EdifactSpecialChars
                 {
@@ -217,7 +245,8 @@ namespace EDILibrary
                     GroupDelimiter = una.Substring(4, 1),
                     DecimalChar = una.Substring(5, 1),
                     EscapeChar = una.Substring(6, 1),
-                    SegmentDelimiter = segmentDelimiter == "\r" ? Environment.NewLine : segmentDelimiter
+                    SegmentDelimiter =
+                        segmentDelimiter == "\r" ? Environment.NewLine : segmentDelimiter,
                 };
             }
 
@@ -228,13 +257,16 @@ namespace EDILibrary
                 GroupDelimiter = DefaultGroupDelimiter,
                 SegmentDelimiter = DefaultSegmentDelimiter,
                 DecimalChar = DefaultDecimalChar,
-                EscapeChar = DefaultEscapeChar
+                EscapeChar = DefaultEscapeChar,
             };
         }
 
         private static string GetActualMessage(string edi, EdifactSpecialChars specialChars)
         {
-            return edi.Substring(specialChars.UnaOffset + specialChars.SegmentDelimiter.Length, edi.Length - (specialChars.UnaOffset + specialChars.SegmentDelimiter.Length));
+            return edi.Substring(
+                specialChars.UnaOffset + specialChars.SegmentDelimiter.Length,
+                edi.Length - (specialChars.UnaOffset + specialChars.SegmentDelimiter.Length)
+            );
         }
 
         /// <summary>
@@ -299,8 +331,10 @@ namespace EDILibrary
                 }
                 catch (IndexOutOfRangeException indexOutOfRangeException)
                 {
-                    throw new InvalidDataException("The EDIFACT seems invalid. Couldn't determine the necessary first two segments (UNB and UNH)",
-                        innerException: indexOutOfRangeException);
+                    throw new InvalidDataException(
+                        "The EDIFACT seems invalid. Couldn't determine the necessary first two segments (UNB and UNH)",
+                        innerException: indexOutOfRangeException
+                    );
                 }
 
                 var unbParts = unb.Split(specialChars.GroupDelimiter.ToCharArray());
@@ -309,17 +343,23 @@ namespace EDILibrary
                 var sender = new EDIPartner
                 {
                     CodeList =
-                        unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray()).Length > 1 ? unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[1] : "500",
-                    ID = unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]
+                        unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray()).Length > 1
+                            ? unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[1]
+                            : "500",
+                    ID = unbParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0],
                 };
                 var receiver = new EDIPartner
                 {
                     CodeList =
-                        unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray()).Length > 1 ? unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray())[1] : "500",
-                    ID = unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray())[0]
+                        unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray()).Length > 1
+                            ? unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray())[1]
+                            : "500",
+                    ID = unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray())[0],
                 };
                 var version = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[4];
-                var format = Enum.Parse<EdifactFormat>(unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]);
+                var format = Enum.Parse<EdifactFormat>(
+                    unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]
+                );
                 if (!maskUTILMDX && format == EdifactFormat.UTILMD)
                 {
                     if (version.StartsWith("G"))
@@ -348,23 +388,24 @@ namespace EDILibrary
                     ID = unbParts[5].Split(specialChars.ElementDelimiter.ToCharArray())[0],
                     Format = format,
                     Version = version,
-                    Freigabenummer = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[2],
-                    Nachrichtenversion = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[1]
+                    Freigabenummer = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[
+                        2
+                    ],
+                    Nachrichtenversion = unhParts[2]
+                        .Split(specialChars.ElementDelimiter.ToCharArray())[1],
                 };
                 if (unbParts.Length >= 7)
                 {
-                    file.Referenz = unbParts[7].Split(specialChars.ElementDelimiter.ToCharArray())[0];
+                    file.Referenz = unbParts[7].Split(specialChars.ElementDelimiter.ToCharArray())[
+                        0
+                    ];
                 }
 
                 return file;
             }
             catch (Exception) // todo: get rid of this pokemon catcher. If this returns format=null any following code will fail anyways.
             {
-                return new EDIFileInfo
-                {
-                    Format = null,
-                    Referenz = Guid.NewGuid().ToString(),
-                };
+                return new EDIFileInfo { Format = null, Referenz = Guid.NewGuid().ToString() };
             }
         }
     }

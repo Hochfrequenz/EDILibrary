@@ -12,16 +12,27 @@ namespace EDILibrary
     {
         public bool useLocalTime = true;
         public TimeZoneInfo LocalTimeZone { get; set; } = TimeZoneInfo.Local;
+
         public static string Escape(string input)
         {
             return input.Replace("+", "?+").Replace(":", "?:").Replace("'", "?'");
         }
+
         public string FormatDate(string dateString, string format)
         {
             DateTime date;
             var deDE = new CultureInfo("de-DE");
-            bool foundDate = DateTime.TryParseExact(dateString, new[] { "yyyyMMdd", "MMdd", "yyyyMMddHHmm", "yyyyMMddHHmmss" }, deDE, DateTimeStyles.AdjustToUniversal, out date);
-            if (!foundDate && !DateTime.TryParse(dateString, deDE, DateTimeStyles.AdjustToUniversal, out date))
+            bool foundDate = DateTime.TryParseExact(
+                dateString,
+                new[] { "yyyyMMdd", "MMdd", "yyyyMMddHHmm", "yyyyMMddHHmmss" },
+                deDE,
+                DateTimeStyles.AdjustToUniversal,
+                out date
+            );
+            if (
+                !foundDate
+                && !DateTime.TryParse(dateString, deDE, DateTimeStyles.AdjustToUniversal, out date)
+            )
             {
                 return dateString.Replace("+0000", "+00");
             }
@@ -29,95 +40,109 @@ namespace EDILibrary
             switch (format)
             {
                 case "102":
-                    {
-                        return TimeZoneInfo.ConvertTimeFromUtc(date, LocalTimeZone).ToString("yyyyMMdd");
-                    }
+                {
+                    return TimeZoneInfo
+                        .ConvertTimeFromUtc(date, LocalTimeZone)
+                        .ToString("yyyyMMdd");
+                }
                 case "106":
+                {
+                    if (useLocalTime)
                     {
-                        if (useLocalTime)
-                        {
-                            return TimeZoneInfo.ConvertTimeFromUtc(date, LocalTimeZone).ToString("MMdd");
-                        }
-
-                        return date.ToString("MMdd");
+                        return TimeZoneInfo
+                            .ConvertTimeFromUtc(date, LocalTimeZone)
+                            .ToString("MMdd");
                     }
+
+                    return date.ToString("MMdd");
+                }
                 case "203":
+                {
+                    if (useLocalTime)
                     {
-                        if (useLocalTime)
-                        {
-                            return TimeZoneInfo.ConvertTimeFromUtc(date, LocalTimeZone).ToString("yyyyMMddHHmm");
-                        }
-
-                        return date.ToString("yyyyMMddHHmm");
+                        return TimeZoneInfo
+                            .ConvertTimeFromUtc(date, LocalTimeZone)
+                            .ToString("yyyyMMddHHmm");
                     }
+
+                    return date.ToString("yyyyMMddHHmm");
+                }
                 case "204":
+                {
+                    if (useLocalTime)
                     {
-                        if (useLocalTime)
-                        {
-                            return TimeZoneInfo.ConvertTimeFromUtc(date, LocalTimeZone).ToString("yyyyMMddHHmmss");
-                        }
-
-                        return date.ToString("yyyyMMddHHmmss");
+                        return TimeZoneInfo
+                            .ConvertTimeFromUtc(date, LocalTimeZone)
+                            .ToString("yyyyMMddHHmmss");
                     }
+
+                    return date.ToString("yyyyMMddHHmmss");
+                }
                 case "303":
+                {
+                    if (useLocalTime)
                     {
-                        if (useLocalTime)
-                        {
-                            var dateMidnightInUtc = new DateTimeOffset(date, TimeSpan.Zero);
-                            var offsetHours = dateMidnightInUtc.ToOffset(LocalTimeZone.GetUtcOffset(dateMidnightInUtc)).Offset.Hours;
-                            return date.ToLocalTime().ToString("yyyyMMddHHmm") + "+0" + offsetHours; // assuming 0<=offsetHours<10 which is true for germany
-                        }
-                        // Zeitzone ist stets UTC
-                        return date.ToString("yyyyMMddHHmm") + "+00";
+                        var dateMidnightInUtc = new DateTimeOffset(date, TimeSpan.Zero);
+                        var offsetHours = dateMidnightInUtc
+                            .ToOffset(LocalTimeZone.GetUtcOffset(dateMidnightInUtc))
+                            .Offset.Hours;
+                        return date.ToLocalTime().ToString("yyyyMMddHHmm") + "+0" + offsetHours; // assuming 0<=offsetHours<10 which is true for germany
                     }
+                    // Zeitzone ist stets UTC
+                    return date.ToString("yyyyMMddHHmm") + "+00";
+                }
                 case "304":
+                {
+                    if (useLocalTime)
                     {
-                        if (useLocalTime)
-                        {
-                            var dateMidnightInUtc = new DateTimeOffset(date, TimeSpan.Zero);
-                            var offsetHours = dateMidnightInUtc.ToOffset(LocalTimeZone.GetUtcOffset(dateMidnightInUtc)).Offset.Hours;
-                            return date.ToLocalTime().ToString("yyyyMMddHHmmss") + "+0" + offsetHours; // assuming 0<=offsetHours<10 which is true for germany
-                        }
-                        // Zeitzone ist stets UTC
-                        return date.ToString("yyyyMMddHHmmss") + "+00";
+                        var dateMidnightInUtc = new DateTimeOffset(date, TimeSpan.Zero);
+                        var offsetHours = dateMidnightInUtc
+                            .ToOffset(LocalTimeZone.GetUtcOffset(dateMidnightInUtc))
+                            .Offset.Hours;
+                        return date.ToLocalTime().ToString("yyyyMMddHHmmss") + "+0" + offsetHours; // assuming 0<=offsetHours<10 which is true for germany
                     }
+                    // Zeitzone ist stets UTC
+                    return date.ToString("yyyyMMddHHmmss") + "+00";
+                }
                 case "406":
+                {
+                    if (useLocalTime)
                     {
-                        if (useLocalTime)
-                        {
-                            var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
-                            var offset = utcOffset.ToOffset(LocalTimeZone.GetUtcOffset(utcOffset)).Offset.Hours;
-                            return "+0" + offset + "00";
-                        }
-
-                        // wir speichern immer UTC, daher die Zeitzone auf 0 setzen
-                        return "+0000";
+                        var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
+                        var offset = utcOffset
+                            .ToOffset(LocalTimeZone.GetUtcOffset(utcOffset))
+                            .Offset.Hours;
+                        return "+0" + offset + "00";
                     }
+
+                    // wir speichern immer UTC, daher die Zeitzone auf 0 setzen
+                    return "+0000";
+                }
                 case "Z01":
-                    {
-                        return dateString;
-                    }
+                {
+                    return dateString;
+                }
                 case "602":
-                    {
-                        return date.ToString("yyyy");
-                    }
+                {
+                    return date.ToString("yyyy");
+                }
                 case "610":
-                    {
-                        return date.ToString("yyyyMM");
-                    }
+                {
+                    return date.ToString("yyyyMM");
+                }
                 default:
-                    {
-                        return dateString.Replace("+0000", "+00");
-                    }
-
-
+                {
+                    return dateString.Replace("+0000", "+00");
+                }
             }
         }
     }
+
     public class GenericEDIWriter
     {
         public ScriptHelper helper = new ScriptHelper();
         static readonly Regex numericRegex = new Regex("^[0-9]+$", RegexOptions.Compiled);
+
         public GenericEDIWriter()
         {
             escapeMap.Add(":", "?:");
@@ -127,13 +152,18 @@ namespace EDILibrary
             escapeMap.Add("‘", "?'");
             escapeMap.Add("‛", "?'");
             escapeMap.Add("′", "?'");
-
         }
+
         protected Dictionary<string, string> escapeMap = new Dictionary<string, string>();
+
         protected string EscapeValue(string value)
         {
-            return escapeMap.Aggregate(value, (current, pair) => current.Replace(pair.Key, pair.Value));
+            return escapeMap.Aggregate(
+                value,
+                (current, pair) => current.Replace(pair.Key, pair.Value)
+            );
         }
+
         static readonly Regex questionMarkRegex = new Regex("\\?'", RegexOptions.Compiled);
 
         string RecurseTemplate(string template, EdiObject parent)
@@ -144,7 +174,7 @@ namespace EDILibrary
             var resultBuilder = new StringBuilder();
             do
             {
-                beginIndex = template.IndexOf("<", currentIndex);// :warn: is culture specific
+                beginIndex = template.IndexOf("<", currentIndex); // :warn: is culture specific
                 if (beginIndex == -1)
                 {
                     continue;
@@ -158,16 +188,15 @@ namespace EDILibrary
                 {
                     var nodeparts = code.Split(new[] { ' ' });
                     var node = string.Join(" ", nodeparts.Skip(1));
-                    beginIndex = template.IndexOf("</foreach " + node + ">", endIndex);// :warn: is culture specific
+                    beginIndex = template.IndexOf("</foreach " + node + ">", endIndex); // :warn: is culture specific
                     var innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
-                    var nodes = from ele in parent.SelfOrChildren
-                                where ele.Name == node
-                                select ele;
+                    var nodes = from ele in parent.SelfOrChildren where ele.Name == node select ele;
                     if (!nodes.Any()) // wenn keine Treffer könnte es sich noch um eine field-Liste handeln
                     {
-                        var stringNodes = from ele in parent.Fields
-                                          where ele.Key == node
-                                          select ele.Value;
+                        var stringNodes =
+                            from ele in parent.Fields
+                            where ele.Key == node
+                            select ele.Value;
                         foreach (var valueNode in stringNodes)
                         {
                             foreach (var val in valueNode)
@@ -182,13 +211,24 @@ namespace EDILibrary
                     var max = nodes.Count();
                     foreach (var subnode in nodes)
                     {
-                        resultBuilder.Append(RecurseTemplate(innercode, subnode) + (i != max ? Environment.NewLine : ""));
+                        resultBuilder.Append(
+                            RecurseTemplate(innercode, subnode)
+                                + (i != max ? Environment.NewLine : "")
+                        );
                     }
                     beginIndex = template.IndexOf("<foreach", 0);
                     var end = "</foreach " + node + ">";
                     endIndex = template.IndexOf(end, beginIndex);
 
-                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + end.Length).Replace(template.Substring(beginIndex, endIndex - beginIndex + end.Length), resultBuilder.ToString()) + template.Substring(endIndex + end.Length);
+                    template =
+                        template.Substring(0, beginIndex)
+                        + template
+                            .Substring(beginIndex, endIndex - beginIndex + end.Length)
+                            .Replace(
+                                template.Substring(beginIndex, endIndex - beginIndex + end.Length),
+                                resultBuilder.ToString()
+                            )
+                        + template.Substring(endIndex + end.Length);
                     template = template.TrimEnd('\r', '\n', '\t');
                     beginIndex = 0;
                 }
@@ -201,9 +241,10 @@ namespace EDILibrary
 
                     string value = null;
 
-                    var selection = from ele in parent.Fields
-                                    where ele.Key == node
-                                    select ele.Value[0];
+                    var selection =
+                        from ele in parent.Fields
+                        where ele.Key == node
+                        select ele.Value[0];
                     if (selection.Any())
                     {
                         value = selection.Single();
@@ -224,7 +265,15 @@ namespace EDILibrary
                     }
                     beginIndex = template.IndexOf("<if", 0);
                     endIndex = template.IndexOf("</if>", beginIndex);
-                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 5).Replace(template.Substring(beginIndex, endIndex - beginIndex + 5), resultBuilder.ToString()) + template.Substring(endIndex + 5);
+                    template =
+                        template.Substring(0, beginIndex)
+                        + template
+                            .Substring(beginIndex, endIndex - beginIndex + 5)
+                            .Replace(
+                                template.Substring(beginIndex, endIndex - beginIndex + 5),
+                                resultBuilder.ToString()
+                            )
+                        + template.Substring(endIndex + 5);
                     beginIndex = 0;
                 }
                 else if (codeTemplate.StartsWith("<dateformat"))
@@ -234,9 +283,10 @@ namespace EDILibrary
                     var innerNodeParts = node.Split(new[] { ';' });
                     string value = null;
 
-                    var selection = from ele in parent.Fields
-                                    where ele.Key == innerNodeParts[0]
-                                    select ele.Value[0];
+                    var selection =
+                        from ele in parent.Fields
+                        where ele.Key == innerNodeParts[0]
+                        select ele.Value[0];
                     var enumerable = selection as string[] ?? selection.ToArray();
                     if (enumerable.Any())
                     {
@@ -248,7 +298,6 @@ namespace EDILibrary
                     }
 
                     value = value?.Trim();
-
 
                     if (!string.IsNullOrEmpty(value))
                     {
@@ -264,7 +313,15 @@ namespace EDILibrary
                     }
                     beginIndex = template.IndexOf("<dateformat", 0);
                     endIndex = template.IndexOf(">", beginIndex);
-                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, endIndex - beginIndex + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
+                    template =
+                        template.Substring(0, beginIndex)
+                        + template
+                            .Substring(beginIndex, endIndex - beginIndex + 1)
+                            .Replace(
+                                template.Substring(beginIndex, endIndex - beginIndex + 1),
+                                resultBuilder.ToString()
+                            )
+                        + template.Substring(endIndex + 1);
                     beginIndex = 0;
                 }
                 else if (codeTemplate.StartsWith("<date"))
@@ -274,9 +331,10 @@ namespace EDILibrary
                     var innerNodeParts = node.Split(new[] { ';' });
                     string value = null;
 
-                    var selection = from ele in parent.Fields
-                                    where ele.Key == innerNodeParts[0]
-                                    select ele.Value[0];
+                    var selection =
+                        from ele in parent.Fields
+                        where ele.Key == innerNodeParts[0]
+                        select ele.Value[0];
                     var enumerable = selection as string[] ?? selection.ToArray();
                     if (enumerable.Any())
                     {
@@ -293,9 +351,10 @@ namespace EDILibrary
 
                     if (!numericRegex.IsMatch(innerNodeParts[1]))
                     {
-                        selection = from ele in parent.Fields
-                                    where ele.Key == innerNodeParts[1]
-                                    select ele.Value[0];
+                        selection =
+                            from ele in parent.Fields
+                            where ele.Key == innerNodeParts[1]
+                            select ele.Value[0];
 
                         if (selection.Any())
                         {
@@ -317,26 +376,44 @@ namespace EDILibrary
                     }
                     beginIndex = template.IndexOf("<date", 0);
                     endIndex = template.IndexOf(">", beginIndex);
-                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, endIndex - beginIndex + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
+                    template =
+                        template.Substring(0, beginIndex)
+                        + template
+                            .Substring(beginIndex, endIndex - beginIndex + 1)
+                            .Replace(
+                                template.Substring(beginIndex, endIndex - beginIndex + 1),
+                                resultBuilder.ToString()
+                            )
+                        + template.Substring(endIndex + 1);
                     beginIndex = 0;
                 }
-
                 else if (codeTemplate.StartsWith("<!") || codeTemplate.StartsWith("<$"))
                 {
                     //determine segment counter
                     // do it the "dirty" way, count the segment ends from last unh
                     if (codeTemplate.Contains("SegmentCounter"))
                     {
-                        var segCount = template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+")).Count(c => c == "'".ToCharArray()[0]); // warn: culture specific
-                                                                                                                                                        //escapte ' muss ich abziehen
+                        var segCount = template
+                            .Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+"))
+                            .Count(c => c == "'".ToCharArray()[0]); // warn: culture specific
+                        //escapte ' muss ich abziehen
 
-                        var deduct = questionMarkRegex.Matches(template.Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+"))).Count;
+                        var deduct = questionMarkRegex
+                            .Matches(
+                                template.Substring(
+                                    template.Substring(0, beginIndex).LastIndexOf("UNH+")
+                                )
+                            )
+                            .Count;
                         segCount -= deduct;
                         resultBuilder.Append(segCount);
                     }
                     else if (codeTemplate.Contains("MessageNumber"))
                     {
-                        var messageCount = template.Split(new[] { "UNH+" }, StringSplitOptions.RemoveEmptyEntries).Length - 1;
+                        var messageCount =
+                            template
+                                .Split(new[] { "UNH+" }, StringSplitOptions.RemoveEmptyEntries)
+                                .Length - 1;
                         resultBuilder.Append(messageCount);
                     }
                     code = code.TrimStart('!', '$');
@@ -400,7 +477,7 @@ namespace EDILibrary
                 }
                 else
                 {
-                    string value;// = null;
+                    string value; // = null;
                     string length = null;
                     string maxCount = null;
                     string[] fieldLengths = null;
@@ -434,9 +511,10 @@ namespace EDILibrary
                     }
                     else
                     {
-                        var selection = from ele in parent.Fields
-                                        where ele.Key == code
-                                        select ele.Value[0];
+                        var selection =
+                            from ele in parent.Fields
+                            where ele.Key == code
+                            select ele.Value[0];
                         var enumerable = selection as string[] ?? selection.ToArray();
                         if (enumerable.Any())
                         {
@@ -466,7 +544,6 @@ namespace EDILibrary
                         {
                             while (temp_value.Length > laenge)
                             {
-
                                 var temp = temp_value.Substring(0, laenge);
                                 parts.Add(temp);
                                 temp_value = temp_value.Substring(laenge);
@@ -495,7 +572,6 @@ namespace EDILibrary
                                 {
                                     parts.Add(temp_value);
                                 }
-
                             }
                             while (parts.Count < count)
                             {
@@ -505,29 +581,35 @@ namespace EDILibrary
                         // Bei leerem Vornamen muss trotzdem ein Doppelpunkt drin sein.
                         //if((from string s in parts where s!="" select s).Count()>0)
                         value = string.Join(":", parts.Take(int.Parse(maxCount)));
-
                     }
 
                     resultBuilder.Append(value);
                     //template = template.Replace(codeTemplate, evalResult);
-                    template = template.Substring(0, beginIndex) + template.Substring(beginIndex, endIndex - beginIndex + 1).Replace(template.Substring(beginIndex, endIndex - beginIndex + 1), resultBuilder.ToString()) + template.Substring(endIndex + 1);
+                    template =
+                        template.Substring(0, beginIndex)
+                        + template
+                            .Substring(beginIndex, endIndex - beginIndex + 1)
+                            .Replace(
+                                template.Substring(beginIndex, endIndex - beginIndex + 1),
+                                resultBuilder.ToString()
+                            )
+                        + template.Substring(endIndex + 1);
                 }
 
                 currentIndex = 0;
             } while (beginIndex != -1);
 
             return template.Trim();
-
-        }
-        public static void Preinitialize()
-        {
-
         }
 
-        private static readonly List<Tuple<string, string>> CompileReplacements = new List<Tuple<string, string>>
+        public static void Preinitialize() { }
+
+        private static readonly List<Tuple<string, string>> CompileReplacements = new List<
+            Tuple<string, string>
+        >
         {
             new Tuple<string, string>(":+", "+"),
-            new Tuple<string, string>(":'","'"),
+            new Tuple<string, string>(":'", "'"),
             new Tuple<string, string>("+'", "'"),
             new Tuple<string, string>(":'", "'"), // why are there duplicates? and why is the order important?
             new Tuple<string, string>("+'", "'"),
@@ -551,7 +633,15 @@ namespace EDILibrary
                 }
             }
             // todo: write a unittest for the edge cases this code is supposed to solve and then find a better way
-            while (content.Contains("\n\n") || content.Contains("\r\r") || content.Contains("\n\r") || content.Contains("\r\n\r\n") || content.Contains(Environment.NewLine) || content.Contains("\r\n\r\n") || content.Contains(Environment.NewLine))
+            while (
+                content.Contains("\n\n")
+                || content.Contains("\r\r")
+                || content.Contains("\n\r")
+                || content.Contains("\r\n\r\n")
+                || content.Contains(Environment.NewLine)
+                || content.Contains("\r\n\r\n")
+                || content.Contains(Environment.NewLine)
+            )
             {
                 while (content.Contains("\r\n\r\n"))
                 {

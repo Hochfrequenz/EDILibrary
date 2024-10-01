@@ -7,7 +7,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 
-
 namespace EDILibraryTests
 {
     [TestClass]
@@ -20,9 +19,15 @@ namespace EDILibraryTests
         public async Task TestLoadingRegularTemplateIfExists()
         {
             var loaderMock = Substitute.For<ITemplateLoader>();
-            loaderMock.LoadMausTemplate(EdifactFormat.MSCONS, EdifactFormatVersion.FV2304, "13002").Returns(Task.FromResult(new Anwendungshandbuch()));
+            loaderMock
+                .LoadMausTemplate(EdifactFormat.MSCONS, EdifactFormatVersion.FV2304, "13002")
+                .Returns(Task.FromResult(new Anwendungshandbuch()));
 
-            var (actualMaus, actualFormatVersion) = await loaderMock.LoadMausTemplateOrFallback(EdifactFormat.MSCONS, EdifactFormatVersion.FV2304, "13002");
+            var (actualMaus, actualFormatVersion) = await loaderMock.LoadMausTemplateOrFallback(
+                EdifactFormat.MSCONS,
+                EdifactFormatVersion.FV2304,
+                "13002"
+            );
             actualMaus.Should().NotBeNull();
             actualFormatVersion.Should().Be(EdifactFormatVersion.FV2304);
 
@@ -36,12 +41,23 @@ namespace EDILibraryTests
         public async Task TestLoadingFallbackTemplateIfExists()
         {
             var loaderMock = Substitute.For<ITemplateLoader>();
-            loaderMock.LoadMausTemplate(EdifactFormat.MSCONS, EdifactFormatVersion.FV2304, "13002").Returns(Task.FromResult((Anwendungshandbuch)null));
-            loaderMock.LoadMausTemplate(EdifactFormat.MSCONS, EdifactFormatVersion.FV2210, "13002").Returns(Task.FromResult((Anwendungshandbuch)null));
-            loaderMock.LoadMausTemplate(EdifactFormat.MSCONS, EdifactFormatVersion.FV2110, "13002").Returns(Task.FromResult(new Anwendungshandbuch()));
+            loaderMock
+                .LoadMausTemplate(EdifactFormat.MSCONS, EdifactFormatVersion.FV2304, "13002")
+                .Returns(Task.FromResult((Anwendungshandbuch)null));
+            loaderMock
+                .LoadMausTemplate(EdifactFormat.MSCONS, EdifactFormatVersion.FV2210, "13002")
+                .Returns(Task.FromResult((Anwendungshandbuch)null));
+            loaderMock
+                .LoadMausTemplate(EdifactFormat.MSCONS, EdifactFormatVersion.FV2110, "13002")
+                .Returns(Task.FromResult(new Anwendungshandbuch()));
 
             var loaderUnderTest = loaderMock;
-            var (actualMaus, actualFormatVersion) = await loaderUnderTest.LoadMausTemplateOrFallback(EdifactFormat.MSCONS, EdifactFormatVersion.FV2304, "13002");
+            var (actualMaus, actualFormatVersion) =
+                await loaderUnderTest.LoadMausTemplateOrFallback(
+                    EdifactFormat.MSCONS,
+                    EdifactFormatVersion.FV2304,
+                    "13002"
+                );
             actualMaus.Should().NotBeNull();
             actualFormatVersion.Should().Be(EdifactFormatVersion.FV2110);
 
@@ -55,10 +71,15 @@ namespace EDILibraryTests
         public async Task TestLoadingNothingIfNotEvenAFallbackExists()
         {
             var loaderMock = Substitute.For<ITemplateLoader>();
-            loaderMock.LoadMausTemplate(EdifactFormat.MSCONS, Arg.Any<EdifactFormatVersion>(), "13002").Returns(Task.FromResult((Anwendungshandbuch)null));
+            loaderMock
+                .LoadMausTemplate(EdifactFormat.MSCONS, Arg.Any<EdifactFormatVersion>(), "13002")
+                .Returns(Task.FromResult((Anwendungshandbuch)null));
 
-
-            var (actualMaus, actualFormatVersion) = await loaderMock.LoadMausTemplateOrFallback(EdifactFormat.MSCONS, EdifactFormatVersion.FV2304, "13002");
+            var (actualMaus, actualFormatVersion) = await loaderMock.LoadMausTemplateOrFallback(
+                EdifactFormat.MSCONS,
+                EdifactFormatVersion.FV2304,
+                "13002"
+            );
             actualMaus.Should().BeNull();
             actualFormatVersion.Should().BeNull();
 

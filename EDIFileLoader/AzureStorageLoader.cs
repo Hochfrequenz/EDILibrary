@@ -9,9 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-
 using Azure.Storage.Blobs;
-
 using EDILibrary;
 
 namespace EDIFileLoader
@@ -23,16 +21,23 @@ namespace EDIFileLoader
         protected string _containerName;
         protected string _connectionString;
 
-
         protected BlobServiceClient _blobClient;
         protected BlobContainerClient _container;
 
-        protected ConcurrentDictionary<string, Dictionary<string, string>> Cache { get; set; } = new ConcurrentDictionary<string, Dictionary<string, string>>();
+        protected ConcurrentDictionary<string, Dictionary<string, string>> Cache { get; set; } =
+            new ConcurrentDictionary<string, Dictionary<string, string>>();
+
         /// <summary>
         /// JsonSerializer options
         /// </summary>
         protected JsonSerializerOptions JsonOptions { get; set; }
-        public AzureStorageLoader(string accountName, string accountKey, string containerName, string connectionString)
+
+        public AzureStorageLoader(
+            string accountName,
+            string accountKey,
+            string containerName,
+            string connectionString
+        )
         {
             _accountKey = accountKey;
             _accountName = accountName;
@@ -50,55 +55,100 @@ namespace EDIFileLoader
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             };
         }
+
         public async Task PreloadCache()
         {
             var tasks = new ConcurrentBag<Task>();
-            await foreach (var prefixPage in _container.GetBlobsByHierarchyAsync(Azure.Storage.Blobs.Models.BlobTraits.Metadata, Azure.Storage.Blobs.Models.BlobStates.None, "/").AsPages())
+            await foreach (
+                var prefixPage in _container
+                    .GetBlobsByHierarchyAsync(
+                        Azure.Storage.Blobs.Models.BlobTraits.Metadata,
+                        Azure.Storage.Blobs.Models.BlobStates.None,
+                        "/"
+                    )
+                    .AsPages()
+            )
             {
                 foreach (var prefix in prefixPage.Values)
                 {
-                    tasks.Add(Task.Run(async () =>
-                    {
-                        if (prefix.IsPrefix)
+                    tasks.Add(
+                        Task.Run(async () =>
                         {
-                            Cache.TryAdd(prefix.Prefix.TrimEnd('/'), new Dictionary<string, string>());
-                            await foreach (var blobPage in _container.GetBlobsByHierarchyAsync(Azure.Storage.Blobs.Models.BlobTraits.Metadata, Azure.Storage.Blobs.Models.BlobStates.None, null, prefix.Prefix).AsPages())
+                            if (prefix.IsPrefix)
                             {
-                                foreach (var blob in blobPage.Values)
+                                Cache.TryAdd(
+                                    prefix.Prefix.TrimEnd('/'),
+                                    new Dictionary<string, string>()
+                                );
+                                await foreach (
+                                    var blobPage in _container
+                                        .GetBlobsByHierarchyAsync(
+                                            Azure.Storage.Blobs.Models.BlobTraits.Metadata,
+                                            Azure.Storage.Blobs.Models.BlobStates.None,
+                                            null,
+                                            prefix.Prefix
+                                        )
+                                        .AsPages()
+                                )
                                 {
-                                    if (blob.IsBlob)
+                                    foreach (var blob in blobPage.Values)
                                     {
-                                        var blockBlob = _container.GetBlobClient(blob.Blob.Name);
-                                        // if this stream reader failes, because the blockBlob comes without a ByteOrderMark, then use new UTF8Encoding(false) as encoding
-                                        var text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
-                                        text = EDIHelper.RemoveByteOrderMark(text);
-                                        Cache[prefix.Prefix.TrimEnd('/')].TryAdd(blob.Blob.Name, text);
+                                        if (blob.IsBlob)
+                                        {
+                                            var blockBlob = _container.GetBlobClient(
+                                                blob.Blob.Name
+                                            );
+                                            // if this stream reader failes, because the blockBlob comes without a ByteOrderMark, then use new UTF8Encoding(false) as encoding
+                                            var text = await new StreamReader(
+                                                (await blockBlob.DownloadAsync()).Value.Content,
+                                                Encoding.UTF8
+                                            ).ReadToEndAsync();
+                                            text = EDIHelper.RemoveByteOrderMark(text);
+                                            Cache[prefix.Prefix.TrimEnd('/')]
+                                                .TryAdd(blob.Blob.Name, text);
+                                        }
                                     }
                                 }
                             }
-                        }
-                    }));
+                        })
+                    );
                 }
             }
             await Task.WhenAll(tasks);
         }
+
         public async Task<string> LoadEDITemplate(EDIFileInfo info, string type)
         {
             if (Cache != null)
             {
                 try
                 {
-                    return Cache["edi"][Path.Combine("edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type).Replace("\\", "/")];
+                    return Cache["edi"][
+                        Path.Combine(
+                                "edi",
+                                info.Format.ToString(),
+                                info.Format.ToString() + info.Version + "." + type
+                            )
+                            .Replace("\\", "/")
+                    ];
                 }
-                catch (KeyNotFoundException)
-                {
-                }
+                catch (KeyNotFoundException) { }
             }
-            var blockBlob = _container.GetBlobClient(Path.Combine("edi", info.Format.ToString(), info.Format.ToString() + info.Version + "." + type));
-            var text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
+            var blockBlob = _container.GetBlobClient(
+                Path.Combine(
+                    "edi",
+                    info.Format.ToString(),
+                    info.Format.ToString() + info.Version + "." + type
+                )
+            );
+            var text = await new StreamReader(
+                (await blockBlob.DownloadAsync()).Value.Content,
+                Encoding.UTF8
+            ).ReadToEndAsync();
             text = EDIHelper.RemoveByteOrderMark(text);
             return text;
         }
+
         public Task<string> LoadJSONTemplate(string fileName)
         {
             throw new NotSupportedException();
@@ -112,44 +162,69 @@ namespace EDIFileLoader
             return await LoadJSONTemplate(format, version, fileName);
         }
 
-        public async Task<string> LoadJSONTemplate(EdifactFormat? format, string version, string fileName)
+        public async Task<string> LoadJSONTemplate(
+            EdifactFormat? format,
+            string version,
+            string fileName
+        )
         {
             if (Cache != null)
             {
                 try
                 {
-                    return Cache["edi"][Path.Combine(version.Replace("/", ""), fileName.Replace("\\", "/"))];
+                    return Cache["edi"][
+                        Path.Combine(version.Replace("/", ""), fileName.Replace("\\", "/"))
+                    ];
                 }
-                catch (KeyNotFoundException)
-                {
-                }
+                catch (KeyNotFoundException) { }
             }
-            var blockBlob = _container.GetBlobClient(Path.Combine(version.Replace("/", ""), fileName).Replace("\\", "/"));
+            var blockBlob = _container.GetBlobClient(
+                Path.Combine(version.Replace("/", ""), fileName).Replace("\\", "/")
+            );
 
-            var text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
+            var text = await new StreamReader(
+                (await blockBlob.DownloadAsync()).Value.Content,
+                Encoding.UTF8
+            ).ReadToEndAsync();
             text = EDIHelper.RemoveByteOrderMark(text);
             return text;
         }
+
         /// <summary>
         /// <see cref="EDILibrary.Interfaces.TemplateLoader.LoadMausTemplate"/>
         /// </summary>
-        public async Task<EDILibrary.MAUS.Anwendungshandbuch> LoadMausTemplate(EdifactFormat? format, EdifactFormatVersion version, string pid)
+        public async Task<EDILibrary.MAUS.Anwendungshandbuch> LoadMausTemplate(
+            EdifactFormat? format,
+            EdifactFormatVersion version,
+            string pid
+        )
         {
             if (Cache != null)
             {
                 try
                 {
-                    return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(Cache["maus"][Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")], JsonOptions);
+                    return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(
+                        Cache["maus"][
+                            Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")
+                        ],
+                        JsonOptions
+                    );
                 }
-                catch (KeyNotFoundException)
-                {
-                }
+                catch (KeyNotFoundException) { }
             }
-            var blockBlob = _container.GetBlobClient(Path.Combine("maus", version.ToString(), format.ToString(), pid + "_maus.json"));
+            var blockBlob = _container.GetBlobClient(
+                Path.Combine("maus", version.ToString(), format.ToString(), pid + "_maus.json")
+            );
 
-            var text = await new StreamReader((await blockBlob.DownloadAsync()).Value.Content, Encoding.UTF8).ReadToEndAsync();
+            var text = await new StreamReader(
+                (await blockBlob.DownloadAsync()).Value.Content,
+                Encoding.UTF8
+            ).ReadToEndAsync();
             text = EDIHelper.RemoveByteOrderMark(text);
-            return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(text, JsonOptions);
+            return JsonSerializer.Deserialize<EDILibrary.MAUS.Anwendungshandbuch>(
+                text,
+                JsonOptions
+            );
         }
     }
 }
