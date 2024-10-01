@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using EDILibrary;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 
@@ -39,9 +38,17 @@ namespace EDILibraryTests
         [DataRow("55001", EdifactFormat.UTILMDS)]
         [DataRow("11001", EdifactFormat.UTILMDW, EdifactFormatVersion.FV2310)]
         [DataRow("11001", EdifactFormat.UTILMD)]
-        public void TestPruefiToFormatUnMaskUTILMDX(string pruefi, EdifactFormat expectedFormat, EdifactFormatVersion? formatPackage = null)
+        public void TestPruefiToFormatUnMaskUTILMDX(
+            string pruefi,
+            EdifactFormat expectedFormat,
+            EdifactFormatVersion? formatPackage = null
+        )
         {
-            var actualFormat = EdifactFormatHelper.FromPruefidentifikator(pruefi, false, formatPackage);
+            var actualFormat = EdifactFormatHelper.FromPruefidentifikator(
+                pruefi,
+                false,
+                formatPackage
+            );
             Assert.AreEqual(expectedFormat, actualFormat);
         }
 
@@ -81,7 +88,9 @@ namespace EDILibraryTests
                 for (int j = i + 1; j < expectedNaturalOrder.Count; j++)
                 {
                     Assert.IsTrue(expectedNaturalOrder[i] < expectedNaturalOrder[j]);
-                    Assert.IsTrue(comparer.Compare(expectedNaturalOrder[i], expectedNaturalOrder[j]) < 0);
+                    Assert.IsTrue(
+                        comparer.Compare(expectedNaturalOrder[i], expectedNaturalOrder[j]) < 0
+                    );
                 }
             }
         }
@@ -89,14 +98,20 @@ namespace EDILibraryTests
         [TestMethod]
         public void NoPruefiNoFormat()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => EdifactFormatHelper.FromPruefidentifikator(null));
-            Assert.ThrowsException<ArgumentNullException>(() => EdifactFormatHelper.FromPruefidentifikator("   "));
+            Assert.ThrowsException<ArgumentNullException>(
+                () => EdifactFormatHelper.FromPruefidentifikator(null)
+            );
+            Assert.ThrowsException<ArgumentNullException>(
+                () => EdifactFormatHelper.FromPruefidentifikator("   ")
+            );
         }
 
         [TestMethod]
         public void UnmappedThrowsNotImplemented()
         {
-            Assert.ThrowsException<NotImplementedException>(() => EdifactFormatHelper.FromPruefidentifikator("88888"));
+            Assert.ThrowsException<NotImplementedException>(
+                () => EdifactFormatHelper.FromPruefidentifikator("88888")
+            );
         }
 
         [TestMethod]
@@ -115,7 +130,10 @@ namespace EDILibraryTests
         [DataRow("04/24", EdifactFormatVersion.FV2404)]
         [DataRow("10/24", EdifactFormatVersion.FV2410)]
         [DataRow("04/25", EdifactFormatVersion.FV2504)]
-        public void TestLegacyStrings(string legacyString, EdifactFormatVersion expectedFormatVersion)
+        public void TestLegacyStrings(
+            string legacyString,
+            EdifactFormatVersion expectedFormatVersion
+        )
         {
             var actualFormatVersion = legacyString.ToEdifactFormatVersion();
             Assert.AreEqual(expectedFormatVersion, actualFormatVersion);
@@ -165,7 +183,10 @@ namespace EDILibraryTests
         [DataRow("2024-09-30T22:00:00+00:00", EdifactFormatVersion.FV2410)]
         [DataRow("2025-03-31T22:00:00+00:00", EdifactFormatVersion.FV2410)]
         [DataRow("2025-04-03T22:00:00+00:00", EdifactFormatVersion.FV2504)]
-        public void TestFormatVersionProvider(string dateTimeOffset, EdifactFormatVersion expectedVersion)
+        public void TestFormatVersionProvider(
+            string dateTimeOffset,
+            EdifactFormatVersion expectedVersion
+        )
         {
             IEdifactFormatVersionProvider versionProvider = new EdifactFormatVersionHelper();
             DateTimeOffset date = DateTimeOffset.Parse(dateTimeOffset);

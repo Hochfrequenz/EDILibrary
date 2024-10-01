@@ -2,7 +2,6 @@ using System.Collections.Generic;
 
 namespace EDILibrary.MAUS
 {
-
     public class Anwendungshandbuch
     {
         public List<SegmentGroup> Lines { get; set; }
@@ -11,7 +10,7 @@ namespace EDILibrary.MAUS
 
     //public class Line
     //{
-    //    [System.Text.Json.Serialization.JsonPropertyName("ahb_expression")]	
+    //    [System.Text.Json.Serialization.JsonPropertyName("ahb_expression")]
     //    public string AhbExpression { get; set; }
     //    public string Discriminator { get; set; }
     //    [System.Text.Json.Serialization.JsonPropertyName("segment_groups")]
@@ -24,6 +23,7 @@ namespace EDILibrary.MAUS
         [System.Text.Json.Serialization.JsonPropertyName("ahb_expression")]
         public string AhbExpression { get; set; }
         public string Discriminator { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("segment_groups")]
         public List<SegmentGroup> SegmentGroups { get; set; }
         public List<Segment> Segments { get; set; }
@@ -32,9 +32,11 @@ namespace EDILibrary.MAUS
     public class Segment
     {
         public string AhbExpression { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("data_elements")]
         public List<DataElement> DataElements { get; set; }
         public string Discriminator { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("section_name")]
         public string SectionName { get; set; }
     }
@@ -44,15 +46,16 @@ namespace EDILibrary.MAUS
         [System.Text.Json.Serialization.JsonPropertyName("data_element_id")]
         public string DataElementId { get; set; }
         public string Discriminator { get; set; }
-
     }
 
     public class FreeText : DataElement
     {
         [System.Text.Json.Serialization.JsonPropertyName("ahb_expression")]
         public string AhbExpression { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("entered_input")]
         public string EnteredInput { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("value_type")]
         public ValueType? ValueType { get; set; }
     }
@@ -61,6 +64,7 @@ namespace EDILibrary.MAUS
     {
         [System.Text.Json.Serialization.JsonPropertyName("value_pool")]
         public List<ValuePoolElement> ValuePool { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("value_type")]
         public ValueType? ValueType { get; set; }
     }
@@ -69,6 +73,7 @@ namespace EDILibrary.MAUS
     {
         [System.Text.Json.Serialization.JsonPropertyName("ahb_expression")]
         public string AhbExpression { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("edifact_key")]
         public string EdifactKey { get; set; }
         public string Meaning { get; set; }
@@ -79,5 +84,10 @@ namespace EDILibrary.MAUS
         public string Pruefidentifikator { get; set; }
     }
 
-    public enum ValueType { Datetime, Text, ValuePool };
+    public enum ValueType
+    {
+        Datetime,
+        Text,
+        ValuePool,
+    };
 }

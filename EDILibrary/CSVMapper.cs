@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
 namespace EDILibrary
 {
     public class CSVMapper
@@ -20,7 +21,11 @@ namespace EDILibrary
                     {
                         if (field.Property("steps") != null)
                         {
-                            foreach (var subStep in (field.Property("steps").Value as JObject).Properties())
+                            foreach (
+                                var subStep in (
+                                    field.Property("steps").Value as JObject
+                                ).Properties()
+                            )
                             {
                                 ParseStep(subStep.Value.Value<JObject>(), builder);
                             }
@@ -39,7 +44,9 @@ namespace EDILibrary
                 {
                     if (field.Property("steps") != null)
                     {
-                        foreach (var subStep in (field.Property("steps").Value as JObject).Properties())
+                        foreach (
+                            var subStep in (field.Property("steps").Value as JObject).Properties()
+                        )
                         {
                             ParseStep(subStep.Value.Value<JObject>(), builder);
                         }
@@ -52,7 +59,13 @@ namespace EDILibrary
                 }
             }
         }
-        protected static void ParseProperty(JProperty prop, string prefix, StringBuilder builder, StringBuilder valueBuilder)
+
+        protected static void ParseProperty(
+            JProperty prop,
+            string prefix,
+            StringBuilder builder,
+            StringBuilder valueBuilder
+        )
         {
             if (prop.Value.GetType() == typeof(JArray))
             {
@@ -83,6 +96,7 @@ namespace EDILibrary
                 }
             }
         }
+
         public static string CreateCSVTemplateFromJSON(string json)
         {
             var rootObject = JsonConvert.DeserializeObject<JObject>(json);
@@ -112,10 +126,16 @@ namespace EDILibrary
                     ParseProperty(prop, "", builder, valueBuilder);
                 }
             }
-            return builder.ToString().TrimEnd(';') + Environment.NewLine + valueBuilder.ToString().TrimEnd(';');
+            return builder.ToString().TrimEnd(';')
+                + Environment.NewLine
+                + valueBuilder.ToString().TrimEnd(';');
         }
 
-        protected static void BuildObjectFromSegment(string segment, string value, JObject localRoot)
+        protected static void BuildObjectFromSegment(
+            string segment,
+            string value,
+            JObject localRoot
+        )
         {
             while (true)
             {
@@ -144,6 +164,7 @@ namespace EDILibrary
         {
             return !segment.Contains("|") ? segment : string.Join("|", segment.Split('|').Skip(1));
         }
+
         public static List<string> CreateJSONFromCSV(string csv)
         {
             //first split header line from content lines
@@ -155,14 +176,8 @@ namespace EDILibrary
                 var lineSegments = line.Split(new[] { ";" }, StringSplitOptions.None);
                 var index = 0;
                 var lineObject = new JObject();
-                var nachrichtObject = new JObject
-                {
-                    { "Nachricht", new JArray(lineObject) }
-                };
-                var dokumentObject = new JObject
-                {
-                    { "Dokument", new JArray(nachrichtObject) }
-                };
+                var nachrichtObject = new JObject { { "Nachricht", new JArray(lineObject) } };
+                var dokumentObject = new JObject { { "Dokument", new JArray(nachrichtObject) } };
                 foreach (var segment in segments)
                 {
                     BuildObjectFromSegment(segment, lineSegments[index], lineObject);

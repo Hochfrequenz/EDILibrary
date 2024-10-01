@@ -10,18 +10,26 @@ namespace EDILibrary
     public class GenericEDILoader
     {
         protected TreeHelper TreeHelper { get; set; } = new TreeHelper();
-        protected virtual EdiObject ProcessSpecificTemplate(XElement template, Dictionary<string, List<TreeElement>> objectMapping)
+
+        protected virtual EdiObject ProcessSpecificTemplate(
+            XElement template,
+            Dictionary<string, List<TreeElement>> objectMapping
+        )
         {
             var treeRoot = objectMapping[TreeHelper.GetHash(template.ToString())][0];
             return ProcessSpecificTemplate(template, treeRoot, objectMapping);
         }
-        protected virtual EdiObject ProcessSpecificTemplate(XElement template, TreeElement treeRoot, Dictionary<string, List<TreeElement>> objectMapping)
+
+        protected virtual EdiObject ProcessSpecificTemplate(
+            XElement template,
+            TreeElement treeRoot,
+            Dictionary<string, List<TreeElement>> objectMapping
+        )
         {
             string key = null;
             string ediSeg = null;
             if (template.Attribute("key") != null)
             {
-
                 key = EvaluateTemplate(template.Attribute("key").Value, treeRoot, out ediSeg);
 
                 if (key == null) // criteria not met
@@ -32,7 +40,7 @@ namespace EDILibrary
 
             var rootObject = new EdiObject(template.Attribute("name").Value, template, key)
             {
-                Edi = ediSeg
+                Edi = ediSeg,
             };
             if (template.Attribute("migName") != null)
             {
@@ -45,7 +53,9 @@ namespace EDILibrary
                 var selector = field.Attribute("ref").Value;
                 if (field.Attribute("migName") != null)
                 {
-                    rootObject.MigFields[field.Attribute("name").Value] = field.Attribute("migName").Value;
+                    rootObject.MigFields[field.Attribute("name").Value] = field
+                        .Attribute("migName")
+                        .Value;
                 }
                 var value = EvaluateTemplate(selector, treeRoot, out var ediSegment);
                 rootObject.EdiFields[field.Attribute("name").Value] = ediSegment;
@@ -85,15 +95,24 @@ namespace EDILibrary
                 var refName = child.Attribute("ref").Value.Split(new[] { '[' })[0];
                 var childTree = new List<TreeElement>();
                 treeRoot.FindElements(refName, true, ref childTree, 1);
-                childTree = (from childElem in childTree where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList();
+                childTree = (
+                    from childElem in childTree
+                    where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0
+                    select childElem
+                ).ToList();
 
-                foreach (var childObject in childTree.Select(childRoot => ProcessSpecificTemplate(child, childRoot, objectMapping)))
+                foreach (
+                    var childObject in childTree.Select(childRoot =>
+                        ProcessSpecificTemplate(child, childRoot, objectMapping)
+                    )
+                )
                 {
                     rootObject.AddChild(childObject);
                 }
             }
             return rootObject;
         }
+
         protected string getValue(string pos, string edi)
         {
             if (_useCache && _valueCache.ContainsKey(edi))
@@ -136,7 +155,13 @@ namespace EDILibrary
                         break;
                     }
 
-                    parts.Add(subGroups[i].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?"));
+                    parts.Add(
+                        subGroups[i]
+                            .Replace("?<", "+")
+                            .Replace("?>", ":")
+                            .Replace("?$", "'")
+                            .Replace("<<", "?")
+                    );
                 }
                 var endValue = string.Join("", parts).Trim();
                 if (_useCache && !_valueCache.ContainsKey(edi))
@@ -157,7 +182,11 @@ namespace EDILibrary
                 return null;
             }
 
-            var result = subGroups[DetailPos].Replace("?<", "+").Replace("?>", ":").Replace("?$", "'").Replace("<<", "?");
+            var result = subGroups[DetailPos]
+                .Replace("?<", "+")
+                .Replace("?>", ":")
+                .Replace("?$", "'")
+                .Replace("<<", "?");
             if (!_valueCache.ContainsKey(edi))
             {
                 _valueCache.Add(edi, new Dictionary<string, string>());
@@ -165,7 +194,12 @@ namespace EDILibrary
             _valueCache[edi][pos] = result.Trim();
             return result.Trim();
         }
-        protected string EvaluateTemplate(string selector, TreeElement templateRoot, out string ediSegment)
+
+        protected string EvaluateTemplate(
+            string selector,
+            TreeElement templateRoot,
+            out string ediSegment
+        )
         {
             //string[] sel_path= selector.Split(new char[]{'['});
             var klammerIndex = selector.IndexOf('[');
@@ -174,7 +208,7 @@ namespace EDILibrary
                 klammerIndex = selector.Length;
             }
 
-            var selection = selector.Substring(0, klammerIndex);// sel_path[0];
+            var selection = selector.Substring(0, klammerIndex); // sel_path[0];
             string path = null;
             //string[] sel_segments = selection.Split(new char[] { ':' });
             var sepIndex = selection.IndexOf(':');
@@ -200,29 +234,47 @@ namespace EDILibrary
                 else
                 {
                     templateRoot.FindElements(segment, true, ref resultList, 2);
-                    if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Any() select res).Any())
+                    if (
+                        (
+                            from TreeElement res in resultList
+                            where res.Edi != null && res.Edi.Any()
+                            select res
+                        ).Any()
+                    )
                     {
-                        resultEDI.AddRange(resultList.Where(result => result.Edi.Any()).SelectMany(result => result.Edi));
+                        resultEDI.AddRange(
+                            resultList
+                                .Where(result => result.Edi.Any())
+                                .SelectMany(result => result.Edi)
+                        );
                         if (_useCache)
                         {
                             _elementCache[templateRoot].Add(segment, resultEDI);
                         }
                     }
-
-
                 }
             }
             else
             {
                 templateRoot.FindElements(segment, true, ref resultList, 2);
-                if ((from TreeElement res in resultList where res.Edi != null && res.Edi.Any() select res).Any())
+                if (
+                    (
+                        from TreeElement res in resultList
+                        where res.Edi != null && res.Edi.Any()
+                        select res
+                    ).Any()
+                )
                 {
                     if (_useCache)
                     {
                         _elementCache.Add(templateRoot, new Dictionary<string, List<string>>());
                     }
 
-                    resultEDI.AddRange(resultList.Where(result => result.Edi.Any()).SelectMany(result => result.Edi));
+                    resultEDI.AddRange(
+                        resultList
+                            .Where(result => result.Edi.Any())
+                            .SelectMany(result => result.Edi)
+                    );
                     if (_useCache)
                     {
                         _elementCache[templateRoot].Add(segment, resultEDI);
@@ -242,7 +294,10 @@ namespace EDILibrary
                 {
                     if (path != null)
                     {
-                        var paths = path.Split(new[] { '^', '|' }, StringSplitOptions.RemoveEmptyEntries);
+                        var paths = path.Split(
+                            new[] { '^', '|' },
+                            StringSplitOptions.RemoveEmptyEntries
+                        );
                         var searchEdi = new List<string>();
                         var part = "";
                         var conditionMet = true;
@@ -259,7 +314,10 @@ namespace EDILibrary
                             if (tempPath.Split(new[] { ':' }).Length > 2)
                             {
                                 segPath = tempPath;
-                                var searchElement = templateRoot.FindElement(segPath.Split(new[] { ':' })[0], false);
+                                var searchElement = templateRoot.FindElement(
+                                    segPath.Split(new[] { ':' })[0],
+                                    false
+                                );
                                 if (searchElement != null)
                                 {
                                     searchEdi.AddRange(searchElement.Edi);
@@ -287,7 +345,10 @@ namespace EDILibrary
                             string pathValue = null;
                             if (segPath.Length != sepIndex)
                             {
-                                pathValue = segPath.Substring(opIndex + sepOp.Length, segPath.Length - opIndex - sepOp.Length);
+                                pathValue = segPath.Substring(
+                                    opIndex + sepOp.Length,
+                                    segPath.Length - opIndex - sepOp.Length
+                                );
                             }
                             else
                             {
@@ -295,7 +356,12 @@ namespace EDILibrary
                             }
 
                             //.Where(s=>s==edi)
-                            foreach (var ediSearch in searchEdi.Where(ediSearch => ediSearch.Substring(0, 3) != edi.Substring(0, 3) || ediSearch == edi))
+                            foreach (
+                                var ediSearch in searchEdi.Where(ediSearch =>
+                                    ediSearch.Substring(0, 3) != edi.Substring(0, 3)
+                                    || ediSearch == edi
+                                )
+                            )
                             {
                                 if (sepOp == "=")
                                 {
@@ -358,6 +424,7 @@ namespace EDILibrary
 
             return null;
         }
+
         public XElement LoadTemplate(string template)
         {
             var reader = new StringReader(template);
@@ -366,25 +433,34 @@ namespace EDILibrary
             {
                 root = XElement.Load(reader);
             }
-            catch (System.Xml.XmlException xmlException) when (xmlException.Message == "Root element is missing.")
+            catch (System.Xml.XmlException xmlException)
+                when (xmlException.Message == "Root element is missing.")
             {
                 throw new System.Xml.XmlException(
-                    $"The edifact template '{template}' could not be parsed. Are you sure the EDIFACT Format has been detected correctly?", innerException: xmlException);
+                    $"The edifact template '{template}' could not be parsed. Are you sure the EDIFACT Format has been detected correctly?",
+                    innerException: xmlException
+                );
             }
             return root;
         }
 
         protected bool _useCache = true;
-        protected Dictionary<TreeElement, Dictionary<string, List<string>>> _elementCache = new Dictionary<TreeElement, Dictionary<string, List<string>>>();
-        protected Dictionary<string, Dictionary<string, string>> _valueCache = new Dictionary<string, Dictionary<string, string>>();
+        protected Dictionary<TreeElement, Dictionary<string, List<string>>> _elementCache =
+            new Dictionary<TreeElement, Dictionary<string, List<string>>>();
+        protected Dictionary<string, Dictionary<string, string>> _valueCache =
+            new Dictionary<string, Dictionary<string, string>>();
+
         public EdiObject LoadTemplateWithLoadedTree(XElement template, TreeElement tree)
         {
             var objectMapping = new Dictionary<string, List<TreeElement>>();
-            var classes = from cls in template.DescendantsAndSelf("class")
-                          select cls;
+            var classes = from cls in template.DescendantsAndSelf("class") select cls;
             _elementCache.Clear();
             _valueCache.Clear();
-            var dokument = (from temp in template.DescendantsAndSelf("class") where temp.Attribute("name").Value == "Dokument" select temp).Single();
+            var dokument = (
+                from temp in template.DescendantsAndSelf("class")
+                where temp.Attribute("name").Value == "Dokument"
+                select temp
+            ).Single();
             TreeElement docElement = null;
             foreach (var cls in classes)
             {
@@ -393,7 +469,11 @@ namespace EDILibrary
                     var treeElements = new List<TreeElement>();
                     var refName = cls.Attribute("ref").Value.Split(new[] { '[' })[0];
                     tree.FindElements(refName, true, ref treeElements);
-                    treeElements = (from childElem in treeElements where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0 select childElem).ToList();
+                    treeElements = (
+                        from childElem in treeElements
+                        where childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0
+                        select childElem
+                    ).ToList();
                     docElement = treeElements[0];
                 }
                 //List<TreeElement> treeElements = new List<TreeElement>();
@@ -403,8 +483,8 @@ namespace EDILibrary
                 //objectMapping[TreeHelper.GetHash(cls.ToString())] = treeElements;
             }
             return ProcessSpecificTemplate(dokument, docElement, null);
-
         }
+
         public TreeElement LoadTree(string tree)
         {
             TreeElement treeRoot;
@@ -443,6 +523,7 @@ namespace EDILibrary
             }
             return treeRoot;
         }
+
         public TreeElement LoadEDI(string edi, TreeElement tree)
         {
             var elementDelimiter = ":";
@@ -464,7 +545,10 @@ namespace EDILibrary
                 }
             }
 
-            var message = edi.Substring(unAoffset + segDelimiterLength, edi.Length - (unAoffset + segDelimiterLength));
+            var message = edi.Substring(
+                unAoffset + segDelimiterLength,
+                edi.Length - (unAoffset + segDelimiterLength)
+            );
             message = message.Replace("?'", "?$");
             message = message.Replace("\"", "\\\"");
             if (tree != null)
@@ -473,7 +557,10 @@ namespace EDILibrary
                 var currentTreeRoot = tree;
                 foreach (var segment in message.SplitLines(segmentDelimiter.First()))
                 {
-                    var strSegment = segment.Line.ToString().TrimStart('\r', '\n', '\t').TrimEnd('\r', '\n', '\t');
+                    var strSegment = segment
+                        .Line.ToString()
+                        .TrimStart('\r', '\n', '\t')
+                        .TrimEnd('\r', '\n', '\t');
                     var child = TreeHelper.FindEdiElement(ref currentTreeRoot, strSegment);
                     if (child != null)
                     {
@@ -487,7 +574,6 @@ namespace EDILibrary
                 return tree;
             }
             return null;
-
         }
     }
 }

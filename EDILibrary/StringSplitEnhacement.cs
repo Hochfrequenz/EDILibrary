@@ -6,10 +6,9 @@ namespace EDILibrary
 {
     public static class StringExtensions
     {
-
-        // the string.Split() method from .NET tend to run out of memory on 80 Mb strings. 
-        // this has been reported several places online. 
-        // This version is fast and memory efficient and return no empty lines. 
+        // the string.Split() method from .NET tend to run out of memory on 80 Mb strings.
+        // this has been reported several places online.
+        // This version is fast and memory efficient and return no empty lines.
         public static List<string> LowMemSplit(this string s, string seperator)
         {
             var list = new List<string>();
@@ -60,6 +59,7 @@ namespace EDILibrary
         {
             private ReadOnlySpan<char> _str;
             private char separator;
+
             public LineSplitEnumerator(ReadOnlySpan<char> str, char separator)
             {
                 _str = str;

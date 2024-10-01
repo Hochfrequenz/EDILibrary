@@ -4,25 +4,24 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Linq;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
 namespace EDILibrary
 {
-
     [Obsolete("Use " + nameof(EdiObject) + " instead.", true)]
     // ReSharper disable once InconsistentNaming
-    public class IEdiObject
-    {
-    }
+    public class IEdiObject { }
 
     [DataContract]
     public class EdiObject
     {
         [DataMember]
         public string Name { get; set; }
+
         [DataMember]
         public string MigName { get; set; }
+
         [DataMember]
         public string Key { get; set; }
 
@@ -30,22 +29,31 @@ namespace EDILibrary
         public string Edi { get; set; }
         public EdiObject Parent { get; private set; }
         XElement template;
+
         [DataMember]
         public List<EdiObject> Children { get; set; }
         public List<EdiObject> SelfOrChildren
         {
-            get { var list = Children.Take(Children.Count).ToList(); list.Add(this); return list; }
+            get
+            {
+                var list = Children.Take(Children.Count).ToList();
+                list.Add(this);
+                return list;
+            }
         }
+
         [DataMember]
         public Dictionary<string, List<string>> Fields { get; set; }
+
         [DataMember]
         public Dictionary<string, string> MigFields { get; set; }
+
         [DataMember]
         public Dictionary<string, string> EdiFields { get; set; }
-        public EdiObject(EDIEnums enumValue, XElement temp, string keyValue) : this(EDIEnumHelper.GetDescription(enumValue), temp, keyValue)
-        {
 
-        }
+        public EdiObject(EDIEnums enumValue, XElement temp, string keyValue)
+            : this(EDIEnumHelper.GetDescription(enumValue), temp, keyValue) { }
+
         public EdiObject(string name, XElement temp, string keyValue)
         {
             Name = name;
@@ -55,8 +63,8 @@ namespace EDILibrary
             EdiFields = new Dictionary<string, string>();
             template = temp;
             Key = keyValue;
-
         }
+
         protected static string GenerateKey(string objectName)
         {
             switch (objectName)
@@ -64,19 +72,18 @@ namespace EDILibrary
                 case "Dokument":
                 case "Nachricht":
                 case "Vorgang":
-                    {
-                        return Guid.NewGuid().ToString("N").Substring(0, 13).ToUpper();
-                    }
+                {
+                    return Guid.NewGuid().ToString("N").Substring(0, 13).ToUpper();
+                }
                 default:
-                    {
-                        return null;
-                    }
+                {
+                    return null;
+                }
             }
         }
 
         protected void ParseJSON(dynamic json)
         {
-
             foreach (var child in json.Children<JProperty>())
             {
                 if (child.Value.GetType() == typeof(JArray))
@@ -99,13 +106,28 @@ namespace EDILibrary
                         foreach (var childprop in (child.Value as JObject).Properties())
                         {
                             //only allow one nest level, so only strings allowed here
-                            if (childprop.Value != null && (childprop.Value.Type == JTokenType.Float))
+                            if (
+                                childprop.Value != null
+                                && (childprop.Value.Type == JTokenType.Float)
+                            )
                             {
-                                Fields.Add(child.Name + "." + childprop.Name, new List<string> { childprop.Value.Value<float>().ToString() });
+                                Fields.Add(
+                                    child.Name + "." + childprop.Name,
+                                    new List<string> { childprop.Value.Value<float>().ToString() }
+                                );
                             }
-                            else if (childprop.Value != null && (childprop.Value.Type == JTokenType.String || childprop.Value.Type == JTokenType.Integer))
+                            else if (
+                                childprop.Value != null
+                                && (
+                                    childprop.Value.Type == JTokenType.String
+                                    || childprop.Value.Type == JTokenType.Integer
+                                )
+                            )
                             {
-                                Fields.Add(child.Name + "." + childprop.Name, new List<string> { childprop.Value.Value<string>() });
+                                Fields.Add(
+                                    child.Name + "." + childprop.Name,
+                                    new List<string> { childprop.Value.Value<string>() }
+                                );
                             }
                         }
                     }
@@ -113,7 +135,10 @@ namespace EDILibrary
                     {
                         if (child.Value.Type == JTokenType.Float)
                         {
-                            Fields.Add(child.Name, new List<string> { child.Value.ToString("0.00######") });
+                            Fields.Add(
+                                child.Name,
+                                new List<string> { child.Value.ToString("0.00######") }
+                            );
                         }
                         else
                         {
@@ -122,8 +147,8 @@ namespace EDILibrary
                     }
                 }
             }
-
         }
+
         public static EdiObject CreateFromJSON(string JSON)
         {
             dynamic json = JsonConvert.DeserializeObject(JSON);
@@ -137,6 +162,7 @@ namespace EDILibrary
         {
             return Name + "  " + Key;
         }
+
         protected static void Recurse(XElement elem, EdiObject child)
         {
             foreach (var (key, value) in child.Fields)
@@ -155,11 +181,14 @@ namespace EDILibrary
                 elem.Add(ch);
             }
         }
+
         protected static string escapeSpecialChars(string value)
         {
             return value.Replace("\"", "\\\"");
         }
+
         protected StringBuilder _builder;
+
         protected void RecurseJSON(EdiObject cur)
         {
             var hasKey = false;
@@ -169,9 +198,14 @@ namespace EDILibrary
             if (cur.Key != null)
             {
                 hasKey = true;
-                _builder.AppendLine("\"" + "Key" + "\" : \"" + cur.Key + "\"" + (i != 0 || hasClass ? "," : ""));
+                _builder.AppendLine(
+                    "\"" + "Key" + "\" : \"" + cur.Key + "\"" + (i != 0 || hasClass ? "," : "")
+                );
             }
-            if (cur.Fields.Count(f => f.Value.Count > 1) == cur.Fields.Count && cur.Fields.Any(f => f.Value.Count > 1)) // check for multiple values
+            if (
+                cur.Fields.Count(f => f.Value.Count > 1) == cur.Fields.Count
+                && cur.Fields.Any(f => f.Value.Count > 1)
+            ) // check for multiple values
             {
                 var index = 0;
                 var oldI = i;
@@ -180,7 +214,14 @@ namespace EDILibrary
                     foreach (var (key, value) in cur.Fields)
                     {
                         i--;
-                        _builder.AppendLine("\"" + key + "\" : \"" + escapeSpecialChars(value.ElementAt(index)) + "\"" + (i != 0 || hasClass ? "," : ""));
+                        _builder.AppendLine(
+                            "\""
+                                + key
+                                + "\" : \""
+                                + escapeSpecialChars(value.ElementAt(index))
+                                + "\""
+                                + (i != 0 || hasClass ? "," : "")
+                        );
                     }
                     i = oldI;
                     if (index + 1 < cur.Fields.First(f => f.Value.Count > 1).Value.Count)
@@ -196,8 +237,17 @@ namespace EDILibrary
                 foreach (var (key, value) in cur.Fields)
                 {
                     i--;
-                    _builder.AppendLine("\"" + key + "\" : \"" + escapeSpecialChars(value.Where(v => !string.IsNullOrWhiteSpace(v)).FirstOrDefault() ?? "") + "\"" + (i != 0 || hasClass ? "," : ""));
-
+                    _builder.AppendLine(
+                        "\""
+                            + key
+                            + "\" : \""
+                            + escapeSpecialChars(
+                                value.Where(v => !string.IsNullOrWhiteSpace(v)).FirstOrDefault()
+                                    ?? ""
+                            )
+                            + "\""
+                            + (i != 0 || hasClass ? "," : "")
+                    );
                 }
             }
             var j = cur.Children.Count;
@@ -205,18 +255,24 @@ namespace EDILibrary
             {
                 if (!hasKey)
                 {
-                    string key;// = "";
+                    string key; // = "";
                     if (cur.Key != null)
                     {
-                        key = "\"" + "Key" + "\" : \"" + cur.Key + "\"" + (i != 0 || hasClass ? "," : "");
+                        key =
+                            "\""
+                            + "Key"
+                            + "\" : \""
+                            + cur.Key
+                            + "\""
+                            + (i != 0 || hasClass ? "," : "");
                     }
                     else
                     {
-                        key = "\"" + "Key" + "\" : \"" + "" + "\"" + (i != 0 || hasClass ? "," : "");
+                        key =
+                            "\"" + "Key" + "\" : \"" + "" + "\"" + (i != 0 || hasClass ? "," : "");
                     }
                     _builder.AppendLine(key);
                 }
-
             }
             var lastName = "";
             var openElement = false;
@@ -247,6 +303,7 @@ namespace EDILibrary
                 _builder.AppendLine("]" + (j != 0 ? "," : ""));
             }
         }
+
         protected void RecurseJSON(XElement cur)
         {
             var hasKey = false;
@@ -256,31 +313,50 @@ namespace EDILibrary
             if (cur.Attribute("key") != null)
             {
                 hasKey = true;
-                _builder.AppendLine("\"" + "Key" + "\" : \"" + cur.Attribute("key").Value + "\"" + (i != 0 || hasClass ? "," : ""));
+                _builder.AppendLine(
+                    "\""
+                        + "Key"
+                        + "\" : \""
+                        + cur.Attribute("key").Value
+                        + "\""
+                        + (i != 0 || hasClass ? "," : "")
+                );
             }
             foreach (var elem in cur.Descendants("Field").Where(d => d.Parent == cur))
             {
                 i--;
-                _builder.AppendLine("\"" + elem.Attribute("name").Value + "\" : \"" + elem.Value + "\"" + (i != 0 || hasClass ? "," : ""));
-
+                _builder.AppendLine(
+                    "\""
+                        + elem.Attribute("name").Value
+                        + "\" : \""
+                        + elem.Value
+                        + "\""
+                        + (i != 0 || hasClass ? "," : "")
+                );
             }
             var j = cur.Descendants("Class").Count(d => d.Parent == cur);
             if (j == 0 && cur.Descendants("Field").All(d => d.Parent != cur)) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
             {
                 if (!hasKey)
                 {
-                    string key;// = "";
+                    string key; // = "";
                     if (cur.Attribute("key") != null)
                     {
-                        key = "\"" + "Key" + "\" : \"" + cur.Attribute("key").Value + "\"" + (i != 0 || hasClass ? "," : "");
+                        key =
+                            "\""
+                            + "Key"
+                            + "\" : \""
+                            + cur.Attribute("key").Value
+                            + "\""
+                            + (i != 0 || hasClass ? "," : "");
                     }
                     else
                     {
-                        key = "\"" + "Key" + "\" : \"" + "" + "\"" + (i != 0 || hasClass ? "," : "");
+                        key =
+                            "\"" + "Key" + "\" : \"" + "" + "\"" + (i != 0 || hasClass ? "," : "");
                     }
                     _builder.AppendLine(key);
                 }
-
             }
             foreach (var elem in cur.Descendants("Class").Where(d => d.Parent == cur))
             {
@@ -290,6 +366,7 @@ namespace EDILibrary
                 _builder.AppendLine("}]" + (j != 0 ? "," : ""));
             }
         }
+
         public string Serialize()
         {
             var root = new XElement("EDIFACT");
@@ -307,14 +384,17 @@ namespace EDILibrary
             _builder.Replace("\\\\\"", "\\\"");
             return _builder.ToString();
         }
+
         public bool ContainsField(string name)
         {
             return Fields.ContainsKey(name);
         }
+
         public bool ContainsField(EDIEnums enumValue)
         {
             return Fields.ContainsKey(EDIEnumHelper.GetDescription(enumValue));
         }
+
         public string[] FieldList(EDIEnums enumValue)
         {
             if (Fields.ContainsKey(EDIEnumHelper.GetDescription(enumValue)))
@@ -324,6 +404,7 @@ namespace EDILibrary
 
             return null;
         }
+
         public string[] FieldList(string name)
         {
             if (Fields.ContainsKey(name))
@@ -333,6 +414,7 @@ namespace EDILibrary
 
             return null;
         }
+
         public string Field(EDIEnums enumValue)
         {
             if (Fields.ContainsKey(EDIEnumHelper.GetDescription(enumValue)))
@@ -342,6 +424,7 @@ namespace EDILibrary
 
             return null;
         }
+
         public string Field(string name)
         {
             if (Fields.ContainsKey(name))
@@ -361,6 +444,7 @@ namespace EDILibrary
 
             return null;
         }
+
         public void AddField(EDIEnums enumValue, string value)
         {
             if (Fields.ContainsKey(EDIEnumHelper.GetDescription(enumValue)))
@@ -372,22 +456,31 @@ namespace EDILibrary
                 Fields.Add(EDIEnumHelper.GetDescription(enumValue), new List<string> { value });
             }
         }
+
         public EdiObject Child(EDIEnums name, string key)
         {
             return Child(EDIEnumHelper.GetDescription(name), key);
         }
+
         public EdiObject Child(EDIEnums name)
         {
             return Child(EDIEnumHelper.GetDescription(name));
         }
+
         public EdiObject Child(string name, string key)
         {
-            return (from child in Children where child.Name == name && child.Key == key select child).FirstOrDefault();
+            return (
+                from child in Children
+                where child.Name == name && child.Key == key
+                select child
+            ).FirstOrDefault();
         }
+
         public EdiObject Child(string name)
         {
             return (from child in Children where child.Name == name select child).FirstOrDefault();
         }
+
         public void AddChild(EdiObject child)
         {
             if (child == null)
@@ -398,30 +491,41 @@ namespace EDILibrary
             child.Parent = this;
             Children.Add(child);
         }
+
         public bool ContainsChild(EDIEnums name, string key)
         {
             return ContainsChild(EDIEnumHelper.GetDescription(name), key);
         }
+
         public bool ContainsChild(EDIEnums name)
         {
             return ContainsChild(EDIEnumHelper.GetDescription(name));
         }
+
         public bool ContainsChild(string name, string key)
         {
-            return (from child in Children where child.Name == name && child.Key == key select child).Any();
+            return (
+                from child in Children
+                where child.Name == name && child.Key == key
+                select child
+            ).Any();
         }
+
         public bool ContainsChild(string name)
         {
             return (from child in Children where child.Name == name select child).Any();
         }
+
         public void RemoveField(string name)
         {
             Fields.Remove(name);
         }
+
         public void RemoveChilds(EDIEnums name)
         {
             RemoveChilds(EDIEnumHelper.GetDescription(name));
         }
+
         public void RemoveChilds(string name)
         {
             var children = (from child in Children where child.Name == name select child).ToList();
@@ -430,14 +534,17 @@ namespace EDILibrary
                 Children.Remove(child);
             }
         }
+
         public List<EdiObject> Childs(EDIEnums name)
         {
             return Childs(EDIEnumHelper.GetDescription(name));
         }
+
         public List<EdiObject> Childs(string name)
         {
             return (from child in Children where child.Name == name select child).ToList();
         }
+
         public EdiObject Clone()
         {
             var clone = new EdiObject(Name, null, Key);

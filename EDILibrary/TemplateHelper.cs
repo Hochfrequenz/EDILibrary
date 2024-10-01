@@ -11,11 +11,15 @@ namespace EDILibrary
 {
     public class TemplateHelper
     {
+        private static readonly Regex FormatVersionRegex =
+            new(@"^(?<format>[A-Z]{6,7})(?<version>[A-Z]?\d+\.\d+[a-z]?)$");
 
-        private static readonly Regex FormatVersionRegex = new(@"^(?<format>[A-Z]{6,7})(?<version>[A-Z]?\d+\.\d+[a-z]?)$");
-
-        private static void ParseAPERAKString(string aperak, out string dataType, out int length,
-            out List<string> list)
+        private static void ParseAPERAKString(
+            string aperak,
+            out string dataType,
+            out int length,
+            out List<string> list
+        )
         {
             dataType = null;
             list = null;
@@ -31,8 +35,10 @@ namespace EDILibrary
             if (valueIndex > -1)
             {
                 maxLength = valueIndex;
-                var valueListString =
-                    aperak.Substring(valueIndex + 1, aperak.IndexOf('}', valueIndex) - valueIndex - 1);
+                var valueListString = aperak.Substring(
+                    valueIndex + 1,
+                    aperak.IndexOf('}', valueIndex) - valueIndex - 1
+                );
                 list = new List<string>(valueListString.Split(".".ToCharArray()));
             }
 
@@ -45,7 +51,6 @@ namespace EDILibrary
                 throw new Exception(string.Format("Could not parse {0}", aperak), e);
             }
         }
-
 
         private static void Recurse(XElement cur, JArray refObj, TreeElement tree)
         {
@@ -179,13 +184,20 @@ namespace EDILibrary
                             {
                                 try
                                 {
-                                    var key = elements[int.Parse(refKeys[1]) - 1].Split('*')[int.Parse(refKeys[2]) + 1];
+                                    var key = elements[int.Parse(refKeys[1]) - 1].Split('*')[
+                                        int.Parse(refKeys[2]) + 1
+                                    ];
                                     if (key.Contains("|"))
                                     {
                                         key = key.Split('|').First();
                                     }
 
-                                    ParseAPERAKString(key, out var dataType, out var length, out var list);
+                                    ParseAPERAKString(
+                                        key,
+                                        out var dataType,
+                                        out var length,
+                                        out var list
+                                    );
                                     if (meta.Property("typeInfo") == null)
                                     {
                                         meta.Add("typeInfo", dataType);
@@ -228,27 +240,30 @@ namespace EDILibrary
                 if (elem.Attribute("groupBy") != null)
                 {
                     var groupName = elem.Attribute("groupBy").Value;
-                    var subGroup = refObj.Children().Where(child =>
-                        (child as JObject)?.Property("key")?.Value.Value<string>() == groupName);
+                    var subGroup = refObj
+                        .Children()
+                        .Where(child =>
+                            (child as JObject)?.Property("key")?.Value.Value<string>() == groupName
+                        );
                     if (subGroup.Any())
                     {
                         if (elem.Attribute("groupKey")?.Value != null)
                         {
-                            (subGroup.First() as JObject).Property("_meta").Value.Value<JObject>().Add("key", name);
-                        } (subGroup.First() as JObject).Property("requires").Value.Value<JArray>().Add(newField);
+                            (subGroup.First() as JObject)
+                                .Property("_meta")
+                                .Value.Value<JObject>()
+                                .Add("key", name);
+                        }
+                        (subGroup.First() as JObject)
+                            .Property("requires")
+                            .Value.Value<JArray>()
+                            .Add(newField);
                     }
                     else
                     {
-                        var subObj = new JObject
-                        {
-                            {"key", groupName}
-                        };
+                        var subObj = new JObject { { "key", groupName } };
                         var subArray = new JArray();
-                        var subMeta = new JObject
-                        {
-                            {"type", "group"},
-                            {"max", "1"}
-                        };
+                        var subMeta = new JObject { { "type", "group" }, { "max", "1" } };
                         if (elem.Attribute("groupKey")?.Value != null)
                         {
                             subMeta.Add("key", name);
@@ -274,10 +289,8 @@ namespace EDILibrary
             }
 
             var j = cur.Descendants("class").Count(d => d.Parent == cur);
-            if (j == 0 && !cur.Descendants("field").Any(d => d.Parent == cur)
-            ) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
-            {
-            }
+            if (j == 0 && !cur.Descendants("field").Any(d => d.Parent == cur)) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
+            { }
 
             foreach (var elem in cur.Descendants("class").Where(d => d.Parent == cur))
             {
@@ -307,7 +320,12 @@ namespace EDILibrary
                     meta.Add("format", elem.Attribute("meta.format").Value);
                 }
 
-                meta.Add("type", elem.Attribute("meta.type") != null ? elem.Attribute("meta.type").Value : "group");
+                meta.Add(
+                    "type",
+                    elem.Attribute("meta.type") != null
+                        ? elem.Attribute("meta.type").Value
+                        : "group"
+                );
                 if (elem.Attribute("meta.objType") != null)
                 {
                     meta.Add("objType", elem.Attribute("meta.objType").Value);
@@ -436,7 +454,11 @@ namespace EDILibrary
         }
 
         // Todo @JoschaMetze: add docstrings
-        public string ConvertFilesToJSON(string inputFileName, string outputFileName, string treeFileName)
+        public string ConvertFilesToJSON(
+            string inputFileName,
+            string outputFileName,
+            string treeFileName
+        )
         {
             var srcXml = XElement.Parse(File.ReadAllText(inputFileName));
             TreeElement tree = null;
@@ -450,7 +472,6 @@ namespace EDILibrary
             ((tmp[0] as JObject)["_meta"] as JObject).Add("version", version);
             File.WriteAllText(outputFileName, JsonConvert.SerializeObject(tmp));
             return JsonConvert.SerializeObject(tmp);
-
         }
 
         /// <summary>
@@ -461,7 +482,10 @@ namespace EDILibrary
         /// <exception cref="ArgumentException"></exception>
         public static string RetrieveFormatVersionFromInputFileName(string inputFileName)
         {
-            var actualFileName = inputFileName.Split(new[] { ".template" }, StringSplitOptions.None)[0].Split(Path.DirectorySeparatorChar).Last();
+            var actualFileName = inputFileName
+                .Split(new[] { ".template" }, StringSplitOptions.None)[0]
+                .Split(Path.DirectorySeparatorChar)
+                .Last();
             var match = FormatVersionRegex.Match(actualFileName);
             if (match.Success)
             {
@@ -470,9 +494,15 @@ namespace EDILibrary
 
             if (inputFileName.Contains(".create.template"))
             {
-                throw new ArgumentException("Pass the name of the \".template\" file, not \".create.template\"", nameof(inputFileName));
+                throw new ArgumentException(
+                    "Pass the name of the \".template\" file, not \".create.template\"",
+                    nameof(inputFileName)
+                );
             }
-            throw new ArgumentException($"Format version could not be determined: {actualFileName}", nameof(inputFileName));
+            throw new ArgumentException(
+                $"Format version could not be determined: {actualFileName}",
+                nameof(inputFileName)
+            );
         }
 
         // the format version will be written to the json template file, thus needs to be passed
