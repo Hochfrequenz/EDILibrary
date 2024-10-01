@@ -129,13 +129,21 @@ namespace EDILibrary
         /// <param name="maskUTILMDX">is true, UTILMD is returned instead of UTILMDG bzw. UTILMDS</param>
         /// <param name="formatPackage">optional EdifactFormatVersion, in case of >= than FV2310 will return UTILMDW for '11xxxx' PIDs. <see cref="EdifactFormatVersion"/></param>
         /// <returns>the EdifactFormat, e.g. <see cref="EdifactFormat.UTILMD"/> or throws a NotImplementedException iff EdiFormat was found</returns>
-        public static EdifactFormat FromPruefidentifikator(string pruefidentifikator, bool maskUTILMDX = true, EdifactFormatVersion? formatPackage = null)
+        public static EdifactFormat FromPruefidentifikator(
+            string pruefidentifikator,
+            bool maskUTILMDX = true,
+            EdifactFormatVersion? formatPackage = null
+        )
         {
             if (string.IsNullOrWhiteSpace(pruefidentifikator))
             {
                 throw new ArgumentNullException(nameof(pruefidentifikator));
             }
-            if (formatPackage is not null && formatPackage >= EdifactFormatVersion.FV2310 && pruefidentifikator.StartsWith("11"))
+            if (
+                formatPackage is not null
+                && formatPackage >= EdifactFormatVersion.FV2310
+                && pruefidentifikator.StartsWith("11")
+            )
             {
                 return EdifactFormat.UTILMDW;
             }
@@ -143,11 +151,15 @@ namespace EDILibrary
             {
                 if (pruefidentifikator.StartsWith(((int)ef).ToString()))
                 {
-                    return maskUTILMDX && ef is EdifactFormat.UTILMDG or EdifactFormat.UTILMDS ? EdifactFormat.UTILMD : ef;
+                    return maskUTILMDX && ef is EdifactFormat.UTILMDG or EdifactFormat.UTILMDS
+                        ? EdifactFormat.UTILMD
+                        : ef;
                 }
             }
 
-            throw new NotImplementedException($"No matching EdiFormat found for Prüfidentifikator {pruefidentifikator}");
+            throw new NotImplementedException(
+                $"No matching EdiFormat found for Prüfidentifikator {pruefidentifikator}"
+            );
         }
     }
 
@@ -190,10 +202,12 @@ namespace EDILibrary
         /// Format Version October 2022 (aka MaKo2022)
         /// </summary>
         FV2210,
+
         /// <summary>
         /// Format Version April 2023
         /// </summary>
         FV2304,
+
         /// <summary>
         /// Format Version October 2023 (aka MaKo2023)
         /// </summary>
@@ -251,7 +265,10 @@ namespace EDILibrary
                 EdifactFormatVersion.FV2404 => "04/24",
                 EdifactFormatVersion.FV2410 => "10/24",
                 EdifactFormatVersion.FV2504 => "04/25",
-                _ => throw new NotImplementedException($"The legacy format for {edifactFormatVersion} is not yet implemented.")
+                _
+                    => throw new NotImplementedException(
+                        $"The legacy format for {edifactFormatVersion} is not yet implemented."
+                    )
             };
         }
 
@@ -262,7 +279,10 @@ namespace EDILibrary
         /// <param name="compare"></param>
         /// <returns>-1 = smaller, 0 equal, 1 greater</returns>
         [Obsolete("Use the IComparer class " + nameof(EdifactFormatVersionComparer) + " instead")]
-        public static int CompareToVersion(this EdifactFormatVersion edifactFormatVersion, EdifactFormatVersion compare)
+        public static int CompareToVersion(
+            this EdifactFormatVersion edifactFormatVersion,
+            EdifactFormatVersion compare
+        )
         {
             return new EdifactFormatVersionComparer().Compare(edifactFormatVersion, compare);
         }
@@ -281,7 +301,10 @@ namespace EDILibrary
                 new EdifactFormatVersionHelper().GetCurrent();
             }
 #if NETSTANDARD2_1
-            foreach (EdifactFormatVersion efv in Enum.GetValues(typeof(EdifactFormatVersion)).Cast<EdifactFormatVersion>())
+            foreach (
+                EdifactFormatVersion efv in Enum.GetValues(typeof(EdifactFormatVersion))
+                    .Cast<EdifactFormatVersion>()
+            )
             {
                 if (legacyFormatString == efv.ToLegacyVersionString())
                 {
@@ -303,7 +326,9 @@ namespace EDILibrary
                 return result;
             }
 
-            throw new NotImplementedException($"The legacy format string '{legacyFormatString}' could not be mapped.");
+            throw new NotImplementedException(
+                $"The legacy format string '{legacyFormatString}' could not be mapped."
+            );
         }
     }
 
@@ -341,57 +366,64 @@ namespace EDILibrary
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV1912"/>
         /// </summary>
-        private static readonly DateTime Keydate1912 = new(2019, 11, 30, 23, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime Keydate1912 =
+            new(2019, 11, 30, 23, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2004"/>
         /// </summary>
-        private static readonly DateTime Keydate2004 = new(2020, 03, 31, 22, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime Keydate2004 =
+            new(2020, 03, 31, 22, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2104"/>
         /// </summary>
-        private static readonly DateTime Keydate2104 = new(2021, 03, 31, 22, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime Keydate2104 =
+            new(2021, 03, 31, 22, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2110"/>
         /// </summary>
-        private static readonly DateTime KeyDate2110 = new(2021, 09, 30, 22, 0, 0, DateTimeKind.Utc);
-
+        private static readonly DateTime KeyDate2110 =
+            new(2021, 09, 30, 22, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2210"/>
         /// </summary>
-        private static readonly DateTime KeyDate2210 = new(2022, 09, 30, 22, 0, 0, DateTimeKind.Utc);
-
+        private static readonly DateTime KeyDate2210 =
+            new(2022, 09, 30, 22, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2304"/>
         /// </summary>
-        private static readonly DateTime KeyDate2304 = new(2023, 03, 31, 22, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime KeyDate2304 =
+            new(2023, 03, 31, 22, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2310"/>
         /// </summary>
-        private static readonly DateTime KeyDate2310 = new(2023, 09, 30, 22, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime KeyDate2310 =
+            new(2023, 09, 30, 22, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2404"/>
         /// </summary>
         /// <remarks>Note that this is _not_ April 1st</remarks>
-        private static readonly DateTime KeyDate2404 = new(2024, 04, 02, 22, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime KeyDate2404 =
+            new(2024, 04, 02, 22, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2410"/>
         /// </summary>
-        private static readonly DateTime KeyDate2410 = new(2024, 09, 30, 22, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime KeyDate2410 =
+            new(2024, 09, 30, 22, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2504"/>
         /// </summary>
         /// <remarks>Note that this is _not_ April 1st</remarks>
-        private static readonly DateTime KeyDate2504 = new(2025, 04, 03, 22, 0, 0, DateTimeKind.Utc);
-
+        private static readonly DateTime KeyDate2504 =
+            new(2025, 04, 03, 22, 0, 0, DateTimeKind.Utc);
 
         public EdifactFormatVersion GetFormatVersion(DateTimeOffset keydate)
         {
@@ -401,7 +433,7 @@ namespace EDILibrary
             }
             if (keydate >= KeyDate2410)
             {
-                return EdifactFormatVersion.FV2410;
+                return EdifactFormatVersion.FV2404;
             }
             if (keydate >= KeyDate2404)
             {
@@ -447,6 +479,7 @@ namespace EDILibrary
 
             return EdifactFormatVersion.FV1710;
         }
+
         /// <summary>
         /// returns the format version valid as of now.
         /// </summary>
@@ -456,6 +489,7 @@ namespace EDILibrary
             var keydate = DateTime.UtcNow;
             return GetFormatVersion(keydate);
         }
+
         /// <summary>
         /// <see cref="IEdifactFormatVersionProvider.GetFormatVersion(EdifactFormat, string)"/>
         /// does not support anything older than 2110 at the moment
@@ -467,148 +501,168 @@ namespace EDILibrary
         {
             EdifactFormatVersion determinedVersion = format switch
             {
-                EdifactFormat.UTILMD => version switch
-                {
-                    "5.2e" => EdifactFormatVersion.FV2210,
-                    "5.2c" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.UTILMDG => version switch
-                {
-                    "G1.0a" => EdifactFormatVersion.FV2310,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.UTILMDW => version switch
-                {
-                    "5.2e" => EdifactFormatVersion.FV2210,
-                    "5.2c" => EdifactFormatVersion.FV2110,
-                    "G1.0a" => EdifactFormatVersion.FV2310,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.UTILMDS => version switch
-                {
-                    "S1.1a" => EdifactFormatVersion.FV2404,
-                    "S1.1" => EdifactFormatVersion.FV2310,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.MSCONS => version switch
-                {
-                    "2.4c" => EdifactFormatVersion.FV2404,
-                    "2.4b" => EdifactFormatVersion.FV2310,
-                    "2.4a" => EdifactFormatVersion.FV2210,
-                    "2.3c" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.PARTIN => version switch
-                {
-                    "1.0d" => EdifactFormatVersion.FV2404,
-                    "1.0c" => EdifactFormatVersion.FV2310,
-                    "1.0a" => EdifactFormatVersion.FV2210,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.IFTSTA => version switch
-                {
-                    "2.0e" => EdifactFormatVersion.FV2310,
-                    "2.0d" => EdifactFormatVersion.FV2210,
-                    "2.0c" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.APERAK => version switch
-                {
-                    "2.1h" => EdifactFormatVersion.FV2210,
-                    "2.1f" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.COMDIS => version switch
-                {
-                    "1.0d" => EdifactFormatVersion.FV2404,
-                    "1.0c" => EdifactFormatVersion.FV2310,
-                    "1.0b" => EdifactFormatVersion.FV2210,
-                    "1.0a" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.CONTRL => version switch
-                {
-                    "2.0b" => EdifactFormatVersion.FV2210,
-                    "2.0a" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.INSRPT => version switch
-                {
-                    "1.1a" => EdifactFormatVersion.FV2210,
-                    "1.1" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.INVOIC => version switch
-                {
-                    "2.8c" => EdifactFormatVersion.FV2404,
-                    "2.8b" => EdifactFormatVersion.FV2310,
-                    "2.8a" => EdifactFormatVersion.FV2304,
-                    "2.8" => EdifactFormatVersion.FV2210,
-                    "2.7a" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.ORDCHG => version switch
-                {
-                    "1.1" => EdifactFormatVersion.FV2310,
-                    "1.0" => EdifactFormatVersion.FV2210,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.ORDERS => version switch
-                {
-                    "1.3" => EdifactFormatVersion.FV2310,
-                    "1.2b" => EdifactFormatVersion.FV2304,
-                    "1.2a" => EdifactFormatVersion.FV2210,
-                    "1.1m" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.ORDRSP => version switch
-                {
-                    "1.3" => EdifactFormatVersion.FV2310,
-                    "1.2b" => EdifactFormatVersion.FV2304,
-                    "1.2a" => EdifactFormatVersion.FV2210,
-                    "1.1k" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.PRICAT => version switch
-                {
-                    "2.0c" => EdifactFormatVersion.FV2310,
-                    "2.0b" => EdifactFormatVersion.FV2304,
-                    "2.0a" => EdifactFormatVersion.FV2210,
-                    "1.1b" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.QUOTES => version switch
-                {
-                    "1.3" => EdifactFormatVersion.FV2310,
-                    "1.2" => EdifactFormatVersion.FV2210,
-                    "1.1b" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.REMADV => version switch
-                {
-                    "2.9c" => EdifactFormatVersion.FV2404,
-                    "2.9b" => EdifactFormatVersion.FV2310,
-                    "2.9a" => EdifactFormatVersion.FV2304,
-                    "2.9" => EdifactFormatVersion.FV2210,
-                    "2.8" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.REQOTE => version switch
-                {
-                    "1.3" => EdifactFormatVersion.FV2310,
-                    "1.2" => EdifactFormatVersion.FV2210,
-                    "1.1d" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
-                EdifactFormat.UTILTS => version switch
-                {
-                    "1.1c" => EdifactFormatVersion.FV2404,
-                    "1.1b" => EdifactFormatVersion.FV2310,
-                    "1.1a" => EdifactFormatVersion.FV2210,
-                    "1.0a" => EdifactFormatVersion.FV2110,
-                    _ => GetCurrent()
-                },
+                EdifactFormat.UTILMD
+                    => version switch
+                    {
+                        "5.2e" => EdifactFormatVersion.FV2210,
+                        "5.2c" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.UTILMDG
+                    => version switch
+                    {
+                        "G1.0a" => EdifactFormatVersion.FV2310,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.UTILMDW
+                    => version switch
+                    {
+                        "5.2e" => EdifactFormatVersion.FV2210,
+                        "5.2c" => EdifactFormatVersion.FV2110,
+                        "G1.0a" => EdifactFormatVersion.FV2310,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.UTILMDS
+                    => version switch
+                    {
+                        "S1.1a" => EdifactFormatVersion.FV2404,
+                        "S1.1" => EdifactFormatVersion.FV2310,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.MSCONS
+                    => version switch
+                    {
+                        "2.4c" => EdifactFormatVersion.FV2404,
+                        "2.4b" => EdifactFormatVersion.FV2310,
+                        "2.4a" => EdifactFormatVersion.FV2210,
+                        "2.3c" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.PARTIN
+                    => version switch
+                    {
+                        "1.0d" => EdifactFormatVersion.FV2404,
+                        "1.0c" => EdifactFormatVersion.FV2310,
+                        "1.0a" => EdifactFormatVersion.FV2210,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.IFTSTA
+                    => version switch
+                    {
+                        "2.0e" => EdifactFormatVersion.FV2310,
+                        "2.0d" => EdifactFormatVersion.FV2210,
+                        "2.0c" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.APERAK
+                    => version switch
+                    {
+                        "2.1h" => EdifactFormatVersion.FV2210,
+                        "2.1f" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.COMDIS
+                    => version switch
+                    {
+                        "1.0d" => EdifactFormatVersion.FV2404,
+                        "1.0c" => EdifactFormatVersion.FV2310,
+                        "1.0b" => EdifactFormatVersion.FV2210,
+                        "1.0a" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.CONTRL
+                    => version switch
+                    {
+                        "2.0b" => EdifactFormatVersion.FV2210,
+                        "2.0a" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.INSRPT
+                    => version switch
+                    {
+                        "1.1a" => EdifactFormatVersion.FV2210,
+                        "1.1" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.INVOIC
+                    => version switch
+                    {
+                        "2.8c" => EdifactFormatVersion.FV2404,
+                        "2.8b" => EdifactFormatVersion.FV2310,
+                        "2.8a" => EdifactFormatVersion.FV2304,
+                        "2.8" => EdifactFormatVersion.FV2210,
+                        "2.7a" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.ORDCHG
+                    => version switch
+                    {
+                        "1.1" => EdifactFormatVersion.FV2310,
+                        "1.0" => EdifactFormatVersion.FV2210,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.ORDERS
+                    => version switch
+                    {
+                        "1.3" => EdifactFormatVersion.FV2310,
+                        "1.2b" => EdifactFormatVersion.FV2304,
+                        "1.2a" => EdifactFormatVersion.FV2210,
+                        "1.1m" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.ORDRSP
+                    => version switch
+                    {
+                        "1.3" => EdifactFormatVersion.FV2310,
+                        "1.2b" => EdifactFormatVersion.FV2304,
+                        "1.2a" => EdifactFormatVersion.FV2210,
+                        "1.1k" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.PRICAT
+                    => version switch
+                    {
+                        "2.0c" => EdifactFormatVersion.FV2310,
+                        "2.0b" => EdifactFormatVersion.FV2304,
+                        "2.0a" => EdifactFormatVersion.FV2210,
+                        "1.1b" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.QUOTES
+                    => version switch
+                    {
+                        "1.3" => EdifactFormatVersion.FV2310,
+                        "1.2" => EdifactFormatVersion.FV2210,
+                        "1.1b" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.REMADV
+                    => version switch
+                    {
+                        "2.9c" => EdifactFormatVersion.FV2404,
+                        "2.9b" => EdifactFormatVersion.FV2310,
+                        "2.9a" => EdifactFormatVersion.FV2304,
+                        "2.9" => EdifactFormatVersion.FV2210,
+                        "2.8" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.REQOTE
+                    => version switch
+                    {
+                        "1.3" => EdifactFormatVersion.FV2310,
+                        "1.2" => EdifactFormatVersion.FV2210,
+                        "1.1d" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
+                EdifactFormat.UTILTS
+                    => version switch
+                    {
+                        "1.1c" => EdifactFormatVersion.FV2404,
+                        "1.1b" => EdifactFormatVersion.FV2310,
+                        "1.1a" => EdifactFormatVersion.FV2210,
+                        "1.0a" => EdifactFormatVersion.FV2110,
+                        _ => GetCurrent()
+                    },
                 _ => GetCurrent()
             };
             return determinedVersion;
