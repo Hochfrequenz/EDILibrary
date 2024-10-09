@@ -180,8 +180,8 @@ namespace EDILibraryTests
         [DataRow("2023-09-30T22:00:00+00:00", EdifactFormatVersion.FV2310)]
         [DataRow("2024-03-31T22:00:00+00:00", EdifactFormatVersion.FV2310)]
         [DataRow("2024-04-02T22:00:00+00:00", EdifactFormatVersion.FV2404)]
-        [DataRow("2024-09-30T22:00:00+00:00", EdifactFormatVersion.FV2410)]
-        [DataRow("2025-03-31T22:00:00+00:00", EdifactFormatVersion.FV2410)]
+        [DataRow("2024-09-30T22:00:00+00:00", EdifactFormatVersion.FV2404)]
+        [DataRow("2025-03-31T22:00:00+00:00", EdifactFormatVersion.FV2404)]
         [DataRow("2025-04-03T22:00:00+00:00", EdifactFormatVersion.FV2504)]
         public void TestFormatVersionProvider(
             string dateTimeOffset,

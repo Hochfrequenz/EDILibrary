@@ -432,7 +432,7 @@ namespace EDILibrary
             }
             if (keydate >= KeyDate2410)
             {
-                return EdifactFormatVersion.FV2410;
+                return EdifactFormatVersion.FV2404;
             }
             if (keydate >= KeyDate2404)
             {
