@@ -946,6 +946,13 @@ namespace EDILibrary.Constants.German
         public const string WEICHENINDEX_99001_WeichenindexUpdateSelbstDefiniert = "99001";
 
         #endregion
+
+        #region Marktteilnehmer
+
+        public const string MARKTTEILNEHMER_93001_MarktteilnehmerSelbstDefiniert = "93001";
+
+        #endregion
+
 #pragma warning restore CS1591
     }
 }
