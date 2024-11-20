@@ -949,7 +949,7 @@ namespace EDILibrary.Constants.German
 
         #region Marktteilnehmer
 
-        public const string MARKTTEILNEHMER_93001_MarktteilnehmerSelbstDefiniert = "93001";
+        public const string MARKTTEILNEHMER_99101_MarktteilnehmerSelbstDefiniert = "99101";
 
         #endregion
 
