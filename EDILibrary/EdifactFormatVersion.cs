@@ -422,7 +422,7 @@ namespace EDILibrary
         /// </summary>
         /// <remarks>Note that this is _not_ April 1st</remarks>
         private static readonly DateTime KeyDate2504 =
-            new(2025, 04, 03, 22, 0, 0, DateTimeKind.Utc);
+            new(2025, 06, 05, 22, 0, 0, DateTimeKind.Utc);
 
         public EdifactFormatVersion GetFormatVersion(DateTimeOffset keydate)
         {
@@ -545,7 +545,7 @@ namespace EDILibrary
                 EdifactFormat.IFTSTA => version switch
                 {
                     "2.0f" => EdifactFormatVersion.FV2504,
-                    "2.0e" => EdifactFormatVersion.FV2310,
+                    "2.0e" => EdifactFormatVersion.FV2404,
                     "2.0d" => EdifactFormatVersion.FV2210,
                     "2.0c" => EdifactFormatVersion.FV2110,
                     _ => GetCurrent(),
