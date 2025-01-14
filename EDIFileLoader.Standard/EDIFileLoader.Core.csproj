@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>EDIFileLoader.Core</AssemblyName>
     <RootNamespace>EDIFileLoader.Core</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -18,6 +17,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <DebugType>Embedded</DebugType>
     <EmbedAllSources>True</EmbedAllSources>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
