@@ -17,7 +17,7 @@
     <DebugType>Embedded</DebugType>
     <EmbedAllSources>True</EmbedAllSources>
     <RepositoryUrl>https://github.com/Hochfrequenz/EDILibrary</RepositoryUrl>
-    <TargetFrameworks>netstandard2.1;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0;netstandard2.1</TargetFrameworks>
 
   </PropertyGroup>
 

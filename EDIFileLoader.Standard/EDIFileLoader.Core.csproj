@@ -17,7 +17,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <DebugType>Embedded</DebugType>
     <EmbedAllSources>True</EmbedAllSources>
-    <TargetFrameworks>net6.0;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
