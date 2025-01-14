@@ -22,7 +22,7 @@
     
 
     
-    <TargetFrameworks>netstandard2.1;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0;netstandard2.1;net6.0</TargetFrameworks>
 
   </PropertyGroup>
 
