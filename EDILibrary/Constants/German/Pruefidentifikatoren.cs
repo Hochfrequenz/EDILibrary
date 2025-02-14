@@ -1039,6 +1039,13 @@ namespace EDILibrary.Constants.German
         public const string MARKTTEILNEHMER_99101_MarktteilnehmerSelbstDefiniert = "99101";
 
         #endregion
+        #region MaloIdent
+
+        public const string MALOIDENT_99201_Anfrage = "99201";
+        public const string MALOIDENT_99202_PositiveRueckmeldung = "99202";
+        public const string MALOIDENT_99203_NegativeRueckmeldung = "99203";
+
+        #endregion
 
 #pragma warning restore CS1591
     }
