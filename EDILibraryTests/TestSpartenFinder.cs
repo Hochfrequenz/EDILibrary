@@ -24,7 +24,7 @@ namespace EDILibraryTests
         [DataRow("4041408700013", "4038777000004", Sparte.GAS)]
         [DataRow("4260016042005", "4041408700013", Sparte.GAS)]
         [DataRow("5260016042005", "4041408700013", Sparte.WASSER)]
-        public async Task TestSparte(string sender, string receiver, Sparte expectedSparte)
+        public void TestSparte(string sender, string receiver, Sparte expectedSparte)
         {
             Sparten s = new();
             s.STROM.Add("4033872000041");
