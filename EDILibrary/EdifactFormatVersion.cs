@@ -598,7 +598,7 @@ namespace EDILibrary
                 {
                     "1.4a" => EdifactFormatVersion.FV2504,
                     "1.4" => EdifactFormatVersion.FV2504,
-                    "1.3" => EdifactFormatVersion.FV2310,
+                    "1.3" => EdifactFormatVersion.FV2404,
                     "1.2b" => EdifactFormatVersion.FV2304,
                     "1.2a" => EdifactFormatVersion.FV2210,
                     "1.1m" => EdifactFormatVersion.FV2110,

@@ -64,6 +64,7 @@ namespace EDILibrary.Constants.German
         public const string IFTSTA_21042_Wim_UmsetzungsstatusDerBestellung = "21042";
         public const string IFTSTA_21043_Gpke_BestellungsantwortMitteilung = "21043";
         public const string IFTSTA_21044_Gpke_Bestellungsbeendigung = "21044";
+        public const string IFTSTA_21047_Gpke_Bearbeitungsstandsmeldung = "21047";
 
         #endregion
 
@@ -184,6 +185,10 @@ namespace EDILibrary.Constants.German
         public const string ORDERS_17210_Anforderung = "17210";
         public const string ORDERS_17211_ReklamationProfileBzwProfilscharen = "17211";
         public const string ORDERS_17301_AnforderungAbo = "17301";
+        public const string ORDERS_17132_Gpke_AnfrageStammdatenStrom = "17132";
+        public const string ORDERS_17133_Gpke_BestellungAenderungAbrechnungsdaten = "17133";
+        public const string ORDERS_17134_Gpke_EinrichtungKonfigurationZuordnungLfVonNb = "17134";
+        public const string ORDERS_17135_Gpke_EinrichtungKonfigurationZuordnungLfVonMsb = "17135";
 
         #endregion
 
@@ -231,6 +236,7 @@ namespace EDILibrary.Constants.German
         public const string ORDRSP_19204_AblehnungAbBestellungDerAggregationsebene = "19204";
         public const string ORDRSP_19301_AblehnungAbo = "19301";
         public const string ORDRSP_19302_BestaetigungEndeAbo = "19302";
+        public const string ORDRSP_19133_Gpke_BearbeitungsstandBestellungAenderungAbrechnungsdaten = "19133";
 
         #endregion
 
@@ -294,6 +300,7 @@ namespace EDILibrary.Constants.German
         public const string UTILTS_25007_UebersichtLeistungskurvendefinitionen = "25007";
         public const string UTILTS_25008_AusgerollteSchaltzeitdefinition = "25008";
         public const string UTILTS_25009_AusgerollteLeistungskurvendefinition = "25009";
+        public const string UTILTS_25010_WimStrom_AntwortAufBerechnungsformel = "25010";
 
         #endregion
 
@@ -817,6 +824,86 @@ namespace EDILibrary.Constants.German
         public const string UTILMD_55555_Gpke_AnfrageStammdatenAufIndividuelleBestellung = "55555";
         public const string UTILMD_55556_Gpke_AntwortAufAnfrageDerIndividuellenBestellung = "55556";
 
+        public const string UTILMD_55600_Gpke_AnmeldungNeuerVerbMaloLfAnNb = "55600";
+        public const string UTILMD_55601_Gpke_AnmeldungNeuerErzMaloLfAnNb = "55601";
+        public const string UTILMD_55602_Gpke_BestaetigungAnmeldungNeuerVerbMaloNbAnLf = "55602";
+        public const string UTILMD_55603_Gpke_BestaetigungAnmeldungNeuerErzMaloNbAnLf = "55603";
+        public const string UTILMD_55604_Gpke_AblehnungAnmeldungNeuerVerbMaloNbAnLf = "55604";
+        public const string UTILMD_55605_Gpke_AblehnungAnmeldungNeuerErzMaloNbAnLf = "55605";
+        public const string UTILMD_55607_Gpke_AnkuendigungZuordnung_ZuordnungDesLfZurMalo_TrancheNbAnLfn = "55607";
+        public const string UTILMD_55608_Gpke_BestaetigungZuordnungDesLfZurMalo_TrancheLfnAnNb = "55608";
+        public const string UTILMD_55609_Gpke_AblehnungZuordnungDesLfZurMalo_TrancheLfnAnNb = "55609";
+        public const string UTILMD_55611_Gpke_BeendigungDerZuordnungNbAnMsb = "55611";
+        public const string UTILMD_55613_Gpke_AbrDatenBkAbrVerbMaloNbAnÜnb = "55613";
+        public const string UTILMD_55614_Gpke_Rueckmeldung_AnfrageAbrDatenBkAbrVerbMaloUenbAnNb = "55614";
+        public const string UTILMD_55615_Gpke_AenderungDatenDerNeloNbAnLf = "55615";
+        public const string UTILMD_55616_Gpke_AenderungDatenDerMaloNbAnLf = "55616";
+        public const string UTILMD_55617_Gpke_AenderungDatenDerTrNbAnLf = "55617";
+        public const string UTILMD_55618_Gpke_AenderungDatenDerSrNbAnLf = "55618";
+        public const string UTILMD_55619_Gpke_AenderungDatenDerTrancheNbAnLf = "55619";
+        public const string UTILMD_55620_Gpke_AenderungDatenDerMeloNbAnLf = "55620";
+        public const string UTILMD_55621_Gpke_Rueckmeldung_AnfrageDatenZurNeloLfAnNb = "55621";
+        public const string UTILMD_55622_Gpke_Rueckmeldung_AnfrageDatenDerMaloLfAnNb = "55622";
+        public const string UTILMD_55623_Gpke_Rueckmeldung_AnfrageDatenDerTrLfAnNb = "55623";
+        public const string UTILMD_55624_Gpke_Rueckmeldung_AnfrageDatenDerSrLfAnNb = "55624";
+        public const string UTILMD_55625_Gpke_Rueckmeldung_AnfrageDatenDerTrancheLfAnNb = "55625";
+        public const string UTILMD_55626_Gpke_Rueckmeldung_AnfrageDatenDerMeloLfAnNb = "55626";
+        public const string UTILMD_55627_Gpke_AenderungDatenDerNeloNbAnMsb = "55627";
+        public const string UTILMD_55628_Gpke_AenderungDatenDerMaloNbAnMsb = "55628";
+        public const string UTILMD_55629_Gpke_AenderungDatenDerTrNbAnMsb = "55629";
+        public const string UTILMD_55630_Gpke_AenderungDatenDerSrNbAnMsb = "55630";
+        public const string UTILMD_55632_Gpke_AenderungDatenDerMeloNbAnMsb = "55632";
+        public const string UTILMD_55633_Gpke_Rueckmeldung_AnfrageDatenZurNeloMsbAnNb = "55633";
+        public const string UTILMD_55634_Gpke_Rueckmeldung_AnfrageDatenDerMaloMsbAnNb = "55634";
+        public const string UTILMD_55635_Gpke_Rueckmeldung_AnfrageDatenDerTrMsbAnNb = "55635";
+        public const string UTILMD_55636_Gpke_Rueckmeldung_AnfrageDatenDerSrMsbAnNb = "55636";
+        public const string UTILMD_55638_Gpke_Rueckmeldung_AnfrageDatenDerMeloMsbAnNb = "55638";
+        public const string UTILMD_55639_Gpke_AenderungDatenDerNeloMsbAnNb = "55639";
+        public const string UTILMD_55640_Gpke_AenderungDatenDerMaloMsbAnNb = "55640";
+        public const string UTILMD_55641_Gpke_AenderungDatenDerSrMsbAnNb = "55641";
+        public const string UTILMD_55642_Gpke_AenderungDatenDerTrancheMsbAnNb = "55642";
+        public const string UTILMD_55643_Gpke_AenderungDatenDerMeloMsbAnNb = "55643";
+        public const string UTILMD_55644_Gpke_Rueckmeldung_AnfrageDatenDerNeloNbAnMsb = "55644";
+        public const string UTILMD_55645_Gpke_Rueckmeldung_AnfrageDatenDerMaloNbAnMsb = "55645";
+        public const string UTILMD_55646_Gpke_Rueckmeldung_AnfrageDatenDerSrNbAnMsb = "55646";
+        public const string UTILMD_55647_Gpke_Rueckmeldung_AnfrageDatenDerTrancheNbAnMsb = "55647";
+        public const string UTILMD_55648_Gpke_Rueckmeldung_AnfrageDatenDerMeloNbAnMsb = "55648";
+        public const string UTILMD_55649_Gpke_AenderungDatenDerNeloMsbAnLf = "55649";
+        public const string UTILMD_55650_Gpke_AenderungDatenDerMaloMsbAnLf = "55650";
+        public const string UTILMD_55651_Gpke_AenderungDatenDerSrMsbAnLf = "55651";
+        public const string UTILMD_55652_Gpke_AenderungDatenDerTrancheMsbAnLf = "55652";
+        public const string UTILMD_55653_Gpke_AenderungDatenDerMeloMsbAnLf = "55653";
+        public const string UTILMD_55654_Gpke_Rueckmeldung_AnfrageDatenDerNeloLfAnMsb = "55654";
+        public const string UTILMD_55655_Gpke_Rueckmeldung_AnfrageDatenDerMaloLfAnMsb = "55655";
+        public const string UTILMD_55656_Gpke_Rueckmeldung_AnfrageDatenDerSrLfAnMsb = "55656";
+        public const string UTILMD_55657_Gpke_Rueckmeldung_AnfrageDatenDerTrancheLfAnMsb = "55657";
+        public const string UTILMD_55658_Gpke_Rueckmeldung_AnfrageDatenDerMeloLfAnMsb = "55658";
+        public const string UTILMD_55659_Gpke_AenderungDatenDerNeloMsbAnWeitererMsb = "55659";
+        public const string UTILMD_55660_Gpke_AenderungDatenDerMaloMsbAnWeitererMsb = "55660";
+        public const string UTILMD_55661_Gpke_AenderungDatenDerSrMsbAnWeitererMsb = "55661";
+        public const string UTILMD_55662_Gpke_AenderungDatenDerTrancheMsbAnWeitererMsb = "55662";
+        public const string UTILMD_55663_Gpke_AenderungDatenDerMeloMsbAnWeitererMsb = "55663";
+        public const string UTILMD_55664_Gpke_Rueckmeldung_AnfrageDatenDerNeloWeitererMsbAnMsb = "55664";
+        public const string UTILMD_55665_Gpke_Rueckmeldung_AnfrageDatenDerMaloWeitererMsbAnMsb = "55665";
+        public const string UTILMD_55666_Gpke_Rueckmeldung_AnfrageDatenDerSrWeitererMsbAnMsb = "55666";
+        public const string UTILMD_55667_Gpke_Rueckmeldung_AnfrageDatenDerTrancheWeitererMsbAnMsb = "55667";
+        public const string UTILMD_55669_Gpke_Rueckmeldung_AnfrageDatenDerMeloWeitererMsbAnMsb = "55669";
+        public const string UTILMD_55670_Gpke_StammdatenBkTreueNbAnUenb = "55670";
+        public const string UTILMD_55671_Gpke_RueckmeldungAufStammdatenBkTreueUenbAnNb = "55671";
+        public const string UTILMD_55672_Gpke_AbrDatenBkAbrErzMaloNbAnLf = "55672";
+        public const string UTILMD_55673_Gpke_Rueckmeldung_AnfrageAbrDatenBkAbrErzMaloLfAnNb = "55673";
+        public const string UTILMD_55674_Gpke_AbrDatenBkAbrErzMaloNbAnUenb = "55674";
+        public const string UTILMD_55675_Gpke_Rueckmeldung_AnfrageAbrDatenBkAbrErzMaloUenbAnNb = "55675";
+        public const string UTILMD_55684_Gpke_AenderungDatenDerMaloMsbAnUenb = "55684";
+        public const string UTILMD_55685_Gpke_Rueckmeldung_AnfrageDatenDerMaloUenbAnMsb = "55685";
+        public const string UTILMD_55686_Gpke_AenderungDatenDerTrancheMsbAnUenb = "55686";
+        public const string UTILMD_55687_Gpke_Rueckmeldung_AnfrageDatenDerTrancheUenbAnMsb = "55687";
+        public const string UTILMD_55688_Gpke_AenderungDatenDerMaloNbAnUenb = "55688";
+        public const string UTILMD_55689_Gpke_Rueckmeldung_AnfrageDatenDerMaloUenbAnNb = "55689";
+        public const string UTILMD_55690_AwhNetzbetreiberwechsel_LokationsbuendelstrukturUndDbNbaAnNbn = "55690";
+        public const string UTILMD_55691_GpkeTeil4_AenderungPaketIdDerMaloNbAnLf = "55691";
+        public const string UTILMD_55692_GpkeTeil4_RueckmeldungAnfragePaketIdDerMaloLfAnNb = "55692";
+
         #endregion
 
         #region UTILMDG
@@ -950,6 +1037,13 @@ namespace EDILibrary.Constants.German
         #region Marktteilnehmer
 
         public const string MARKTTEILNEHMER_99101_MarktteilnehmerSelbstDefiniert = "99101";
+
+        #endregion
+        #region MaloIdent
+
+        public const string MALOIDENT_99201_Anfrage = "99201";
+        public const string MALOIDENT_99202_PositiveRueckmeldung = "99202";
+        public const string MALOIDENT_99203_NegativeRueckmeldung = "99203";
 
         #endregion
 
