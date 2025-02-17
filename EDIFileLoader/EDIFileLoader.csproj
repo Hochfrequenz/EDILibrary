@@ -28,7 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.2" />
     <PackageReference Include="Storage.Net" Version="9.3.0" />
     <PackageReference Include="System.Text.Json" Version="9.0.2" />
   </ItemGroup>
