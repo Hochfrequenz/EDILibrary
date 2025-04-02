@@ -81,6 +81,7 @@ namespace EDILibraryTests
                 EdifactFormatVersion.FV2404,
                 EdifactFormatVersion.FV2410,
                 EdifactFormatVersion.FV2504,
+                EdifactFormatVersion.FV2510,
             };
             var comparer = new EdifactFormatVersionComparer();
             for (int i = 0; i < expectedNaturalOrder.Count - 1; i++)
@@ -130,6 +131,7 @@ namespace EDILibraryTests
         [DataRow("04/24", EdifactFormatVersion.FV2404)]
         [DataRow("10/24", EdifactFormatVersion.FV2410)]
         [DataRow("04/25", EdifactFormatVersion.FV2504)]
+        [DataRow("10/25", EdifactFormatVersion.FV2510)]
         public void TestLegacyStrings(
             string legacyString,
             EdifactFormatVersion expectedFormatVersion
@@ -183,6 +185,7 @@ namespace EDILibraryTests
         [DataRow("2024-09-30T22:00:00+00:00", EdifactFormatVersion.FV2404)]
         [DataRow("2025-03-31T22:00:00+00:00", EdifactFormatVersion.FV2404)]
         [DataRow("2025-06-05T22:00:00+00:00", EdifactFormatVersion.FV2504)]
+        [DataRow("2025-09-30T22:00:00+00:00", EdifactFormatVersion.FV2510)]
         public void TestFormatVersionProvider(
             string dateTimeOffset,
             EdifactFormatVersion expectedVersion
