@@ -173,6 +173,7 @@ namespace EDILibrary.Constants.German
         public const string ORDERS_17129_BestellungBeendigungEinerKonfiguration = "17129";
         public const string ORDERS_17130_BestellungAenderungEinerKonfiguration = "17130";
         public const string ORDERS_17131_BestellungEinesAngebotsEinerKonfiguration = "17131";
+        public const string ORDERS_17133_BestellungAenderungAbrechnungsdaten = "17133";
         public const string ORDERS_17201_AnforderungNormierterProfile_Profilscharen = "17201";
         public const string ORDERS_17202_AnforderungLieferantenclearingliste = "17202";
         public const string ORDERS_17203_AnforderungBilanzkreiszuordnungsliste = "17203";
@@ -233,6 +234,8 @@ namespace EDILibrary.Constants.German
         public const string ORDRSP_19131_AntwortAufBestellungBeendigungEinerKonfiguration = "19131";
         public const string ORDRSP_19132_MitteilungZurBestellungAenderungEinerKonfiguration =
             "19132";
+        public const string ORDRSP_19133_BearbeitungsstandBestellungAenderungAbrechnungsdaten =
+            "19133";
         public const string ORDRSP_19204_AblehnungAbBestellungDerAggregationsebene = "19204";
         public const string ORDRSP_19301_AblehnungAbo = "19301";
         public const string ORDRSP_19302_BestaetigungEndeAbo = "19302";
