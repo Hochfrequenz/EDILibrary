@@ -14,4 +14,4 @@ jobs:
       - name: Restore .NET tools
         run: dotnet tool restore
       - name: Run CSharpier
-        run: csharpier EDILibrary.sln --check
+        run: dotnet csharpier check EDILibrary.sln
