@@ -11,8 +11,9 @@ namespace EDILibrary
 {
     public class TemplateHelper
     {
-        private static readonly Regex FormatVersionRegex =
-            new(@"^(?<format>[A-Z]{6,7})(?<version>[A-Z]?\d+\.\d+[a-z]?)$");
+        private static readonly Regex FormatVersionRegex = new(
+            @"^(?<format>[A-Z]{6,7})(?<version>[A-Z]?\d+\.\d+[a-z]?)$"
+        );
 
         private static void ParseAPERAKString(
             string aperak,
