@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>EDI Library for german energy market (.netstandard 2.1 version)</Description>
@@ -11,45 +10,55 @@
     <LangVersion>9</LangVersion>
     <!-- Optional: Declare that the Repository URL can be published to NuSpec -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-
     <RepositoryType>git</RepositoryType>
     <IncludeSymbols>true</IncludeSymbols>
     <DebugType>Embedded</DebugType>
     <EmbedAllSources>True</EmbedAllSources>
     <RepositoryUrl>https://github.com/Hochfrequenz/EDILibrary</RepositoryUrl>
     <TargetFrameworks>net8.0;net9.0;netstandard2.1</TargetFrameworks>
-
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="..\EDILibrary\CSVMapper.cs" Link="CSVMapper.cs" />
     <Compile Include="..\EDILibrary\EDIFACTEnums.cs" Link="EDIFACTEnums.cs" />
     <Compile Include="..\EDILibrary\EdifactFormatVersion.cs" Link="EdifactFormatVersion.cs" />
     <Compile Include="..\EDILibrary\EDIHelper.cs" Link="EDIHelper.cs" />
     <Compile Include="..\EDILibrary\EdiJsonMapper.cs" Link="EdiJsonMapper.cs" />
-    <Compile Include="..\EDILibrary\Exceptions\BadFormatException.cs" Link="Exceptions\BadFormatException.cs" />
-    <Compile Include="..\EDILibrary\Exceptions\BadPIDException.cs" Link="Exceptions\BadPIDException.cs" />
+    <Compile
+      Include="..\EDILibrary\Exceptions\BadFormatException.cs"
+      Link="Exceptions\BadFormatException.cs"
+    />
+    <Compile
+      Include="..\EDILibrary\Exceptions\BadPIDException.cs"
+      Link="Exceptions\BadPIDException.cs"
+    />
     <Compile Include="..\EDILibrary\ExtendedMappings.cs" Link="ExtendedMappings.cs" />
     <Compile Include="..\EDILibrary\GenericEDILoader.cs" Link="GenericEDILoader.cs" />
     <Compile Include="..\EDILibrary\GenericEDIWriter.cs" Link="GenericEDIWriter.cs" />
     <Compile Include="..\EDILibrary\Helper\MappingHelper.cs" Link="Helper\MappingHelper.cs" />
     <Compile Include="..\EDILibrary\Helper\SpartenHelper.cs" Link="Helper\SpartenHelper.cs" />
     <Compile Include="..\EDILibrary\IEdiObject.cs" Link="IEdiObject.cs" />
-    <Compile Include="..\EDILibrary\Interfaces\Anwendungshandbuch.cs" Link="Interfaces\Anwendungshandbuch.cs" />
-    <Compile Include="..\EDILibrary\Interfaces\ITemplateLoader.cs" Link="Interfaces\ITemplateLoader.cs" />
-    <Compile Include="..\EDILibrary\Interfaces\IDivisionResolver.cs" Link="Interfaces\IDivisionResolver.cs" />
+    <Compile
+      Include="..\EDILibrary\Interfaces\Anwendungshandbuch.cs"
+      Link="Interfaces\Anwendungshandbuch.cs"
+    />
+    <Compile
+      Include="..\EDILibrary\Interfaces\ITemplateLoader.cs"
+      Link="Interfaces\ITemplateLoader.cs"
+    />
+    <Compile
+      Include="..\EDILibrary\Interfaces\IDivisionResolver.cs"
+      Link="Interfaces\IDivisionResolver.cs"
+    />
     <Compile Include="..\EDILibrary\PathSelection.cs" Link="PathSelection.cs" />
     <Compile Include="..\EDILibrary\StringSplitEnhacement.cs" Link="StringSplitEnhacement.cs" />
     <Compile Include="..\EDILibrary\TemplateHelper.cs" Link="TemplateHelper.cs" />
     <Compile Include="..\EDILibrary\TreeElement.cs" Link="TreeElement.cs" />
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="Interfaces\" />
     <Folder Include="Helper\" />
     <Folder Include="Exceptions\" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Humanizer.Core" Version="2.14.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
@@ -61,5 +70,4 @@
     <PackageReference Include="System.Text.Json" Version="9.0.2" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
-
 </Project>

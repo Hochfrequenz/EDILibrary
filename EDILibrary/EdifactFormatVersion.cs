@@ -371,70 +371,150 @@ namespace EDILibrary
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV1912"/>
         /// </summary>
-        private static readonly DateTime Keydate1912 =
-            new(2019, 11, 30, 23, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime Keydate1912 = new(
+            2019,
+            11,
+            30,
+            23,
+            0,
+            0,
+            0,
+            DateTimeKind.Utc
+        );
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2004"/>
         /// </summary>
-        private static readonly DateTime Keydate2004 =
-            new(2020, 03, 31, 22, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime Keydate2004 = new(
+            2020,
+            03,
+            31,
+            22,
+            0,
+            0,
+            0,
+            DateTimeKind.Utc
+        );
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2104"/>
         /// </summary>
-        private static readonly DateTime Keydate2104 =
-            new(2021, 03, 31, 22, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime Keydate2104 = new(
+            2021,
+            03,
+            31,
+            22,
+            0,
+            0,
+            0,
+            DateTimeKind.Utc
+        );
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2110"/>
         /// </summary>
-        private static readonly DateTime KeyDate2110 =
-            new(2021, 09, 30, 22, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime KeyDate2110 = new(
+            2021,
+            09,
+            30,
+            22,
+            0,
+            0,
+            DateTimeKind.Utc
+        );
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2210"/>
         /// </summary>
-        private static readonly DateTime KeyDate2210 =
-            new(2022, 09, 30, 22, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime KeyDate2210 = new(
+            2022,
+            09,
+            30,
+            22,
+            0,
+            0,
+            DateTimeKind.Utc
+        );
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2304"/>
         /// </summary>
-        private static readonly DateTime KeyDate2304 =
-            new(2023, 03, 31, 22, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime KeyDate2304 = new(
+            2023,
+            03,
+            31,
+            22,
+            0,
+            0,
+            DateTimeKind.Utc
+        );
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2310"/>
         /// </summary>
-        private static readonly DateTime KeyDate2310 =
-            new(2023, 09, 30, 22, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime KeyDate2310 = new(
+            2023,
+            09,
+            30,
+            22,
+            0,
+            0,
+            DateTimeKind.Utc
+        );
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2404"/>
         /// </summary>
         /// <remarks>Note that this is _not_ April 1st</remarks>
-        private static readonly DateTime KeyDate2404 =
-            new(2024, 04, 02, 22, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime KeyDate2404 = new(
+            2024,
+            04,
+            02,
+            22,
+            0,
+            0,
+            DateTimeKind.Utc
+        );
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2410"/>
         /// </summary>
-        private static readonly DateTime KeyDate2410 =
-            new(2024, 09, 30, 22, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime KeyDate2410 = new(
+            2024,
+            09,
+            30,
+            22,
+            0,
+            0,
+            DateTimeKind.Utc
+        );
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2504"/>
         /// </summary>
         /// <remarks>Note that this is _not_ April 1st</remarks>
-        private static readonly DateTime KeyDate2504 =
-            new(2025, 06, 05, 22, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime KeyDate2504 = new(
+            2025,
+            06,
+            05,
+            22,
+            0,
+            0,
+            DateTimeKind.Utc
+        );
 
         /// <summary>
         /// validity date of <see cref="EdifactFormatVersion.FV2510"/>
         /// </summary>
-        private static readonly DateTime KeyDate2510 =
-            new(2025, 09, 30, 22, 0, 0, DateTimeKind.Utc);
+        private static readonly DateTime KeyDate2510 = new(
+            2025,
+            09,
+            30,
+            22,
+            0,
+            0,
+            DateTimeKind.Utc
+        );
 
         public EdifactFormatVersion GetFormatVersion(DateTimeOffset keydate)
         {

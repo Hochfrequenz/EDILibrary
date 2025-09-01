@@ -99,19 +99,19 @@ namespace EDILibraryTests
         [TestMethod]
         public void NoPruefiNoFormat()
         {
-            Assert.ThrowsException<ArgumentNullException>(
-                () => EdifactFormatHelper.FromPruefidentifikator(null)
+            Assert.ThrowsException<ArgumentNullException>(() =>
+                EdifactFormatHelper.FromPruefidentifikator(null)
             );
-            Assert.ThrowsException<ArgumentNullException>(
-                () => EdifactFormatHelper.FromPruefidentifikator("   ")
+            Assert.ThrowsException<ArgumentNullException>(() =>
+                EdifactFormatHelper.FromPruefidentifikator("   ")
             );
         }
 
         [TestMethod]
         public void UnmappedThrowsNotImplemented()
         {
-            Assert.ThrowsException<NotImplementedException>(
-                () => EdifactFormatHelper.FromPruefidentifikator("88888")
+            Assert.ThrowsException<NotImplementedException>(() =>
+                EdifactFormatHelper.FromPruefidentifikator("88888")
             );
         }
 

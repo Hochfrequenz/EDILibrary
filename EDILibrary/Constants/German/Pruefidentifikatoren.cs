@@ -240,7 +240,8 @@ namespace EDILibrary.Constants.German
         public const string ORDRSP_19204_AblehnungAbBestellungDerAggregationsebene = "19204";
         public const string ORDRSP_19301_AblehnungAbo = "19301";
         public const string ORDRSP_19302_BestaetigungEndeAbo = "19302";
-        public const string ORDRSP_19133_Gpke_BearbeitungsstandBestellungAenderungAbrechnungsdaten = "19133";
+        public const string ORDRSP_19133_Gpke_BearbeitungsstandBestellungAenderungAbrechnungsdaten =
+            "19133";
 
         #endregion
 
@@ -290,7 +291,7 @@ namespace EDILibrary.Constants.German
         public const string REQOTE_35002_AnfrageRechnungsabwicklungMsbUeberLf = "35002";
         public const string REQOTE_35003_AnfrageVonWertenFuerEsa = "35003";
         public const string REQOTE_35004_AnfrageEinerKonfiguration = "35004";
-        public const string REQOTE_35005_AnfrageAngebotAenderungTechnik  = "35005";
+        public const string REQOTE_35005_AnfrageAngebotAenderungTechnik = "35005";
 
         #endregion
 
@@ -835,12 +836,16 @@ namespace EDILibrary.Constants.German
         public const string UTILMD_55603_Gpke_BestaetigungAnmeldungNeuerErzMaloNbAnLf = "55603";
         public const string UTILMD_55604_Gpke_AblehnungAnmeldungNeuerVerbMaloNbAnLf = "55604";
         public const string UTILMD_55605_Gpke_AblehnungAnmeldungNeuerErzMaloNbAnLf = "55605";
-        public const string UTILMD_55607_Gpke_AnkuendigungZuordnung_ZuordnungDesLfZurMalo_TrancheNbAnLfn = "55607";
-        public const string UTILMD_55608_Gpke_BestaetigungZuordnungDesLfZurMalo_TrancheLfnAnNb = "55608";
-        public const string UTILMD_55609_Gpke_AblehnungZuordnungDesLfZurMalo_TrancheLfnAnNb = "55609";
+        public const string UTILMD_55607_Gpke_AnkuendigungZuordnung_ZuordnungDesLfZurMalo_TrancheNbAnLfn =
+            "55607";
+        public const string UTILMD_55608_Gpke_BestaetigungZuordnungDesLfZurMalo_TrancheLfnAnNb =
+            "55608";
+        public const string UTILMD_55609_Gpke_AblehnungZuordnungDesLfZurMalo_TrancheLfnAnNb =
+            "55609";
         public const string UTILMD_55611_Gpke_BeendigungDerZuordnungNbAnMsb = "55611";
         public const string UTILMD_55613_Gpke_AbrDatenBkAbrVerbMaloNbAnÜnb = "55613";
-        public const string UTILMD_55614_Gpke_Rueckmeldung_AnfrageAbrDatenBkAbrVerbMaloUenbAnNb = "55614";
+        public const string UTILMD_55614_Gpke_Rueckmeldung_AnfrageAbrDatenBkAbrVerbMaloUenbAnNb =
+            "55614";
         public const string UTILMD_55615_Gpke_AenderungDatenDerNeloNbAnLf = "55615";
         public const string UTILMD_55616_Gpke_AenderungDatenDerMaloNbAnLf = "55616";
         public const string UTILMD_55617_Gpke_AenderungDatenDerTrNbAnLf = "55617";
@@ -888,26 +893,36 @@ namespace EDILibrary.Constants.German
         public const string UTILMD_55661_Gpke_AenderungDatenDerSrMsbAnWeitererMsb = "55661";
         public const string UTILMD_55662_Gpke_AenderungDatenDerTrancheMsbAnWeitererMsb = "55662";
         public const string UTILMD_55663_Gpke_AenderungDatenDerMeloMsbAnWeitererMsb = "55663";
-        public const string UTILMD_55664_Gpke_Rueckmeldung_AnfrageDatenDerNeloWeitererMsbAnMsb = "55664";
-        public const string UTILMD_55665_Gpke_Rueckmeldung_AnfrageDatenDerMaloWeitererMsbAnMsb = "55665";
-        public const string UTILMD_55666_Gpke_Rueckmeldung_AnfrageDatenDerSrWeitererMsbAnMsb = "55666";
-        public const string UTILMD_55667_Gpke_Rueckmeldung_AnfrageDatenDerTrancheWeitererMsbAnMsb = "55667";
-        public const string UTILMD_55669_Gpke_Rueckmeldung_AnfrageDatenDerMeloWeitererMsbAnMsb = "55669";
+        public const string UTILMD_55664_Gpke_Rueckmeldung_AnfrageDatenDerNeloWeitererMsbAnMsb =
+            "55664";
+        public const string UTILMD_55665_Gpke_Rueckmeldung_AnfrageDatenDerMaloWeitererMsbAnMsb =
+            "55665";
+        public const string UTILMD_55666_Gpke_Rueckmeldung_AnfrageDatenDerSrWeitererMsbAnMsb =
+            "55666";
+        public const string UTILMD_55667_Gpke_Rueckmeldung_AnfrageDatenDerTrancheWeitererMsbAnMsb =
+            "55667";
+        public const string UTILMD_55669_Gpke_Rueckmeldung_AnfrageDatenDerMeloWeitererMsbAnMsb =
+            "55669";
         public const string UTILMD_55670_Gpke_StammdatenBkTreueNbAnUenb = "55670";
         public const string UTILMD_55671_Gpke_RueckmeldungAufStammdatenBkTreueUenbAnNb = "55671";
         public const string UTILMD_55672_Gpke_AbrDatenBkAbrErzMaloNbAnLf = "55672";
-        public const string UTILMD_55673_Gpke_Rueckmeldung_AnfrageAbrDatenBkAbrErzMaloLfAnNb = "55673";
+        public const string UTILMD_55673_Gpke_Rueckmeldung_AnfrageAbrDatenBkAbrErzMaloLfAnNb =
+            "55673";
         public const string UTILMD_55674_Gpke_AbrDatenBkAbrErzMaloNbAnUenb = "55674";
-        public const string UTILMD_55675_Gpke_Rueckmeldung_AnfrageAbrDatenBkAbrErzMaloUenbAnNb = "55675";
+        public const string UTILMD_55675_Gpke_Rueckmeldung_AnfrageAbrDatenBkAbrErzMaloUenbAnNb =
+            "55675";
         public const string UTILMD_55684_Gpke_AenderungDatenDerMaloMsbAnUenb = "55684";
         public const string UTILMD_55685_Gpke_Rueckmeldung_AnfrageDatenDerMaloUenbAnMsb = "55685";
         public const string UTILMD_55686_Gpke_AenderungDatenDerTrancheMsbAnUenb = "55686";
-        public const string UTILMD_55687_Gpke_Rueckmeldung_AnfrageDatenDerTrancheUenbAnMsb = "55687";
+        public const string UTILMD_55687_Gpke_Rueckmeldung_AnfrageDatenDerTrancheUenbAnMsb =
+            "55687";
         public const string UTILMD_55688_Gpke_AenderungDatenDerMaloNbAnUenb = "55688";
         public const string UTILMD_55689_Gpke_Rueckmeldung_AnfrageDatenDerMaloUenbAnNb = "55689";
-        public const string UTILMD_55690_AwhNetzbetreiberwechsel_LokationsbuendelstrukturUndDbNbaAnNbn = "55690";
+        public const string UTILMD_55690_AwhNetzbetreiberwechsel_LokationsbuendelstrukturUndDbNbaAnNbn =
+            "55690";
         public const string UTILMD_55691_GpkeTeil4_AenderungPaketIdDerMaloNbAnLf = "55691";
-        public const string UTILMD_55692_GpkeTeil4_RueckmeldungAnfragePaketIdDerMaloLfAnNb = "55692";
+        public const string UTILMD_55692_GpkeTeil4_RueckmeldungAnfragePaketIdDerMaloLfAnNb =
+            "55692";
 
         #endregion
 

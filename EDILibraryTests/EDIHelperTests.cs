@@ -59,8 +59,11 @@ namespace EDILibraryTests
             Assert.AreEqual(expectedResult, actual);
         }
 
-        private static readonly JsonSerializerOptions JsonFieldOptions =
-            new() { IncludeFields = true, Converters = { new JsonStringEnumConverter() } };
+        private static readonly JsonSerializerOptions JsonFieldOptions = new()
+        {
+            IncludeFields = true,
+            Converters = { new JsonStringEnumConverter() },
+        };
 
         /// <summary>
         /// Tests <see cref="EDIHelper.GetEdiFileInfo"/>

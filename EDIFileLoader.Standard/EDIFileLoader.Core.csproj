@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <AssemblyName>EDIFileLoader.Core</AssemblyName>
     <RootNamespace>EDIFileLoader.Core</RootNamespace>
@@ -7,11 +6,8 @@
     <Authors>Joscha Metze</Authors>
     <Company>Hochfrequenz Unternehmensberatung GmbH</Company>
     <Version>1.4.4</Version>
-    
     <!-- Optional: Declare that the Repository URL can be published to NuSpec -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-
-    
     <RepositoryUrl>https://github.com/Hochfrequenz/EDILibrary</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <IncludeSymbols>true</IncludeSymbols>
@@ -19,20 +15,14 @@
     <EmbedAllSources>True</EmbedAllSources>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    
-  </PropertyGroup>
-
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'"></PropertyGroup>
   <ItemGroup>
     <Compile Include="..\EDIFileLoader\AzureStorageLoader.cs" Link="AzureStorageLoader.cs" />
     <Compile Include="..\EDIFileLoader\StorageNetLoader.cs" Link="StorageNetLoader.cs" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\EDILibrary\EDILibrary.csproj" />
   </ItemGroup>
-  
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.25.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
@@ -41,6 +31,5 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SourceLink.Copy.PdbFiles" Version="2.8.3" PrivateAssets="All" />
-    
   </ItemGroup>
 </Project>
