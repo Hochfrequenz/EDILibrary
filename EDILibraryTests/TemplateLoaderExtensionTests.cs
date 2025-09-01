@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
+using AwesomeAssertions;
 using EDILibrary;
 using EDILibrary.Interfaces;
 using EDILibrary.MAUS;
-using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 
