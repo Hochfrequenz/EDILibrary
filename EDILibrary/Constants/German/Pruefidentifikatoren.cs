@@ -151,6 +151,7 @@ namespace EDILibrary.Constants.German
         public const string ORDERS_17007_BestellungVonWertenFuerEsa = "17007";
         public const string ORDERS_17008_AbbestellungVonWertenFuerEsa = "17008";
         public const string ORDERS_17009_AnzeigeGeraetewechselabsicht = "17009";
+        public const string ORDERS_17011_BestellungAngebotÄnderungTechnik = "17011";
         public const string ORDERS_17101_AnfrageStammdatenMarktlokation = "17101";
         public const string ORDERS_17102_AnfrageWerte = "17102";
         public const string ORDERS_17103_AnfrageBrennwertUndZustandszahl = "17103";
@@ -289,6 +290,7 @@ namespace EDILibrary.Constants.German
         public const string REQOTE_35002_AnfrageRechnungsabwicklungMsbUeberLf = "35002";
         public const string REQOTE_35003_AnfrageVonWertenFuerEsa = "35003";
         public const string REQOTE_35004_AnfrageEinerKonfiguration = "35004";
+        public const string REQOTE_35005_AnfrageAngebotAenderungTechnik  = "35005";
 
         #endregion
 
