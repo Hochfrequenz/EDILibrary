@@ -290,6 +290,7 @@ namespace EDILibrary.Constants.German
         public const string REQOTE_35002_AnfrageRechnungsabwicklungMsbUeberLf = "35002";
         public const string REQOTE_35003_AnfrageVonWertenFuerEsa = "35003";
         public const string REQOTE_35004_AnfrageEinerKonfiguration = "35004";
+        public const string REQOTE_35005_AnfrageAngebotAenderungTechnik  = "35005";
 
         #endregion
 
