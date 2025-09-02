@@ -273,6 +273,7 @@ namespace EDILibrary.Constants.German
         public const string QUOTES_15002_AngebotRechnungsabwicklungMsbUeberLf = "15002";
         public const string QUOTES_15003_AngebotZurAnfrageVonWertenFuerEsa = "15003";
         public const string QUOTES_15004_AngebotZurAnfrageEinerKonfiguration = "15004";
+        public const string QUOTES_15005_AngebotAenderungTechnik= "15005";
 
         #endregion
 
