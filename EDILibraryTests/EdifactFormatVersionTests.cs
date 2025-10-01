@@ -186,6 +186,7 @@ namespace EDILibraryTests
         [DataRow("2025-03-31T22:00:00+00:00", EdifactFormatVersion.FV2404)]
         [DataRow("2025-06-05T22:00:00+00:00", EdifactFormatVersion.FV2504)]
         [DataRow("2025-09-30T22:00:00+00:00", EdifactFormatVersion.FV2510)]
+        [DataRow("2026-03-31T22:00:00+00:00", EdifactFormatVersion.FV2604)]
         public void TestFormatVersionProvider(
             string dateTimeOffset,
             EdifactFormatVersion expectedVersion
