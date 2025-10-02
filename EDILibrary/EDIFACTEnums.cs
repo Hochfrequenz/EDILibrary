@@ -39,7 +39,7 @@ namespace EDILibrary
                 var fields = typeof(EDIEnums).GetRuntimeFields().ToArray();
                 foreach (var field in fields)
                 {
-                    var att = field
+                    object att = field
                         .GetCustomAttributes(typeof(DescriptionAttribute), false)
                         .FirstOrDefault();
                     if (att != null)
@@ -62,7 +62,7 @@ namespace EDILibrary
 
         public static string GetAPERAKDescription(EDIEnums enumValue)
         {
-            var name = enumValue.ToString();
+            string name = enumValue.ToString();
             var attrs =
                 (IEnumerable<Attribute>)
                     enumValue
@@ -82,7 +82,7 @@ namespace EDILibrary
 
         public static string GetEDIDescription(EDIEnums enumValue)
         {
-            var name = enumValue.ToString();
+            string name = enumValue.ToString();
             var attrs =
                 (IEnumerable<Attribute>)
                     enumValue
@@ -102,7 +102,7 @@ namespace EDILibrary
 
         public static string GetDescription(EDIEnums enumValue)
         {
-            var name = enumValue.ToString();
+            string name = enumValue.ToString();
             var attrs =
                 (IEnumerable<Attribute>)
                     enumValue

@@ -83,7 +83,7 @@ namespace EDILibrary
                     if (useLocalTime)
                     {
                         var dateMidnightInUtc = new DateTimeOffset(date, TimeSpan.Zero);
-                        var offsetHours = dateMidnightInUtc
+                        int offsetHours = dateMidnightInUtc
                             .ToOffset(LocalTimeZone.GetUtcOffset(dateMidnightInUtc))
                             .Offset.Hours;
                         return date.ToLocalTime().ToString("yyyyMMddHHmm") + "+0" + offsetHours; // assuming 0<=offsetHours<10 which is true for germany
@@ -96,7 +96,7 @@ namespace EDILibrary
                     if (useLocalTime)
                     {
                         var dateMidnightInUtc = new DateTimeOffset(date, TimeSpan.Zero);
-                        var offsetHours = dateMidnightInUtc
+                        int offsetHours = dateMidnightInUtc
                             .ToOffset(LocalTimeZone.GetUtcOffset(dateMidnightInUtc))
                             .Offset.Hours;
                         return date.ToLocalTime().ToString("yyyyMMddHHmmss") + "+0" + offsetHours; // assuming 0<=offsetHours<10 which is true for germany
@@ -109,7 +109,7 @@ namespace EDILibrary
                     if (useLocalTime)
                     {
                         var utcOffset = new DateTimeOffset(date, TimeSpan.Zero);
-                        var offset = utcOffset
+                        int offset = utcOffset
                             .ToOffset(LocalTimeZone.GetUtcOffset(utcOffset))
                             .Offset.Hours;
                         return "+0" + offset + "00";
@@ -168,9 +168,9 @@ namespace EDILibrary
 
         string RecurseTemplate(string template, EdiObject parent)
         {
-            var currentIndex = 0;
-            var beginIndex = 0;
-            var endIndex = 0;
+            int currentIndex = 0;
+            int beginIndex = 0;
+            int endIndex = 0;
             var resultBuilder = new StringBuilder();
             do
             {
@@ -181,15 +181,15 @@ namespace EDILibrary
                 }
 
                 endIndex = template.IndexOf(">", beginIndex); // :warn: is culture specific
-                var codeTemplate = template.Substring(beginIndex, endIndex - beginIndex + 1);
-                var code = codeTemplate.Substring(1, codeTemplate.Length - 2);
+                string codeTemplate = template.Substring(beginIndex, endIndex - beginIndex + 1);
+                string code = codeTemplate.Substring(1, codeTemplate.Length - 2);
                 resultBuilder.Clear();
                 if (codeTemplate.StartsWith("<foreach"))
                 {
-                    var nodeparts = code.Split(new[] { ' ' });
-                    var node = string.Join(" ", nodeparts.Skip(1));
+                    string[] nodeparts = code.Split(new[] { ' ' });
+                    string node = string.Join(" ", nodeparts.Skip(1));
                     beginIndex = template.IndexOf("</foreach " + node + ">", endIndex); // :warn: is culture specific
-                    var innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
+                    string innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
                     var nodes = from ele in parent.SelfOrChildren where ele.Name == node select ele;
                     if (!nodes.Any()) // wenn keine Treffer könnte es sich noch um eine field-Liste handeln
                     {
@@ -199,7 +199,7 @@ namespace EDILibrary
                             select ele.Value;
                         foreach (var valueNode in stringNodes)
                         {
-                            foreach (var val in valueNode)
+                            foreach (string val in valueNode)
                             {
                                 var tempObject = new EdiObject(node, null, val);
                                 tempObject.Fields.Add(node, new List<string> { val });
@@ -208,7 +208,7 @@ namespace EDILibrary
                         }
                     }
                     const int i = 1;
-                    var max = nodes.Count();
+                    int max = nodes.Count();
                     foreach (var subnode in nodes)
                     {
                         resultBuilder.Append(
@@ -217,7 +217,7 @@ namespace EDILibrary
                         );
                     }
                     beginIndex = template.IndexOf("<foreach", 0);
-                    var end = "</foreach " + node + ">";
+                    string end = "</foreach " + node + ">";
                     endIndex = template.IndexOf(end, beginIndex);
 
                     template =
@@ -234,10 +234,10 @@ namespace EDILibrary
                 }
                 else if (codeTemplate.StartsWith("<if"))
                 {
-                    var nodeparts = code.Split(new[] { ' ' });
-                    var node = string.Join(" ", nodeparts.Skip(1));
+                    string[] nodeparts = code.Split(new[] { ' ' });
+                    string node = string.Join(" ", nodeparts.Skip(1));
                     beginIndex = template.IndexOf("</if>", endIndex);
-                    var innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
+                    string innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
 
                     string value = null;
 
@@ -278,16 +278,16 @@ namespace EDILibrary
                 }
                 else if (codeTemplate.StartsWith("<dateformat"))
                 {
-                    var nodeparts = code.Split(new[] { ' ' });
-                    var node = string.Join(" ", nodeparts.Skip(1));
-                    var innerNodeParts = node.Split(new[] { ';' });
+                    string[] nodeparts = code.Split(new[] { ' ' });
+                    string node = string.Join(" ", nodeparts.Skip(1));
+                    string[] innerNodeParts = node.Split(new[] { ';' });
                     string value = null;
 
                     var selection =
                         from ele in parent.Fields
                         where ele.Key == innerNodeParts[0]
                         select ele.Value[0];
-                    var enumerable = selection as string[] ?? selection.ToArray();
+                    string[] enumerable = selection as string[] ?? selection.ToArray();
                     if (enumerable.Any())
                     {
                         value = enumerable.Single();
@@ -326,16 +326,16 @@ namespace EDILibrary
                 }
                 else if (codeTemplate.StartsWith("<date"))
                 {
-                    var nodeparts = code.Split(new[] { ' ' });
-                    var node = string.Join(" ", nodeparts.Skip(1));
-                    var innerNodeParts = node.Split(new[] { ';' });
+                    string[] nodeparts = code.Split(new[] { ' ' });
+                    string node = string.Join(" ", nodeparts.Skip(1));
+                    string[] innerNodeParts = node.Split(new[] { ';' });
                     string value = null;
 
                     var selection =
                         from ele in parent.Fields
                         where ele.Key == innerNodeParts[0]
                         select ele.Value[0];
-                    var enumerable = selection as string[] ?? selection.ToArray();
+                    string[] enumerable = selection as string[] ?? selection.ToArray();
                     if (enumerable.Any())
                     {
                         value = enumerable.Single();
@@ -347,7 +347,7 @@ namespace EDILibrary
 
                     value = value?.Trim();
 
-                    var format = innerNodeParts[1];
+                    string format = innerNodeParts[1];
 
                     if (!numericRegex.IsMatch(innerNodeParts[1]))
                     {
@@ -393,12 +393,12 @@ namespace EDILibrary
                     // do it the "dirty" way, count the segment ends from last unh
                     if (codeTemplate.Contains("SegmentCounter"))
                     {
-                        var segCount = template
+                        int segCount = template
                             .Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+"))
                             .Count(c => c == "'".ToCharArray()[0]); // warn: culture specific
                         //escapte ' muss ich abziehen
 
-                        var deduct = questionMarkRegex
+                        int deduct = questionMarkRegex
                             .Matches(
                                 template.Substring(
                                     template.Substring(0, beginIndex).LastIndexOf("UNH+")
@@ -410,7 +410,7 @@ namespace EDILibrary
                     }
                     else if (codeTemplate.Contains("MessageNumber"))
                     {
-                        var messageCount =
+                        int messageCount =
                             template
                                 .Split(new[] { "UNH+" }, StringSplitOptions.RemoveEmptyEntries)
                                 .Length - 1;
@@ -456,7 +456,7 @@ namespace EDILibrary
                 }
                 else if (codeTemplate.StartsWith("<§"))
                 {
-                    var items = code.Split(new[] { ' ' });
+                    string[] items = code.Split(new[] { ' ' });
                     _ = items.Skip(1).Take(1).First();
                     _ = string.Join(" ", items.Skip(2));
                     /*
@@ -483,13 +483,13 @@ namespace EDILibrary
                     string[] fieldLengths = null;
                     if (code.Contains("["))
                     {
-                        var codeParts = code.Split("[".ToCharArray());
+                        string[] codeParts = code.Split("[".ToCharArray());
                         code = codeParts[0];
 
                         // es gibt zwei verschiedene Ansätze, entweder gleich verteilte Felder [35,2] oder Angabe aller Feldlängen [70;9;6]
                         if (codeParts[1].Contains(','))
                         {
-                            var lengthParts = codeParts[1].Split(",".ToCharArray());
+                            string[] lengthParts = codeParts[1].Split(",".ToCharArray());
                             length = lengthParts[0];
                             maxCount = lengthParts[1].Substring(0, lengthParts[1].Length - 1);
                         }
@@ -515,7 +515,7 @@ namespace EDILibrary
                             from ele in parent.Fields
                             where ele.Key == code
                             select ele.Value[0];
-                        var enumerable = selection as string[] ?? selection.ToArray();
+                        string[] enumerable = selection as string[] ?? selection.ToArray();
                         if (enumerable.Any())
                         {
                             value = enumerable.Single();
@@ -538,13 +538,13 @@ namespace EDILibrary
                             value = "";
                         }
 
-                        var temp_value = value;
-                        var laenge = int.Parse(length);
+                        string temp_value = value;
+                        int laenge = int.Parse(length);
                         if (maxCount != null) // gleiche Längen
                         {
                             while (temp_value.Length > laenge)
                             {
-                                var temp = temp_value.Substring(0, laenge);
+                                string temp = temp_value.Substring(0, laenge);
                                 parts.Add(temp);
                                 temp_value = temp_value.Substring(laenge);
                             }
@@ -557,14 +557,14 @@ namespace EDILibrary
                         }
                         else if (fieldLengths != null) // feste Längen
                         {
-                            var count = fieldLengths.Length;
+                            int count = fieldLengths.Length;
                             while (fieldLengths.Length > 0)
                             {
                                 laenge = int.Parse(fieldLengths.First());
                                 fieldLengths = fieldLengths.Skip(1).ToArray();
                                 if (temp_value.Length > laenge)
                                 {
-                                    var temp = temp_value.Substring(0, laenge);
+                                    string temp = temp_value.Substring(0, laenge);
                                     parts.Add(temp);
                                     temp_value = temp_value.Substring(laenge);
                                 }
@@ -619,13 +619,13 @@ namespace EDILibrary
 
         public string CompileTemplate(string template, EdiObject sourceRoot)
         {
-            var result = RecurseTemplate(template, sourceRoot);
+            string result = RecurseTemplate(template, sourceRoot);
             // a good unittest could start here because everything that follows is just replacements.
-            var una = result.Substring(0, 8);
-            var content = result.Substring(8);
+            string una = result.Substring(0, 8);
+            string content = result.Substring(8);
             // todo: use stringbuilder and stringbuilder.replace instead of overwriting content https://youtu.be/qfZVu0alU0I?t=34
             content = content.Replace("??", "<<").Replace("?+", "?<").Replace("?:", "?>");
-            foreach (var (oldVar, replacement) in CompileReplacements)
+            foreach ((string oldVar, string replacement) in CompileReplacements)
             {
                 while (content.Contains(oldVar))
                 {

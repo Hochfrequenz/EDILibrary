@@ -12,7 +12,7 @@
     <!-- Optional: Declare that the Repository URL can be published to NuSpec -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryUrl>https://github.com/Hochfrequenz/EDILibrary</RepositoryUrl>
-    <TargetFrameworks>net8.0;net9.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net9.0;netstandard2.1</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.25.1" />

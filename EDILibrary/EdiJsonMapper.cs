@@ -64,8 +64,8 @@ namespace EDILibrary
                 edi.Substring(0, Math.Min(1000, edi.Length)),
                 false
             );
-            var ediString = EDIHelper.NormalizeEDIHeader(edi);
-            var templateString = ediTemplate;
+            string ediString = EDIHelper.NormalizeEDIHeader(edi);
+            string templateString = ediTemplate;
             var loader = new GenericEDILoader();
             var template = loader.LoadTemplate(templateString);
             var tree = loader.LoadTree(ediTreeTemplate);
@@ -130,13 +130,13 @@ namespace EDILibrary
             var treeStringTask = _loader.LoadEDITemplate(ediInfo, "tree");
             var templateStringTask = _loader.LoadEDITemplate(ediInfo, "template");
             await Task.WhenAll(new List<Task> { treeStringTask, templateStringTask });
-            var treeString = treeStringTask.Result;
+            string treeString = treeStringTask.Result;
             if (string.IsNullOrWhiteSpace(treeString))
             {
                 // something is seriously wrong, don't expect things to work below this line if the treeString is empty
                 // just proceed and let things crash later. what should go wrong
             }
-            var templateString = templateStringTask.Result;
+            string templateString = templateStringTask.Result;
             Tuple<EdifactFormat?, string> package;
             if (packageVersion.HasValue)
             {
@@ -207,12 +207,12 @@ namespace EDILibrary
         {
             var format = EdifactFormatHelper.FromPruefidentifikator(pid, false, formatPackage);
 
-            var mappingsBody = ediJsonTemplate;
+            string mappingsBody = ediJsonTemplate;
 
             var inputJson = JsonConvert.DeserializeObject<JObject>(jsonInput);
             var mappings = JsonConvert.DeserializeObject<JArray>(mappingsBody);
-            var version = mappings[0]["_meta"]["version"].Value<string>();
-            var outputJson = CreateMsgJSON(
+            string version = mappings[0]["_meta"]["version"].Value<string>();
+            dynamic outputJson = CreateMsgJSON(
                 inputJson,
                 mappings,
                 null,
@@ -220,7 +220,7 @@ namespace EDILibrary
                 null,
                 false,
                 new Stack<string>(),
-                out var subParent,
+                out bool subParent,
                 convertFromUTC
             );
             EdiObject result = EdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
@@ -259,7 +259,7 @@ namespace EDILibrary
             {
                 //we don't have a mask for this pid, which is fine, go ahead
             }
-            var mappingsBody = await _loader.LoadJSONTemplate(
+            string mappingsBody = await _loader.LoadJSONTemplate(
                 format,
                 formatPackage.ToLegacyVersionString(),
                 format + ".json"
@@ -282,7 +282,7 @@ namespace EDILibrary
             //    {
             //       throw new BadPIDException(pid);
             //    }
-            var version = mappings[0]["_meta"]["version"].Value<string>();
+            string version = mappings[0]["_meta"]["version"].Value<string>();
             JArray maskArray = null;
             if (json != null)
             {
@@ -305,7 +305,7 @@ namespace EDILibrary
                     //maskArray.Merge(((step as JObject)?.Property("fields").Value as JObject).Properties(), new JsonMergeSettings() { MergeArrayHandling = MergeArrayHandling.Union });
                 }
             }
-            var outputJson = CreateMsgJSON(
+            dynamic outputJson = CreateMsgJSON(
                 inputJson,
                 mappings,
                 maskArray,
@@ -313,12 +313,12 @@ namespace EDILibrary
                 null,
                 false,
                 new Stack<string>(),
-                out var subParent,
+                out bool subParent,
                 convertFromUTC
             );
             EdiObject result = EdiObject.CreateFromJSON(JsonConvert.SerializeObject(outputJson));
             //apply scripts
-            var createTemplate = await _loader.LoadEDITemplate(
+            string createTemplate = await _loader.LoadEDITemplate(
                 new EDIFileInfo { Format = format, Version = version },
                 "create.template"
             );
@@ -342,7 +342,7 @@ namespace EDILibrary
         {
             var format = EdifactFormatHelper.FromPruefidentifikator(pid, false, formatPackage);
 
-            var mappingsBody = await _loader.LoadJSONTemplate(
+            string mappingsBody = await _loader.LoadJSONTemplate(
                 format,
                 formatPackage.ToLegacyVersionString(),
                 format + ".json"
@@ -351,11 +351,11 @@ namespace EDILibrary
             var inputJson = JsonConvert.DeserializeObject<JObject>(jsonInput);
             var mappings = JsonConvert.DeserializeObject<JArray>(mappingsBody);
 
-            var version = mappings[0]["_meta"]["version"].Value<string>();
+            string version = mappings[0]["_meta"]["version"].Value<string>();
 
             EdiObject result = EdiObject.CreateFromJSON(jsonInput);
             //apply scripts
-            var createTemplate = await _loader.LoadEDITemplate(
+            string createTemplate = await _loader.LoadEDITemplate(
                 new EDIFileInfo { Format = format, Version = version },
                 "create.template"
             );
@@ -394,8 +394,8 @@ namespace EDILibrary
                     foreach (var dep in deps)
                     {
                         var retObj = FindDependentObject(dep, prop.Name, out var propVal);
-                        var superValue = ((JProperty)retObj.First).Value.Value<string>();
-                        var superKey = ((JProperty)retObj.First).Name;
+                        string superValue = ((JProperty)retObj.First).Value.Value<string>();
+                        string superKey = ((JProperty)retObj.First).Name;
                         if (propVal.Type == JTokenType.Array)
                         {
                             dynamic obj = new ExpandoObject();
@@ -450,7 +450,7 @@ namespace EDILibrary
                             }
 
                             // go through all new defined properties and add them to the JObject
-                            foreach (var (key, o) in newProp)
+                            foreach ((string key, object o) in newProp)
                             {
                                 addObj.Add(key, JToken.FromObject(o));
                             }
@@ -485,7 +485,7 @@ namespace EDILibrary
                 }
                 else
                 {
-                    var splits = name.Split(new[] { "." }, StringSplitOptions.None);
+                    string[] splits = name.Split(new[] { "." }, StringSplitOptions.None);
                     if (target.ContainsKey(splits.First()))
                     {
                         target = target[splits.First()] as IDictionary<string, object>;
@@ -508,8 +508,8 @@ namespace EDILibrary
 
         protected static bool CompareKey(string left, string right)
         {
-            var leftReplaced = noLetterRegex.Replace(left, "");
-            var rightReplaced = noLetterRegex.Replace(right, "");
+            string leftReplaced = noLetterRegex.Replace(left, "");
+            string rightReplaced = noLetterRegex.Replace(right, "");
             return leftReplaced == rightReplaced;
         }
 
@@ -624,10 +624,10 @@ namespace EDILibrary
                                     )
                                 )
                                 {
-                                    var id = foundObj.SelectToken("_meta.id")?.Value<string>();
+                                    string id = foundObj.SelectToken("_meta.id")?.Value<string>();
                                     if (id is null)
                                     {
-                                        var group = foundObj
+                                        string group = foundObj
                                             .SelectToken("_meta.type")
                                             ?.Value<string>();
                                         if (group == "group")
@@ -654,10 +654,12 @@ namespace EDILibrary
                             }
                             else if (segments is not null && segments.Any()) // check segments
                             {
-                                var id = foundObj.SelectToken("_meta.id")?.Value<string>();
+                                string id = foundObj.SelectToken("_meta.id")?.Value<string>();
                                 if (id is null)
                                 {
-                                    var group = foundObj.SelectToken("_meta.type")?.Value<string>();
+                                    string group = foundObj
+                                        .SelectToken("_meta.type")
+                                        ?.Value<string>();
                                     if (group != "group")
                                     {
                                         continue;
@@ -694,10 +696,10 @@ namespace EDILibrary
                         }
                         else if (segments is not null && segments.Any()) // check segments
                         {
-                            var id = foundObj.SelectToken("_meta.id")?.Value<string>();
+                            string id = foundObj.SelectToken("_meta.id")?.Value<string>();
                             if (id is null)
                             {
-                                var group = foundObj.SelectToken("_meta.type")?.Value<string>();
+                                string group = foundObj.SelectToken("_meta.type")?.Value<string>();
                                 if (group != "group")
                                 {
                                     continue;
@@ -766,7 +768,7 @@ namespace EDILibrary
                                 continue;
                             }
                             parentPath.Push(prop.Name);
-                            var newSub = CreateMsgJSON(
+                            dynamic newSub = CreateMsgJSON(
                                 (prop.Value as JArray)[0] as JObject,
                                 newArray,
                                 mask,
@@ -774,10 +776,12 @@ namespace EDILibrary
                                 null,
                                 false,
                                 parentPath,
-                                out var subParent,
+                                out bool subParent,
                                 convertFromUTC
                             );
-                            foreach (var (key, value) in newSub as IDictionary<string, object>)
+                            foreach (
+                                (string key, object value) in newSub as IDictionary<string, object>
+                            )
                             {
                                 (returnObject as IDictionary<string, object>).Add(key, value);
                             }
@@ -794,7 +798,7 @@ namespace EDILibrary
                             );
                             if (subObj.SelectToken("_meta") != null)
                             {
-                                var format = subObj.SelectToken("_meta.format").Value<string>();
+                                string format = subObj.SelectToken("_meta.format").Value<string>();
                                 //format date
                                 (returnObject as IDictionary<string, object>).Add(
                                     propVal.Value<string>(),
@@ -815,7 +819,7 @@ namespace EDILibrary
                         else
                         {
                             //check for virtual groups
-                            var virtualGroup = false;
+                            bool virtualGroup = false;
                             var subObj = FindObjectByKey(
                                 deps.First(),
                                 prop.Name,
@@ -834,7 +838,7 @@ namespace EDILibrary
                                 || virtualGroup
                             )
                             {
-                                var newPropName = (
+                                string newPropName = (
                                     (deps.First() as JObject)
                                         .Property("requires")
                                         .Value.Value<JArray>()
@@ -860,8 +864,8 @@ namespace EDILibrary
                                             bool isVirtualKey = false;
                                             if (localAhb is not null)
                                             {
-                                                var key = prop.Name;
-                                                var virtualKey = foundObj
+                                                string key = prop.Name;
+                                                string virtualKey = foundObj
                                                     .SelectToken("_meta.virtualKey")
                                                     ?.Value<string>();
                                                 if (virtualKey is not null)
@@ -887,7 +891,7 @@ namespace EDILibrary
                                                     {
                                                         if (segment.Discriminator == "CCI") //special handling for CCI/CAV
                                                         {
-                                                            var seg_index =
+                                                            int seg_index =
                                                                 localAhb.Segments.IndexOf(segment);
                                                             do
                                                             {
@@ -943,7 +947,7 @@ namespace EDILibrary
                                                 continue;
                                             }
 
-                                            var newSub = CreateMsgJSON(
+                                            dynamic newSub = CreateMsgJSON(
                                                 sub as JObject,
                                                 newArray,
                                                 mask,
@@ -951,7 +955,7 @@ namespace EDILibrary
                                                 localSegment,
                                                 virtualChild || isVirtualKey,
                                                 parentPath,
-                                                out var subParent,
+                                                out bool subParent,
                                                 convertFromUTC
                                             );
                                             if (!subParent)
@@ -966,7 +970,7 @@ namespace EDILibrary
                                             {
                                                 dynamic newObj = new ExpandoObject();
                                                 foreach (
-                                                    var (key, value) in (
+                                                    (string key, object value) in (
                                                         newSub as IDictionary<string, object>
                                                     ).ToList()
                                                 )
@@ -989,7 +993,7 @@ namespace EDILibrary
                                 else
                                 {
                                     parentPath.Push(prop.Name);
-                                    var newSub = CreateMsgJSON(
+                                    dynamic newSub = CreateMsgJSON(
                                         prop.Value as JObject,
                                         newArray,
                                         mask,
@@ -997,7 +1001,7 @@ namespace EDILibrary
                                         null,
                                         false,
                                         parentPath,
-                                        out var subParent,
+                                        out bool subParent,
                                         convertFromUTC
                                     );
                                     if (!subParent)
@@ -1011,7 +1015,7 @@ namespace EDILibrary
                                     {
                                         dynamic newObj = new ExpandoObject();
                                         foreach (
-                                            var (key, value) in (
+                                            (string key, object value) in (
                                                 newSub as IDictionary<string, object>
                                             ).ToList()
                                         )
@@ -1054,8 +1058,8 @@ namespace EDILibrary
                                 foreach (var dep in deps)
                                 {
                                     FindObjectByKey(dep, prop.Name, out var newVal, false);
-                                    var valPath = dep[newVal.Value<string>()].Value<string>();
-                                    var pathParts = valPath.Split('.');
+                                    string valPath = dep[newVal.Value<string>()].Value<string>();
+                                    string[] pathParts = valPath.Split('.');
                                     //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
                                     createInParent = true;
                                     (returnObject as IDictionary<string, object>).Add(
@@ -1071,8 +1075,8 @@ namespace EDILibrary
                                 foreach (var dep in deps)
                                 {
                                     FindObjectByKey(dep, prop.Name, out var newVal, false);
-                                    var valPath = dep[newVal.Value<string>()].Value<string>();
-                                    var pathParts = valPath.Split('.');
+                                    string valPath = dep[newVal.Value<string>()].Value<string>();
+                                    string[] pathParts = valPath.Split('.');
                                     if (pathParts.Length > 1)
                                     {
                                         //TODO: generalize this to enable more deep object nesting (e.g. A.B.C)
@@ -1108,7 +1112,7 @@ namespace EDILibrary
 
         protected static void SetValue(JObject input, string path, string value)
         {
-            var splits = path.Split(new[] { "[]." }, StringSplitOptions.None);
+            string[] splits = path.Split(new[] { "[]." }, StringSplitOptions.None);
             if (input.SelectToken(splits.First()) is JArray)
             {
                 foreach (var subObj in (JArray)input.SelectToken(splits.First()))
@@ -1128,14 +1132,14 @@ namespace EDILibrary
                     var newArray = new JArray { new JObject() };
                     SetValue(newArray.First as JObject, string.Join("[].", splits.Skip(1)), value);
                     //unescape name
-                    var unescapedName = splits.First().Replace("['", "").Replace("']", "");
+                    string unescapedName = splits.First().Replace("['", "").Replace("']", "");
                     input.Add(unescapedName, newArray);
                 }
                 else
                 {
                     //add property
                     //unescape name
-                    var unescapedName = splits.First().Replace("['", "").Replace("']", "");
+                    string unescapedName = splits.First().Replace("['", "").Replace("']", "");
                     input.Add(unescapedName, value);
                 }
             }
@@ -1150,8 +1154,8 @@ namespace EDILibrary
 
             foreach (JObject subFix in fix.SelectToken("fix") as JArray)
             {
-                var name = subFix.SelectToken("_name").Value<string>();
-                var value = "";
+                string name = subFix.SelectToken("_name").Value<string>();
+                string value = "";
                 if (subFix.SelectToken("_value") != null)
                 {
                     value = subFix.SelectToken("_value").Value<string>();
