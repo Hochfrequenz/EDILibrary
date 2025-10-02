@@ -227,8 +227,8 @@ namespace EDILibrary
         {
             if (edi.StartsWith("UNA"))
             {
-                var una = edi[..9];
-                var segmentDelimiter = una.Substring(8, 1);
+                string una = edi[..9];
+                string segmentDelimiter = una.Substring(8, 1);
                 // ReSharper disable once MergeIntoLogicalPattern (wegen abwärtskompatibilität)
                 if (segmentDelimiter == "U" || segmentDelimiter == "\n" || segmentDelimiter == "\r")
                 {
@@ -283,7 +283,7 @@ namespace EDILibrary
 
             edi = RemoveBOM(edi); // todo: check why RemoveBOM is still used and RemoveByteOrderMark does not work
             var specialChars = GetSpecialChars(edi);
-            var message = GetActualMessage(edi, specialChars);
+            string message = GetActualMessage(edi, specialChars);
             if (specialChars.EscapeChar != DefaultEscapeChar)
             {
                 if (specialChars.ElementDelimiter != DefaultElementDelimiter)
@@ -321,9 +321,12 @@ namespace EDILibrary
             {
                 edi = RemoveBOM(edi); // todo: check why RemoveBOM is still used and RemoveByteOrderMark does not work
                 var specialChars = GetSpecialChars(edi);
-                var message = GetActualMessage(edi, specialChars);
-                var segments = message.LowMemSplit(specialChars.SegmentDelimiter).Take(2).ToArray();
-                var unb = segments[0];
+                string message = GetActualMessage(edi, specialChars);
+                string[] segments = message
+                    .LowMemSplit(specialChars.SegmentDelimiter)
+                    .Take(2)
+                    .ToArray();
+                string unb = segments[0];
                 string unh;
                 try
                 {
@@ -337,8 +340,8 @@ namespace EDILibrary
                     );
                 }
 
-                var unbParts = unb.Split(specialChars.GroupDelimiter.ToCharArray());
-                var unhParts = unh.Split(specialChars.GroupDelimiter.ToCharArray());
+                string[] unbParts = unb.Split(specialChars.GroupDelimiter.ToCharArray());
+                string[] unhParts = unh.Split(specialChars.GroupDelimiter.ToCharArray());
 
                 var sender = new EDIPartner
                 {
@@ -356,7 +359,7 @@ namespace EDILibrary
                             : "500",
                     ID = unbParts[3].Split(specialChars.ElementDelimiter.ToCharArray())[0],
                 };
-                var version = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[4];
+                string version = unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[4];
                 var format = Enum.Parse<EdifactFormat>(
                     unhParts[2].Split(specialChars.ElementDelimiter.ToCharArray())[0]
                 );

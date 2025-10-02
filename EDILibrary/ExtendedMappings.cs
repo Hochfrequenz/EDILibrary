@@ -124,27 +124,27 @@ namespace EDILibrary
                 return null;
             }
 
-            var groups = edi.Split('+');
-            var subPos = pos.Split(':');
+            string[] groups = edi.Split('+');
+            string[] subPos = pos.Split(':');
             if (!edi.StartsWith(subPos[0]))
             {
                 return null;
             }
 
-            var groupPos = int.Parse(subPos[1]);
+            int groupPos = int.Parse(subPos[1]);
             if (groups.Length <= groupPos)
             {
                 return null;
             }
 
-            var subGroups = groups[groupPos].Split(':');
+            string[] subGroups = groups[groupPos].Split(':');
             if (subPos[2].Contains("("))
             {
-                var range = subPos[2].Split(',');
-                var start = int.Parse(range[0].Substring(1));
-                var end = int.Parse(range[1].Substring(0, range[1].Length - 1));
+                string[] range = subPos[2].Split(',');
+                int start = int.Parse(range[0].Substring(1));
+                int end = int.Parse(range[1].Substring(0, range[1].Length - 1));
                 var parts = new List<string>();
-                for (var i = start; i <= end; i++)
+                for (int i = start; i <= end; i++)
                 {
                     if (subGroups.Length <= i)
                     {
@@ -160,7 +160,7 @@ namespace EDILibrary
                     );
                 }
                 //Abweichend zur Behandlung im EDIReader bleiben hier die :-Trennzeichen erhalten um eine korrekte Ersetzung sicherzustellen
-                var endValue = string.Join(":", parts).Trim();
+                string endValue = string.Join(":", parts).Trim();
                 //if (!_valueCache.ContainsKey(edi))
                 //{
                 //    _valueCache.Add(edi, new Dictionary<string, string>());
@@ -169,13 +169,13 @@ namespace EDILibrary
                 return endValue;
             }
 
-            var detailPos = int.Parse(subPos[2]);
+            int detailPos = int.Parse(subPos[2]);
             if (subGroups.Length <= detailPos)
             {
                 return null;
             }
 
-            var result = subGroups[detailPos]
+            string result = subGroups[detailPos]
                 .Replace("?<", "+")
                 .Replace("?>", ":")
                 .Replace("?$", "'")
@@ -211,11 +211,11 @@ namespace EDILibrary
             );
             if (mapping?.Attribute("type") != null && mapping.Attribute("type").Value == "edi")
             {
-                var parts = mapping
+                string[] parts = mapping
                     .Value.Replace("\n", "")
                     .Split(new[] { "==" }, StringSplitOptions.RemoveEmptyEntries);
-                var selector = parts[0].Trim();
-                var newValue = "";
+                string selector = parts[0].Trim();
+                string newValue = "";
                 if (parts.Length > 1)
                 {
                     newValue = parts[1].Trim();
@@ -225,21 +225,21 @@ namespace EDILibrary
                 {
                     newValue = _zuLang;
                 }
-                var klammerIndex = selector.IndexOf('[');
+                int klammerIndex = selector.IndexOf('[');
                 if (klammerIndex == -1)
                 {
                     klammerIndex = selector.Length;
                 }
 
-                var selection = selector.Substring(0, klammerIndex);
+                string selection = selector.Substring(0, klammerIndex);
                 string path = null;
-                var sepIndex = selection.IndexOf(':');
+                int sepIndex = selection.IndexOf(':');
                 if (sepIndex == -1)
                 {
                     sepIndex = selection.Length;
                 }
 
-                var segment = selection.Substring(0, sepIndex);
+                string segment = selection.Substring(0, sepIndex);
                 if (klammerIndex != selector.Length)
                 {
                     path = selector.Substring(
@@ -253,12 +253,12 @@ namespace EDILibrary
                 string pathValue = null;
                 if (path != null)
                 {
-                    var sepOp = "=";
+                    string sepOp = "=";
                     if (path.Contains("!="))
                     {
                         sepOp = "!=";
                     }
-                    var opIndex = path.IndexOf(sepOp);
+                    int opIndex = path.IndexOf(sepOp);
                     if (opIndex == -1)
                     {
                         opIndex = path.Length;
@@ -278,9 +278,9 @@ namespace EDILibrary
                         pathValue = "";
                     }
                 }
-                for (var i = 0; i < _ediLines.Count; i++)
+                for (int i = 0; i < _ediLines.Count; i++)
                 {
-                    var ediSegment = _ediLines[i];
+                    string ediSegment = _ediLines[i];
                     if (ediSegment.StartsWith(segment) == false)
                     {
                         continue;
@@ -288,14 +288,14 @@ namespace EDILibrary
 
                     if (path != null)
                     {
-                        var selectionPath = pathSelector;
+                        string selectionPath = pathSelector;
                         if (pathSelector.Split(':').Length <= 2)
                         {
                             selectionPath = segment + ":" + pathSelector;
                         }
                         if (GetValue(selectionPath, ediSegment) == pathValue)
                         {
-                            var value = GetValue(selection, ediSegment);
+                            string value = GetValue(selection, ediSegment);
                             if (newValue != "<entfernen>")
                             {
                                 _ediLines[i] = ediSegment.Replace(value, newValue);
@@ -308,7 +308,7 @@ namespace EDILibrary
                     }
                     else
                     {
-                        var value = GetValue(selection, ediSegment);
+                        string value = GetValue(selection, ediSegment);
                         if (newValue != "<entfernen>")
                         {
                             _ediLines[i] = ediSegment.Replace(value, newValue);

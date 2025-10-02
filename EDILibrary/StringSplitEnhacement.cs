@@ -12,8 +12,8 @@ namespace EDILibrary
         public static List<string> LowMemSplit(this string s, string seperator)
         {
             var list = new List<string>();
-            var lastPos = 0;
-            var pos = s.IndexOf(seperator); // warn: string.IndexOf(string) is culture-specific
+            int lastPos = 0;
+            int pos = s.IndexOf(seperator); // warn: string.IndexOf(string) is culture-specific
             while (pos > -1)
             {
                 while (pos == lastPos)
@@ -26,7 +26,7 @@ namespace EDILibrary
                     }
                 }
 
-                var tmp = s.Substring(lastPos, pos - lastPos);
+                string tmp = s.Substring(lastPos, pos - lastPos);
                 if (tmp.Trim().Length > 0)
                 {
                     list.Add(tmp);
@@ -38,7 +38,7 @@ namespace EDILibrary
 
             if (lastPos < s.Length)
             {
-                var tmp = s.Substring(lastPos, s.Length - lastPos);
+                string tmp = s.Substring(lastPos, s.Length - lastPos);
                 if (tmp.Trim().Length > 0)
                 {
                     list.Add(tmp);
@@ -78,7 +78,7 @@ namespace EDILibrary
                     return false;
                 }
 
-                var index = span.IndexOf(separator);
+                int index = span.IndexOf(separator);
                 if (index == -1) // The string is composed of only one line
                 {
                     _str = ReadOnlySpan<char>.Empty; // The remaining string is an empty string

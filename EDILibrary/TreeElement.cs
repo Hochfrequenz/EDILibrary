@@ -23,7 +23,7 @@ namespace EDILibrary
 
         public static string ExtractName(string name)
         {
-            return name.Contains("_") ? name.Substring(0, name.IndexOf('_')) : name;
+            return name.Contains('_') ? name.Substring(0, name.IndexOf('_')) : name;
         }
 
         public void AddChild(TreeElement child)
@@ -103,11 +103,11 @@ namespace EDILibrary
         {
             if (name.Contains('['))
             {
-                var nameSplit = name.Split("[".ToCharArray());
+                string[] nameSplit = name.Split("[".ToCharArray());
                 Name = nameSplit[0];
-                var nameIndex = nameSplit[1];
+                string nameIndex = nameSplit[1];
                 nameIndex = nameIndex.Substring(0, nameIndex.Length - 1);
-                var nameParts = nameIndex.Split(";".ToCharArray());
+                string[] nameParts = nameIndex.Split(";".ToCharArray());
                 CONTRL_Status = nameParts[0];
                 APERAK_Status = nameParts[1];
                 if (nameParts.Length > 2)
@@ -243,7 +243,7 @@ namespace EDILibrary
         public TreeElement FindEdiElement(ref TreeElement root, string segment)
         {
             TreeElement oldRoot; // = null;
-            var segName = segment.LowMemSplit("+").First();
+            string segName = segment.LowMemSplit("+").First();
             /*if (segName.StartsWith("UNS"))
             {
             }*/
@@ -292,7 +292,7 @@ namespace EDILibrary
                         var child = treeRoot;
                         treeRoot = copy;
                         //bei UNH muss ich dann schon die Anzahl der UNH-Kinder zählen und die Occurence manuell setzen
-                        var unhCounter = root.Children.Values.Count(tempChild =>
+                        int unhCounter = root.Children.Values.Count(tempChild =>
                             tempChild.Name.StartsWith("UNH")
                         );
                         foreach (var c in child.Children.Values)
@@ -392,8 +392,8 @@ namespace EDILibrary
             //zerlegt werden. Danach muss das Resultat wieder zurück in ein string.
 
             // Convert the string into an array of bytes.
-            var textToHash = UE.GetBytes(TextToHash);
-            var result = hash.ComputeHash(textToHash);
+            byte[] textToHash = UE.GetBytes(TextToHash);
+            byte[] result = hash.ComputeHash(textToHash);
 
             return BitConverter.ToString(result);
         }
@@ -407,9 +407,9 @@ namespace EDILibrary
 
             if (ele.Children.Any())
             {
-                var delete = true;
+                bool delete = true;
                 var deleteList = new List<string>();
-                foreach (var (key, value) in ele.Children)
+                foreach ((string key, var value) in ele.Children)
                 {
                     if (CleanTree(value) == false)
                     {
@@ -420,7 +420,7 @@ namespace EDILibrary
                         deleteList.Add(key);
                     }
                 }
-                foreach (var del in deleteList)
+                foreach (string del in deleteList)
                 {
                     ele.Children.Remove(del);
                 }
