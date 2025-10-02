@@ -7,7 +7,7 @@
     <Company>EDILibrary.Standard</Company>
     <Product>EDILibrary.Standard</Product>
     <Version>1.5.3</Version>
-    <LangVersion>9</LangVersion>
+    <LangVersion>12</LangVersion>
     <!-- Optional: Declare that the Repository URL can be published to NuSpec -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
