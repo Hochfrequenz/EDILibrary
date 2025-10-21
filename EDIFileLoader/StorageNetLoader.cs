@@ -93,11 +93,13 @@ namespace EDIFileLoader
                                 )
                             )
                             {
-                                if (blob.IsFile)
+                                if (!blob.IsFile)
                                 {
-                                    var text = await GetUTF8TextFromPath(blob.FullPath);
-                                    Cache[folder.Name.TrimEnd('/')].TryAdd(blob.Name, text);
+                                    continue;
                                 }
+
+                                string text = await GetUTF8TextFromPath(blob.FullPath);
+                                Cache[folder.Name.TrimEnd('/')].TryAdd(blob.Name, text);
                             }
                         }
                     })
@@ -146,7 +148,7 @@ namespace EDIFileLoader
             }
             try
             {
-                var text = await GetUTF8TextFromPath(
+                string text = await GetUTF8TextFromPath(
                     Path.Combine(
                             Root != "/" ? Root : "",
                             "edi",
@@ -196,7 +198,7 @@ namespace EDIFileLoader
         public async Task<string> LoadJSONTemplate(string formatPackage, string fileName)
         {
             var format = Enum.Parse<EdifactFormat>(formatPackage.Split("|").First());
-            var version = formatPackage.Split("|").Last();
+            string version = formatPackage.Split("|").Last();
             return await LoadJSONTemplate(format, version, fileName);
         }
 
@@ -223,7 +225,7 @@ namespace EDIFileLoader
             }
             try
             {
-                var text = await GetUTF8TextFromPath(
+                string text = await GetUTF8TextFromPath(
                     Path.Combine(Root != "/" ? Root : "", version.Replace("/", ""), fileName)
                         .Replace("\\", "/")
                 );
@@ -277,7 +279,7 @@ namespace EDIFileLoader
             }
             try
             {
-                var text = await GetUTF8TextFromPath(
+                string text = await GetUTF8TextFromPath(
                     Path.Combine(
                         Root != "/" ? Root : "",
                         "maus",
