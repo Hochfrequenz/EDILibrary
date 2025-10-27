@@ -31,12 +31,12 @@ namespace EDILibrary
             }
 
             dataType = aperak.Substring(1, 2); //data type
-            var maxLength = aperak.Length;
-            var valueIndex = aperak.IndexOf('{');
+            int maxLength = aperak.Length;
+            int valueIndex = aperak.IndexOf('{');
             if (valueIndex > -1)
             {
                 maxLength = valueIndex;
-                var valueListString = aperak.Substring(
+                string valueListString = aperak.Substring(
                     valueIndex + 1,
                     aperak.IndexOf('}', valueIndex) - valueIndex - 1
                 );
@@ -55,13 +55,13 @@ namespace EDILibrary
 
         private static void Recurse(XElement cur, JArray refObj, TreeElement tree)
         {
-            var i = cur.Descendants("field").Count(d => d.Parent == cur);
-            var hasClass = cur.Descendants("class").Any(d => d.Parent == cur);
+            int i = cur.Descendants("field").Count(d => d.Parent == cur);
+            bool hasClass = cur.Descendants("class").Any(d => d.Parent == cur);
             foreach (var elem in cur.Descendants("field").Where(d => d.Parent == cur))
             {
                 //Fields mappen
                 var newField = new JObject();
-                var name = elem.Attribute("name").Value;
+                string name = elem.Attribute("name").Value;
                 if (elem.Attribute("ahbName") != null)
                 {
                     name = elem.Attribute("ahbName").Value;
@@ -152,7 +152,7 @@ namespace EDILibrary
                 //add length, type? and list
                 if (elem.Attribute("ref") != null)
                 {
-                    var refKey = elem.Attribute("ref").Value;
+                    string refKey = elem.Attribute("ref").Value;
                     if (refKey.Contains("[")) //special case selection [blub=bla]
                     {
                         refKey = refKey.Split('[').FirstOrDefault();
@@ -160,11 +160,11 @@ namespace EDILibrary
 
                     if (refKey.Contains("(")) //special case multi-select (0,4)
                     {
-                        var keyParts = refKey.Split('(');
+                        string[] keyParts = refKey.Split('(');
                         refKey = keyParts[0] + keyParts[1].Split(',').FirstOrDefault();
                     }
 
-                    var refKeys = refKey.Split(':');
+                    string[] refKeys = refKey.Split(':');
                     meta.Add("segment", refKeys[0]);
                     var subElem = tree.FindElement(refKeys.First());
                     if (subElem != null)
@@ -185,7 +185,7 @@ namespace EDILibrary
                             {
                                 try
                                 {
-                                    var key = elements[int.Parse(refKeys[1]) - 1].Split('*')[
+                                    string key = elements[int.Parse(refKeys[1]) - 1].Split('*')[
                                         int.Parse(refKeys[2]) + 1
                                     ];
                                     if (key.Contains("|"))
@@ -195,8 +195,8 @@ namespace EDILibrary
 
                                     ParseAPERAKString(
                                         key,
-                                        out var dataType,
-                                        out var length,
+                                        out string dataType,
+                                        out int length,
                                         out var list
                                     );
                                     if (meta.Property("typeInfo") == null)
@@ -240,7 +240,7 @@ namespace EDILibrary
 
                 if (elem.Attribute("groupBy") != null)
                 {
-                    var groupName = elem.Attribute("groupBy").Value;
+                    string groupName = elem.Attribute("groupBy").Value;
                     var subGroup = refObj
                         .Children()
                         .Where(child =>
@@ -289,7 +289,7 @@ namespace EDILibrary
                 i--;
             }
 
-            var j = cur.Descendants("class").Count(d => d.Parent == cur);
+            int j = cur.Descendants("class").Count(d => d.Parent == cur);
             if (j == 0 && !cur.Descendants("field").Any(d => d.Parent == cur)) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
             { }
 
@@ -298,7 +298,7 @@ namespace EDILibrary
                 //class Elemente mappen
                 j--;
                 var newChild = new JObject();
-                var name = elem.Attribute("name").Value;
+                string name = elem.Attribute("name").Value;
                 if (elem.Attribute("ahbName") != null)
                 {
                     name = elem.Attribute("ahbName").Value;
@@ -369,10 +369,10 @@ namespace EDILibrary
 
                 meta.Add("max", elem.Attribute("max") != null ? elem.Attribute("max").Value : "1");
                 //find key element in fields
-                var key = elem.Attribute("key")?.Value;
+                string key = elem.Attribute("key")?.Value;
                 if (key != null)
                 {
-                    var keyParts = key.Split('[');
+                    string[] keyParts = key.Split('[');
                     var keyField = elem.Descendants("field")
                         .FirstOrDefault(field => field.Attribute("ref")?.Value == keyParts.First());
                     if (keyField != null)
@@ -415,8 +415,8 @@ namespace EDILibrary
                     newChild.Add("_meta", meta);
                 }
 
-                var refKey = elem.Attribute("ref").Value;
-                var refKeys = refKey.Split(':');
+                string refKey = elem.Attribute("ref").Value;
+                string[] refKeys = refKey.Split(':');
                 var newTree = tree.FindElement(refKeys.First());
                 if (newTree != null)
                 {
@@ -483,7 +483,7 @@ namespace EDILibrary
         /// <exception cref="ArgumentException"></exception>
         public static string RetrieveFormatVersionFromInputFileName(string inputFileName)
         {
-            var actualFileName = inputFileName
+            string actualFileName = inputFileName
                 .Split(new[] { ".template" }, StringSplitOptions.None)[0]
                 .Split(Path.DirectorySeparatorChar)
                 .Last();
