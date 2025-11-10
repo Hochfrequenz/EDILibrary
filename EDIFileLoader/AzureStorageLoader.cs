@@ -93,20 +93,20 @@ namespace EDIFileLoader
                                 {
                                     foreach (var blob in blobPage.Values)
                                     {
-                                        if (blob.IsBlob)
+                                        if (!blob.IsBlob)
                                         {
-                                            var blockBlob = _container.GetBlobClient(
-                                                blob.Blob.Name
-                                            );
-                                            // if this stream reader failes, because the blockBlob comes without a ByteOrderMark, then use new UTF8Encoding(false) as encoding
-                                            var text = await new StreamReader(
-                                                (await blockBlob.DownloadAsync()).Value.Content,
-                                                Encoding.UTF8
-                                            ).ReadToEndAsync();
-                                            text = EDIHelper.RemoveByteOrderMark(text);
-                                            Cache[prefix.Prefix.TrimEnd('/')]
-                                                .TryAdd(blob.Blob.Name, text);
+                                            continue;
                                         }
+
+                                        var blockBlob = _container.GetBlobClient(blob.Blob.Name);
+                                        // if this stream reader fails, because the blockBlob comes without a ByteOrderMark, then use new UTF8Encoding(false) as encoding
+                                        string text = await new StreamReader(
+                                            (await blockBlob.DownloadAsync()).Value.Content,
+                                            Encoding.UTF8
+                                        ).ReadToEndAsync();
+                                        text = EDIHelper.RemoveByteOrderMark(text);
+                                        Cache[prefix.Prefix.TrimEnd('/')]
+                                            .TryAdd(blob.Blob.Name, text);
                                     }
                                 }
                             }
@@ -141,7 +141,7 @@ namespace EDIFileLoader
                     info.Format.ToString() + info.Version + "." + type
                 )
             );
-            var text = await new StreamReader(
+            string text = await new StreamReader(
                 (await blockBlob.DownloadAsync()).Value.Content,
                 Encoding.UTF8
             ).ReadToEndAsync();
@@ -158,7 +158,7 @@ namespace EDIFileLoader
         public async Task<string> LoadJSONTemplate(string formatPackage, string fileName)
         {
             var format = Enum.Parse<EdifactFormat>(formatPackage.Split("|").First());
-            var version = formatPackage.Split("|").Last();
+            string version = formatPackage.Split("|").Last();
             return await LoadJSONTemplate(format, version, fileName);
         }
 
@@ -182,7 +182,7 @@ namespace EDIFileLoader
                 Path.Combine(version.Replace("/", ""), fileName).Replace("\\", "/")
             );
 
-            var text = await new StreamReader(
+            string text = await new StreamReader(
                 (await blockBlob.DownloadAsync()).Value.Content,
                 Encoding.UTF8
             ).ReadToEndAsync();
@@ -216,7 +216,7 @@ namespace EDIFileLoader
                 Path.Combine("maus", version.ToString(), format.ToString(), pid + "_maus.json")
             );
 
-            var text = await new StreamReader(
+            string text = await new StreamReader(
                 (await blockBlob.DownloadAsync()).Value.Content,
                 Encoding.UTF8
             ).ReadToEndAsync();
