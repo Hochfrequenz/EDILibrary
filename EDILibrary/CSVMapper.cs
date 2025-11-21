@@ -11,10 +11,10 @@ namespace EDILibrary
     {
         protected static void ParseStep(JObject step, StringBuilder builder)
         {
-            var stepName = step.Property("name").Value.Value<string>();
+            string stepName = step.Property("name").Value.Value<string>();
             foreach (JObject group in step.Property("groups").Value as JArray)
             {
-                var groupName = group.Property("key").Value.Value<string>();
+                string groupName = group.Property("key").Value.Value<string>();
                 if (group.Property("fields") != null)
                 {
                     foreach (JObject field in @group.Property("fields").Value as JArray)
@@ -32,7 +32,7 @@ namespace EDILibrary
                         }
                         else
                         {
-                            var fieldName = field.Property("key").Value.Value<string>();
+                            string fieldName = field.Property("key").Value.Value<string>();
                             builder.Append(string.Format("{0}/{1};", groupName, fieldName));
                         }
                     }
@@ -53,7 +53,7 @@ namespace EDILibrary
                     }
                     else
                     {
-                        var fieldName = field.Property("key").Value.Value<string>();
+                        string fieldName = field.Property("key").Value.Value<string>();
                         builder.Append(string.Format("{0};", fieldName));
                     }
                 }
@@ -141,8 +141,8 @@ namespace EDILibrary
             {
                 if (segment.Contains("|"))
                 {
-                    var segmentParts = segment.Split('|');
-                    var newSegment = string.Join("|", segmentParts.Skip(1));
+                    string[] segmentParts = segment.Split('|');
+                    string newSegment = string.Join("|", segmentParts.Skip(1));
                     if (localRoot.Property(segmentParts[0]) == null)
                     {
                         var newChilds = new JArray(new JObject());
@@ -169,16 +169,16 @@ namespace EDILibrary
         {
             //first split header line from content lines
             var lines = csv.LowMemSplit(Environment.NewLine);
-            var segments = lines[0].Split(new[] { ";" }, StringSplitOptions.None);
+            string[] segments = lines[0].Split(new[] { ";" }, StringSplitOptions.None);
             var returnList = new List<string>();
-            foreach (var line in lines.Skip(1))
+            foreach (string line in lines.Skip(1))
             {
-                var lineSegments = line.Split(new[] { ";" }, StringSplitOptions.None);
-                var index = 0;
+                string[] lineSegments = line.Split(new[] { ";" }, StringSplitOptions.None);
+                int index = 0;
                 var lineObject = new JObject();
                 var nachrichtObject = new JObject { { "Nachricht", new JArray(lineObject) } };
                 var dokumentObject = new JObject { { "Dokument", new JArray(nachrichtObject) } };
-                foreach (var segment in segments)
+                foreach (string segment in segments)
                 {
                     BuildObjectFromSegment(segment, lineSegments[index], lineObject);
                     index++;
