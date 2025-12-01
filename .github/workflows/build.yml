@@ -12,6 +12,6 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.0.100
+          dotnet-version: 10
       - name: Build/Check for compile errors (dotnet build)
         run: dotnet build --configuration Release
