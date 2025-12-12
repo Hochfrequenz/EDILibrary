@@ -84,11 +84,11 @@ namespace EDILibrary
 
         protected void ParseJSON(dynamic json)
         {
-            foreach (var child in json.Children<JProperty>())
+            foreach (dynamic child in json.Children<JProperty>())
             {
                 if (child.Value.GetType() == typeof(JArray))
                 {
-                    foreach (var childValue in child.Value)
+                    foreach (dynamic childValue in child.Value)
                     {
                         var childNode = new EdiObject(child.Name, null, GenerateKey(child.Name));
                         childNode.ParseJSON(childValue);
@@ -152,7 +152,7 @@ namespace EDILibrary
         public static EdiObject CreateFromJSON(string JSON)
         {
             dynamic json = JsonConvert.DeserializeObject(JSON);
-            var doc = json["Dokument"][0];
+            dynamic doc = json["Dokument"][0];
             var root = new EdiObject(EDIEnums.Dokument, null, GenerateKey("Dokument"));
             root.ParseJSON(doc);
             return root;
@@ -165,7 +165,7 @@ namespace EDILibrary
 
         protected static void Recurse(XElement elem, EdiObject child)
         {
-            foreach (var (key, value) in child.Fields)
+            foreach ((string key, var value) in child.Fields)
             {
                 var f = new XElement("Field");
                 f.SetAttributeValue("name", key);
@@ -191,10 +191,10 @@ namespace EDILibrary
 
         protected void RecurseJSON(EdiObject cur)
         {
-            var hasKey = false;
+            bool hasKey = false;
 
-            var i = cur.Fields.Count;
-            var hasClass = cur.Children.Any();
+            int i = cur.Fields.Count;
+            bool hasClass = cur.Children.Any();
             if (cur.Key != null)
             {
                 hasKey = true;
@@ -207,11 +207,11 @@ namespace EDILibrary
                 && cur.Fields.Any(f => f.Value.Count > 1)
             ) // check for multiple values
             {
-                var index = 0;
-                var oldI = i;
+                int index = 0;
+                int oldI = i;
                 while (index < cur.Fields.First(f => f.Value.Count > 1).Value.Count)
                 {
-                    foreach (var (key, value) in cur.Fields)
+                    foreach ((string key, var value) in cur.Fields)
                     {
                         i--;
                         _builder.AppendLine(
@@ -234,7 +234,7 @@ namespace EDILibrary
             }
             else
             {
-                foreach (var (key, value) in cur.Fields)
+                foreach ((string key, var value) in cur.Fields)
                 {
                     i--;
                     _builder.AppendLine(
@@ -250,7 +250,7 @@ namespace EDILibrary
                     );
                 }
             }
-            var j = cur.Children.Count;
+            int j = cur.Children.Count;
             if (j == 0 && cur.Fields.Count == 0) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
             {
                 if (!hasKey)
@@ -274,8 +274,8 @@ namespace EDILibrary
                     _builder.AppendLine(key);
                 }
             }
-            var lastName = "";
-            var openElement = false;
+            string lastName = "";
+            bool openElement = false;
             foreach (var elem in cur.Children)
             {
                 if (elem.Name != lastName && lastName != "")
@@ -306,10 +306,10 @@ namespace EDILibrary
 
         protected void RecurseJSON(XElement cur)
         {
-            var hasKey = false;
+            bool hasKey = false;
 
-            var i = cur.Descendants("Field").Count(d => d.Parent == cur);
-            var hasClass = cur.Descendants("Class").Any(d => d.Parent == cur);
+            int i = cur.Descendants("Field").Count(d => d.Parent == cur);
+            bool hasClass = cur.Descendants("Class").Any(d => d.Parent == cur);
             if (cur.Attribute("key") != null)
             {
                 hasKey = true;
@@ -334,7 +334,7 @@ namespace EDILibrary
                         + (i != 0 || hasClass ? "," : "")
                 );
             }
-            var j = cur.Descendants("Class").Count(d => d.Parent == cur);
+            int j = cur.Descendants("Class").Count(d => d.Parent == cur);
             if (j == 0 && cur.Descendants("Field").All(d => d.Parent != cur)) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
             {
                 if (!hasKey)
@@ -552,7 +552,7 @@ namespace EDILibrary
             {
                 clone.AddChild(child.Clone());
             }
-            foreach (var (key, value) in Fields)
+            foreach ((string key, var value) in Fields)
             {
                 clone.Fields.Add(key, new List<string>(value));
             }

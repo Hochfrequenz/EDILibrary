@@ -58,7 +58,7 @@ namespace EDILibraryTests
         {
             const EdifactFormatVersion a = EdifactFormatVersion.FV1710;
             const EdifactFormatVersion b = EdifactFormatVersion.FV1904;
-            Assert.IsTrue(a.CompareToVersion(b) == -1);
+            Assert.AreEqual(-1, a.CompareToVersion(b));
             Assert.IsTrue(b > a);
             Assert.IsFalse(a > b);
         }
@@ -99,10 +99,10 @@ namespace EDILibraryTests
         [TestMethod]
         public void NoPruefiNoFormat()
         {
-            Assert.ThrowsException<ArgumentNullException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 EdifactFormatHelper.FromPruefidentifikator(null)
             );
-            Assert.ThrowsException<ArgumentNullException>(() =>
+            Assert.Throws<ArgumentNullException>(() =>
                 EdifactFormatHelper.FromPruefidentifikator("   ")
             );
         }
@@ -110,7 +110,7 @@ namespace EDILibraryTests
         [TestMethod]
         public void UnmappedThrowsNotImplemented()
         {
-            Assert.ThrowsException<NotImplementedException>(() =>
+            Assert.Throws<NotImplementedException>(() =>
                 EdifactFormatHelper.FromPruefidentifikator("88888")
             );
         }

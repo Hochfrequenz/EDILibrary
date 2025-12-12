@@ -17,7 +17,7 @@ namespace EDILibrary.Helper
         {
             var extMapping = new ExtendedMappings();
             extMapping.LoadMappings("");
-            foreach (var map in mappings)
+            foreach (string map in mappings)
             {
                 try
                 {
@@ -29,9 +29,9 @@ namespace EDILibrary.Helper
             var writer = new GenericEDIWriter();
             writer.helper.useLocalTime = bUseLocalTime;
             writer.helper.LocalTimeZone = localZone ?? TimeZoneInfo.Local;
-            var newEDI = writer.CompileTemplate(createTemplate, edi);
+            string newEDI = writer.CompileTemplate(createTemplate, edi);
             extMapping.PrepareEDIMapping(newEDI);
-            foreach (var map in mappings)
+            foreach (string map in mappings)
             {
                 try
                 {
@@ -54,7 +54,7 @@ namespace EDILibrary.Helper
         {
             var extMapping = new ExtendedMappings();
             extMapping.LoadMappings("");
-            foreach (var map in mappings)
+            foreach (string map in mappings)
             {
                 try
                 {
@@ -66,9 +66,9 @@ namespace EDILibrary.Helper
             var writer = new GenericEDIWriter();
             writer.helper.useLocalTime = bUseLocalTime;
             writer.helper.LocalTimeZone = localZone ?? TimeZoneInfo.Local;
-            var newEDI = writer.CompileTemplate(createTemplate, edi);
+            string newEDI = writer.CompileTemplate(createTemplate, edi);
             extMapping.PrepareEDIMapping(newEDI);
-            foreach (var map in mappings)
+            foreach (string map in mappings)
             {
                 try
                 {
