@@ -82,6 +82,7 @@ namespace EDILibraryTests
                 EdifactFormatVersion.FV2410,
                 EdifactFormatVersion.FV2504,
                 EdifactFormatVersion.FV2510,
+                EdifactFormatVersion.FV2604,
             };
             var comparer = new EdifactFormatVersionComparer();
             for (int i = 0; i < expectedNaturalOrder.Count - 1; i++)
@@ -132,6 +133,7 @@ namespace EDILibraryTests
         [DataRow("10/24", EdifactFormatVersion.FV2410)]
         [DataRow("04/25", EdifactFormatVersion.FV2504)]
         [DataRow("10/25", EdifactFormatVersion.FV2510)]
+        [DataRow("04/26", EdifactFormatVersion.FV2604)]
         public void TestLegacyStrings(
             string legacyString,
             EdifactFormatVersion expectedFormatVersion
