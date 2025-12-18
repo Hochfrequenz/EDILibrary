@@ -243,7 +243,7 @@ namespace EDILibrary
                             + "\" : \""
                             + escapeSpecialChars(
                                 value.Where(v => !string.IsNullOrWhiteSpace(v)).FirstOrDefault()
-                                ?? ""
+                                    ?? ""
                             )
                             + "\""
                             + (i != 0 || hasClass ? "," : "")
