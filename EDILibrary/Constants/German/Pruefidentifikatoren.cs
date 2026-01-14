@@ -265,6 +265,13 @@ namespace EDILibrary.Constants.German
         public const string PARTIN_37005_UebermittlungKommunikationsdatenDesUenb = "37005";
         public const string PARTIN_37006_UebermittlungKommunikationsdatenDesEsa = "37006";
         public const string PARTIN_37007_UebermittlungKommunikationsparameter = "37007";
+        public const string PARTIN_37008_KommunikationsdatenDesLfGas = "37008";
+        public const string PARTIN_37009_KommunikationsdatenDesNbGas = "37009";
+        public const string PARTIN_37010_KommunikationsdatenDesMsbGas = "37010";
+        public const string PARTIN_37011_KommunikationsdatenDesMgvGas = "37011";
+        public const string PARTIN_37012_SpartenuebKommunikationsdatenDesNbGas = "37012";
+        public const string PARTIN_37013_SpartenuebKommunikationsdatenDesMsbGas = "37013";
+        public const string PARTIN_37014_SpartenuebKommunikationsdatenDesMsbStrom = "37014";
 
         #endregion
 
