@@ -64,6 +64,7 @@ namespace EDILibrary.Constants.German
         public const string IFTSTA_21042_Wim_UmsetzungsstatusDerBestellung = "21042";
         public const string IFTSTA_21043_Gpke_BestellungsantwortMitteilung = "21043";
         public const string IFTSTA_21044_Gpke_Bestellungsbeendigung = "21044";
+        public const string IFTSTA_21045_EnfgInformationen = "21045";
         public const string IFTSTA_21047_Gpke_Bearbeitungsstandsmeldung = "21047";
 
         #endregion
@@ -129,6 +130,7 @@ namespace EDILibrary.Constants.German
         public const string MSCONS_13026_RedispatchEegUeberfuehrungszeitreiheAufgrundAusfallarbeit =
             "13026";
         public const string MSCONS_13027_WerteNachTyp2 = "13027";
+        public const string MSCONS_13028_GrundlagePogErmittlung = "13028";
 
         #endregion
 
@@ -157,6 +159,9 @@ namespace EDILibrary.Constants.German
         public const string ORDERS_17103_AnfrageBrennwertUndZustandszahl = "17103";
         public const string ORDERS_17104_AnfrageVomMsbGas = "17104";
         public const string ORDERS_17110_AnforderungAllokationsliste = "17110";
+        public const string ORDERS_17111_BestellanforderungAenderungPrognosegrundlageGeraetekonfiguration =
+            "17111";
+        public const string ORDERS_17112_BestellanforderungAenderungGeraetekonfiguration = "17112";
         public const string ORDERS_17113_MeldungEinerReklamationVonWerten = "17113";
         public const string ORDERS_17114_AnforderungBilanzierteMenge = "17114";
         public const string ORDERS_17115_Sperrauftrag = "17115";
@@ -168,6 +173,10 @@ namespace EDILibrary.Constants.German
         public const string ORDERS_17121_BestellungAenderung = "17121";
         public const string ORDERS_17122_ReklamationEinerDefinition = "17122";
         public const string ORDERS_17123_BestellungAenderungZaehlzeitdefinition = "17123";
+        public const string ORDERS_17124_WeiterleitungBestellungAenderungZaehlzeitdefinition =
+            "17124";
+        public const string ORDERS_17125_BestellungKonfigurationsaenderungAufgrundAenderungZaehlzeitdefinition =
+            "17125";
         public const string ORDERS_17126_AnfrageStammdatenMesslokation = "17126";
         public const string ORDERS_17127_AnfrageStammdatenTranche = "17127";
         public const string ORDERS_17128_ReklamationEinerKonfiguration = "17128";
@@ -989,6 +998,7 @@ namespace EDILibrary.Constants.German
         public const string UTILMD_44105_NbwGas_AblehnungAufStammdatenZurVerbrauchendenMarktlokation =
             "44105";
         public const string UTILMD_44109_SdaeGas_NichtBilarelAenderungVomLfAnNb = "44109";
+        public const string UTILMD_44110_SdaeGas_NichtBilarelAenderungVomLf = "44110";
         public const string UTILMD_44111_SdaeGas_AntwortAufAenderungVomLfAgAnAf = "44111";
         public const string UTILMD_44112_SdaeGas_NichtBilarelAenderungVomNbAnLf = "44112";
         public const string UTILMD_44113_SdaeGas_NichtBilarelAenderungVomNbAnMsb = "44113";
@@ -1002,6 +1012,9 @@ namespace EDILibrary.Constants.German
             "44123";
         public const string UTILMD_44124_SdaeGas_AntwortAufBilarelAenderungVomNbMitAbhaengigkeitenAgAnNb =
             "44124";
+        public const string UTILMD_44129_SdaeGas_KorrekturMeldepunktVomNb = "44129";
+        public const string UTILMD_44130_SdaeGas_KorrekturMeldepunktVomNbNbAnLf = "44130";
+        public const string UTILMD_44132_SdaeGas_AntwortAufAenderungVomNb = "44132";
         public const string UTILMD_44137_SdaeGas_NichtBilarelAnfrageAnLfNbBerechtigtAnLf = "44137";
         public const string UTILMD_44138_SdaeGas_AntwortAufNichtBilarelAnfrageAnLfLfAnNb = "44138";
         public const string UTILMD_44139_SdaeGas_NichtBilarelAnfrageAnNbLfAnNb = "44139";
