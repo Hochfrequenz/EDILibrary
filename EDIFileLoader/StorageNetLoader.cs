@@ -118,6 +118,10 @@ namespace EDIFileLoader
             await using var s = new MemoryStream();
             Logger.LogDebug($"Reading path {path}");
             await using Stream ss = await Storage.OpenReadAsync(path);
+            if (ss == null)
+            {
+                throw new FileNotFoundException($"Storage returned null stream for path '{path}'");
+            }
             Logger.LogDebug("Copying to stream");
             await ss.CopyToAsync(s);
             return Encoding.UTF8.GetString(s.ToArray());
@@ -248,7 +252,7 @@ namespace EDIFileLoader
             }
             catch (Exception exc)
             {
-                Logger.LogWarning(exc, $"Could not load edi template from storage: {exc.Message}");
+                Logger.LogDebug(exc, $"Could not load edi template from storage: {exc.Message}");
                 // why should we raise a meaningful error message when we can just return an empty string and fail somewhere else instead of the place where the error occured?
                 return "";
             }
