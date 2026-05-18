@@ -64,7 +64,9 @@ namespace EDIFileLoader
                     .GetBlobsByHierarchyAsync(
                         Azure.Storage.Blobs.Models.BlobTraits.Metadata,
                         Azure.Storage.Blobs.Models.BlobStates.None,
-                        "/"
+                        "/",
+                        null,
+                        default
                     )
                     .AsPages()
             )
@@ -86,7 +88,8 @@ namespace EDIFileLoader
                                             Azure.Storage.Blobs.Models.BlobTraits.Metadata,
                                             Azure.Storage.Blobs.Models.BlobStates.None,
                                             null,
-                                            prefix.Prefix
+                                            prefix.Prefix,
+                                            default
                                         )
                                         .AsPages()
                                 )
