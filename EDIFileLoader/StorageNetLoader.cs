@@ -32,10 +32,15 @@ namespace EDIFileLoader
         protected ILogger Logger { get; set; }
 
         /// <summary>
-        /// Cache dictionary to not download every file again
+        /// Cache dictionary to not download every file again.
+        /// Both outer and inner dictionaries are thread-safe to support concurrent access
+        /// from parallel test runners and multi-threaded applications.
         /// </summary>
-        protected ConcurrentDictionary<string, Dictionary<string, string>> Cache { get; set; } =
-            new ConcurrentDictionary<string, Dictionary<string, string>>();
+        protected ConcurrentDictionary<
+            string,
+            ConcurrentDictionary<string, string>
+        > Cache { get; set; } =
+            new ConcurrentDictionary<string, ConcurrentDictionary<string, string>>();
 
         /// <summary>
         /// JsonSerializer options
@@ -80,9 +85,9 @@ namespace EDIFileLoader
                     {
                         if (folder.IsFolder)
                         {
-                            Cache.TryAdd(
+                            var innerCache = Cache.GetOrAdd(
                                 folder.Name.TrimEnd('/'),
-                                new Dictionary<string, string>()
+                                _ => new ConcurrentDictionary<string, string>()
                             );
                             foreach (
                                 var blob in await Storage.ListAsync(
@@ -99,7 +104,7 @@ namespace EDIFileLoader
                                 }
 
                                 string text = await GetUTF8TextFromPath(blob.FullPath);
-                                Cache[folder.Name.TrimEnd('/')].TryAdd(blob.Name, text);
+                                innerCache.TryAdd(blob.Name, text);
                             }
                         }
                     })
@@ -164,16 +169,10 @@ namespace EDIFileLoader
                 text = EDIHelper.RemoveByteOrderMark(text);
                 if (Cache != null)
                 {
-                    if (!Cache.ContainsKey("edi"))
-                    {
-                        Cache["edi"] = new Dictionary<string, string>();
-                    }
-                    var ediCache = Cache["edi"];
-                    if (ediCache == null)
-                    {
-                        ediCache = new Dictionary<string, string>();
-                    }
-
+                    var ediCache = Cache.GetOrAdd(
+                        "edi",
+                        _ => new ConcurrentDictionary<string, string>()
+                    );
                     ediCache[
                         Path.Combine(
                                 "edi",
@@ -236,16 +235,10 @@ namespace EDIFileLoader
                 text = EDIHelper.RemoveByteOrderMark(text);
                 if (Cache != null)
                 {
-                    if (!Cache.ContainsKey(version.Replace("/", "")))
-                    {
-                        Cache[version.Replace("/", "")] = new Dictionary<string, string>();
-                    }
-                    var ediCache = Cache[version.Replace("/", "")];
-                    if (ediCache == null)
-                    {
-                        ediCache = new Dictionary<string, string>();
-                    }
-
+                    var ediCache = Cache.GetOrAdd(
+                        version.Replace("/", ""),
+                        _ => new ConcurrentDictionary<string, string>()
+                    );
                     ediCache[fileName.Replace("\\", "/")] = text;
                 }
                 return text;
@@ -295,16 +288,10 @@ namespace EDIFileLoader
                 text = EDIHelper.RemoveByteOrderMark(text);
                 if (Cache != null)
                 {
-                    if (!Cache.ContainsKey("maus"))
-                    {
-                        Cache["maus"] = new Dictionary<string, string>();
-                    }
-                    var ediCache = Cache["maus"];
-                    if (ediCache == null)
-                    {
-                        ediCache = new Dictionary<string, string>();
-                    }
-
+                    var ediCache = Cache.GetOrAdd(
+                        "maus",
+                        _ => new ConcurrentDictionary<string, string>()
+                    );
                     ediCache[
                         Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")
                     ] = text;
