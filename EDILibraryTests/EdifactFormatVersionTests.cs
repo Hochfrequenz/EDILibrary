@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AwesomeAssertions;
 using EDILibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
@@ -84,6 +85,7 @@ namespace EDILibraryTests
                 EdifactFormatVersion.FV2510,
                 EdifactFormatVersion.FV2604,
                 EdifactFormatVersion.FV2610,
+                EdifactFormatVersion.FV2704,
             };
             var comparer = new EdifactFormatVersionComparer();
             for (int i = 0; i < expectedNaturalOrder.Count - 1; i++)
@@ -136,6 +138,7 @@ namespace EDILibraryTests
         [DataRow("10/25", EdifactFormatVersion.FV2510)]
         [DataRow("04/26", EdifactFormatVersion.FV2604)]
         [DataRow("10/26", EdifactFormatVersion.FV2610)]
+        [DataRow("04/27", EdifactFormatVersion.FV2704)]
         public void TestLegacyStrings(
             string legacyString,
             EdifactFormatVersion expectedFormatVersion
@@ -192,6 +195,7 @@ namespace EDILibraryTests
         [DataRow("2025-09-30T22:00:00+00:00", EdifactFormatVersion.FV2510)]
         [DataRow("2026-03-31T22:00:00+00:00", EdifactFormatVersion.FV2604)]
         [DataRow("2026-09-30T22:00:00+00:00", EdifactFormatVersion.FV2610)]
+        [DataRow("2027-03-31T22:00:00+00:00", EdifactFormatVersion.FV2704)]
         public void TestFormatVersionProvider(
             string dateTimeOffset,
             EdifactFormatVersion expectedVersion
@@ -200,6 +204,28 @@ namespace EDILibraryTests
             IEdifactFormatVersionProvider versionProvider = new EdifactFormatVersionHelper();
             DateTimeOffset date = DateTimeOffset.Parse(dateTimeOffset);
             Assert.AreEqual(expectedVersion, versionProvider.GetFormatVersion(date));
+        }
+
+        [TestMethod]
+        [DataRow(EdifactFormat.APERAK, "2.2", EdifactFormatVersion.FV2610)]
+        [DataRow(EdifactFormat.IFTSTA, "2.1", EdifactFormatVersion.FV2610)]
+        [DataRow(EdifactFormat.MSCONS, "2.5", EdifactFormatVersion.FV2610)]
+        [DataRow(EdifactFormat.ORDCHG, "1.2", EdifactFormatVersion.FV2610)]
+        [DataRow(EdifactFormat.ORDERS, "1.4c", EdifactFormatVersion.FV2610)]
+        [DataRow(EdifactFormat.ORDRSP, "1.4c", EdifactFormatVersion.FV2610)]
+        [DataRow(EdifactFormat.PARTIN, "1.1", EdifactFormatVersion.FV2610)]
+        [DataRow(EdifactFormat.PRICAT, "2.1", EdifactFormatVersion.FV2610)]
+        [DataRow(EdifactFormat.QUOTES, "1.3c", EdifactFormatVersion.FV2610)]
+        [DataRow(EdifactFormat.UTILMDG, "G1.2", EdifactFormatVersion.FV2610)]
+        [DataRow(EdifactFormat.UTILMDS, "S2.2", EdifactFormatVersion.FV2610)]
+        public void TestFormatVersionByMigVersion(
+            EdifactFormat format,
+            string migVersion,
+            EdifactFormatVersion expectedVersion
+        )
+        {
+            IEdifactFormatVersionProvider versionProvider = new EdifactFormatVersionHelper();
+            versionProvider.GetFormatVersion(format, migVersion).Should().Be(expectedVersion);
         }
     }
 }
