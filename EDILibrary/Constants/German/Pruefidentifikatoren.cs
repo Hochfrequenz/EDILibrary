@@ -941,8 +941,7 @@ namespace EDILibrary.Constants.German
         public const string UTILMD_55692_GpkeTeil4_RueckmeldungAnfragePaketIdDerMaloLfAnNb =
             "55692";
         public const string UTILMD_55693_GpkeTeil4_AenderungDatenDerTrLfAnNb = "55693";
-        public const string UTILMD_55694_GpkeTeil4_Rueckmeldung_AnfrageDatenDerTrNbAnLf =
-            "55694";
+        public const string UTILMD_55694_GpkeTeil4_Rueckmeldung_AnfrageDatenDerTrNbAnLf = "55694";
 
         #endregion
 
