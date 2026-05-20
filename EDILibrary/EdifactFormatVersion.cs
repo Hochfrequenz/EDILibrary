@@ -676,6 +676,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.UTILMDG => version switch
                 {
+                    "G1.2" => EdifactFormatVersion.FV2610,
                     "G1.1" => EdifactFormatVersion.FV2604,
                     "G1.0a" => EdifactFormatVersion.FV2310,
                     _ => GetCurrent(),
@@ -689,6 +690,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.UTILMDS => version switch
                 {
+                    "S2.2" => EdifactFormatVersion.FV2610,
                     "S2.1" => EdifactFormatVersion.FV2504,
                     "S2.0" => EdifactFormatVersion.FV2504,
                     "S1.1a" => EdifactFormatVersion.FV2404,
@@ -697,6 +699,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.MSCONS => version switch
                 {
+                    "2.5" => EdifactFormatVersion.FV2610,
                     "2.4c" => EdifactFormatVersion.FV2404,
                     "2.4b" => EdifactFormatVersion.FV2310,
                     "2.4a" => EdifactFormatVersion.FV2210,
@@ -705,6 +708,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.PARTIN => version switch
                 {
+                    "1.1" => EdifactFormatVersion.FV2610,
                     "1.0f" => EdifactFormatVersion.FV2604,
                     "1.0e" => EdifactFormatVersion.FV2504,
                     "1.0d" => EdifactFormatVersion.FV2404,
@@ -714,6 +718,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.IFTSTA => version switch
                 {
+                    "2.1" => EdifactFormatVersion.FV2610,
                     "2.0g" => EdifactFormatVersion.FV2510,
                     "2.0f" => EdifactFormatVersion.FV2504,
                     "2.0e" => EdifactFormatVersion.FV2404,
@@ -723,6 +728,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.APERAK => version switch
                 {
+                    "2.2" => EdifactFormatVersion.FV2610,
                     "2.1i" => EdifactFormatVersion.FV2504,
                     "2.1h" => EdifactFormatVersion.FV2210,
                     "2.1f" => EdifactFormatVersion.FV2110,
@@ -764,12 +770,14 @@ namespace EDILibrary
                 },
                 EdifactFormat.ORDCHG => version switch
                 {
+                    "1.2" => EdifactFormatVersion.FV2610,
                     "1.1" => EdifactFormatVersion.FV2310,
                     "1.0" => EdifactFormatVersion.FV2210,
                     _ => GetCurrent(),
                 },
                 EdifactFormat.ORDERS => version switch
                 {
+                    "1.4c" => EdifactFormatVersion.FV2610,
                     "1.4b" => EdifactFormatVersion.FV2510,
                     "1.4a" => EdifactFormatVersion.FV2504,
                     "1.4" => EdifactFormatVersion.FV2504,
@@ -781,6 +789,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.ORDRSP => version switch
                 {
+                    "1.4c" => EdifactFormatVersion.FV2610,
                     "1.4b" => EdifactFormatVersion.FV2604,
                     "1.4a" => EdifactFormatVersion.FV2510,
                     "1.4" => EdifactFormatVersion.FV2504,
@@ -792,6 +801,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.PRICAT => version switch
                 {
+                    "2.1" => EdifactFormatVersion.FV2610,
                     "2.0e" => EdifactFormatVersion.FV2510,
                     "2.0d" => EdifactFormatVersion.FV2504,
                     "2.0c" => EdifactFormatVersion.FV2310,
@@ -802,6 +812,7 @@ namespace EDILibrary
                 },
                 EdifactFormat.QUOTES => version switch
                 {
+                    "1.3c" => EdifactFormatVersion.FV2610,
                     "1.3b" => EdifactFormatVersion.FV2510,
                     "1.3a" => EdifactFormatVersion.FV2504,
                     "1.3" => EdifactFormatVersion.FV2310,
