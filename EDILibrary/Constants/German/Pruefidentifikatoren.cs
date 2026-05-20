@@ -940,6 +940,8 @@ namespace EDILibrary.Constants.German
         public const string UTILMD_55691_GpkeTeil4_AenderungPaketIdDerMaloNbAnLf = "55691";
         public const string UTILMD_55692_GpkeTeil4_RueckmeldungAnfragePaketIdDerMaloLfAnNb =
             "55692";
+        public const string UTILMD_55693_GpkeTeil4_AenderungDatenDerTrLfAnNb = "55693";
+        public const string UTILMD_55694_GpkeTeil4_Rueckmeldung_AnfrageDatenDerTrNbAnLf = "55694";
 
         #endregion
 
@@ -1066,6 +1068,7 @@ namespace EDILibrary.Constants.German
             "44181";
         public const string UTILMD_44182_SdaeGas_AblehnungDerAnfrageDerKomplexenMarktlokationsstrukturNbAnLf =
             "44182";
+        public const string UTILMD_44183_WimGas_EndeMsbVonNb = "44183";
 
         #endregion
 
