@@ -184,7 +184,35 @@ namespace EDILibrary
 
         protected static string escapeSpecialChars(string value)
         {
-            return value.Replace("\"", "\\\"");
+            var sb = new StringBuilder(value.Length);
+            foreach (char c in value)
+            {
+                switch (c)
+                {
+                    case '\\':
+                        sb.Append("\\\\");
+                        break;
+                    case '"':
+                        sb.Append("\\\"");
+                        break;
+                    case '\n':
+                        sb.Append("\\n");
+                        break;
+                    case '\r':
+                        sb.Append("\\r");
+                        break;
+                    case '\t':
+                        sb.Append("\\t");
+                        break;
+                    default:
+                        if (c < 0x20)
+                            sb.Append($"\\u{(int)c:X4}");
+                        else
+                            sb.Append(c);
+                        break;
+                }
+            }
+            return sb.ToString();
         }
 
         protected StringBuilder _builder;
@@ -329,7 +357,7 @@ namespace EDILibrary
                     "\""
                         + elem.Attribute("name").Value
                         + "\" : \""
-                        + elem.Value
+                        + escapeSpecialChars(elem.Value)
                         + "\""
                         + (i != 0 || hasClass ? "," : "")
                 );
