@@ -183,9 +183,11 @@ namespace EDILibrary
 
         private static JToken BuildJToken(EdiObject cur)
         {
-            if (cur.Fields.Count > 0
+            if (
+                cur.Fields.Count > 0
                 && cur.Fields.Count(f => f.Value.Count > 1) == cur.Fields.Count
-                && cur.Fields.Any(f => f.Value.Count > 1))
+                && cur.Fields.Any(f => f.Value.Count > 1)
+            )
             {
                 int count = cur.Fields.First(f => f.Value.Count > 1).Value.Count;
                 var arr = new JArray();
@@ -250,10 +252,7 @@ namespace EDILibrary
         {
             var token = BuildJToken(this);
             var dokumentArray = token as JArray ?? new JArray { token };
-            var root = new JObject
-            {
-                ["Dokument"] = dokumentArray
-            };
+            var root = new JObject { ["Dokument"] = dokumentArray };
             return JsonConvert.SerializeObject(root, Formatting.Indented);
         }
 
