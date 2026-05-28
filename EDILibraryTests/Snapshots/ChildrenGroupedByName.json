@@ -1,0 +1,13 @@
+{
+"Dokument":[{
+"Key" : "r1",
+"Segment" :  [{
+"Key" : "s1",
+"Code" : "A"
+}
+,{
+"Key" : "s2",
+"Code" : "B"
+}
+]
+}]}

@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 using System.Xml.Linq;
 using EDILibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace EDILibraryTests
 {
@@ -187,6 +189,90 @@ namespace EDILibraryTests
             Assert.AreEqual(2, arr.GetArrayLength());
             Assert.AreEqual("a2", arr[1].GetProperty("A").GetString());
             Assert.AreEqual("x1", arr[1].GetProperty("Child")[0].GetProperty("X").GetString());
+        }
+
+        [TestMethod]
+        [DataRow("SimpleFieldsAndKey")]
+        [DataRow("ChildrenGroupedByName")]
+        [DataRow("NoFieldsNoChildren")]
+        [DataRow("MultiValueFields")]
+        [DataRow("MultiValueWithChildren")]
+        public void SerializeToJSON_MatchesSnapshot(string snapshotName)
+        {
+            var snapshot = LoadSnapshot(snapshotName);
+            var newOutput = GetNewOutput(snapshotName);
+
+            Assert.IsTrue(
+                JToken.DeepEquals(snapshot, newOutput),
+                $"New output for '{snapshotName}' differs from snapshot.\nSnapshot: {snapshot}\nNew:      {newOutput}"
+            );
+        }
+
+        private static JToken LoadSnapshot(string name)
+        {
+            var path = Path.GetFullPath(
+                Path.Combine("../../../Snapshots", name + ".json")
+            );
+            var json = File.ReadAllText(path);
+            return JToken.Parse(json);
+        }
+
+        private static JToken GetNewOutput(string name)
+        {
+            EdiObject obj = name switch
+            {
+                "SimpleFieldsAndKey" => CreateSimpleFieldsAndKey(),
+                "ChildrenGroupedByName" => CreateChildrenGroupedByName(),
+                "NoFieldsNoChildren" => CreateNoFieldsNoChildren(),
+                "MultiValueFields" => CreateMultiValueFields(),
+                "MultiValueWithChildren" => CreateMultiValueWithChildren(),
+                _ => throw new System.ArgumentException($"Unknown snapshot: {name}"),
+            };
+            return JToken.Parse(obj.SerializeToJSON());
+        }
+
+        private static EdiObject CreateSimpleFieldsAndKey()
+        {
+            var obj = new EdiObject("Test", new XElement("root"), "abc");
+            obj.Fields["Name"] = new List<string> { "Wert" };
+            obj.Fields["Zaehler"] = new List<string> { "42" };
+            return obj;
+        }
+
+        private static EdiObject CreateChildrenGroupedByName()
+        {
+            var obj = new EdiObject("Root", new XElement("root"), "r1");
+            var child1 = new EdiObject("Segment", new XElement("seg"), "s1");
+            child1.Fields["Code"] = new List<string> { "A" };
+            var child2 = new EdiObject("Segment", new XElement("seg"), "s2");
+            child2.Fields["Code"] = new List<string> { "B" };
+            obj.AddChild(child1);
+            obj.AddChild(child2);
+            return obj;
+        }
+
+        private static EdiObject CreateNoFieldsNoChildren()
+        {
+            return new EdiObject("Kontakt", new XElement("root"), null);
+        }
+
+        private static EdiObject CreateMultiValueFields()
+        {
+            var obj = new EdiObject("Multi", new XElement("root"), "m1");
+            obj.Fields["A"] = new List<string> { "a1", "a2" };
+            obj.Fields["B"] = new List<string> { "b1", "b2" };
+            return obj;
+        }
+
+        private static EdiObject CreateMultiValueWithChildren()
+        {
+            var obj = new EdiObject("Multi", new XElement("root"), "m1");
+            obj.Fields["A"] = new List<string> { "a1", "a2" };
+            obj.Fields["B"] = new List<string> { "b1", "b2" };
+            var child = new EdiObject("Child", new XElement("c"), "c1");
+            child.Fields["X"] = new List<string> { "x1" };
+            obj.AddChild(child);
+            return obj;
         }
     }
 }
