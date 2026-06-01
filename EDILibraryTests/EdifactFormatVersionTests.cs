@@ -93,8 +93,10 @@ namespace EDILibraryTests
                 for (int j = i + 1; j < expectedNaturalOrder.Count; j++)
                 {
                     (expectedNaturalOrder[i] < expectedNaturalOrder[j]).Should().BeTrue();
-                    comparer.Compare(expectedNaturalOrder[i], expectedNaturalOrder[j])
-                        .Should().BeNegative();
+                    comparer
+                        .Compare(expectedNaturalOrder[i], expectedNaturalOrder[j])
+                        .Should()
+                        .BeNegative();
                 }
             }
         }

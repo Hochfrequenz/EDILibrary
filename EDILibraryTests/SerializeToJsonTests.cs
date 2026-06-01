@@ -203,9 +203,12 @@ namespace EDILibraryTests
             var snapshot = LoadSnapshot(snapshotName);
             var newOutput = GetNewOutput(snapshotName);
 
-            JToken.DeepEquals(snapshot, newOutput).Should().BeTrue(
-                $"New output for '{snapshotName}' differs from snapshot.\nSnapshot: {snapshot}\nNew:      {newOutput}"
-            );
+            JToken
+                .DeepEquals(snapshot, newOutput)
+                .Should()
+                .BeTrue(
+                    $"New output for '{snapshotName}' differs from snapshot.\nSnapshot: {snapshot}\nNew:      {newOutput}"
+                );
         }
 
         private static JToken LoadSnapshot(string name)
