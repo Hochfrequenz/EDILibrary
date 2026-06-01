@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Xml.Linq;
+using AwesomeAssertions;
 using EDILibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -116,9 +117,9 @@ namespace EDILibraryTests
 
             using var doc = JsonDocument.Parse(json);
             var elem = doc.RootElement.GetProperty("Dokument")[0];
-            Assert.AreEqual("abc", elem.GetProperty("Key").GetString());
-            Assert.AreEqual("Wert", elem.GetProperty("Name").GetString());
-            Assert.AreEqual("42", elem.GetProperty("Zaehler").GetString());
+            elem.GetProperty("Key").GetString().Should().Be("abc");
+            elem.GetProperty("Name").GetString().Should().Be("Wert");
+            elem.GetProperty("Zaehler").GetString().Should().Be("42");
         }
 
         [TestMethod]
