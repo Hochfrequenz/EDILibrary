@@ -214,7 +214,14 @@ namespace EDILibraryTests
         private static JToken LoadSnapshot(string name)
         {
             var path = Path.GetFullPath(
-                Path.Combine(System.AppContext.BaseDirectory, "..", "..", "..", "Snapshots", name + ".json")
+                Path.Combine(
+                    System.AppContext.BaseDirectory,
+                    "..",
+                    "..",
+                    "..",
+                    "Snapshots",
+                    name + ".json"
+                )
             );
             var json = File.ReadAllText(path);
             return JToken.Parse(json);
