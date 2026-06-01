@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using AwesomeAssertions;
 using EDILibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -23,13 +24,13 @@ namespace EDILibraryTests
         public void TestRemoveBOM(string raw, string expectedResult, bool legacySupported)
         {
             var actual = EDIHelper.RemoveByteOrderMark(raw);
-            Assert.AreEqual(expectedResult, actual);
+            actual.Should().Be(expectedResult);
             if (legacySupported)
             {
 #pragma warning disable 618
                 var actualLegacy = EDIHelper.RemoveBOM(raw);
 #pragma warning restore 618
-                Assert.AreEqual(expectedResult, actualLegacy);
+                actualLegacy.Should().Be(expectedResult);
             }
         }
 
@@ -56,7 +57,7 @@ namespace EDILibraryTests
         public void TestNormalizeEdiHeader(string input, string expectedResult)
         {
             var actual = EDIHelper.NormalizeEDIHeader(input);
-            Assert.AreEqual(expectedResult, actual);
+            actual.Should().Be(expectedResult);
         }
 
         private static readonly JsonSerializerOptions JsonFieldOptions = new()
@@ -96,7 +97,7 @@ namespace EDILibraryTests
             var actual = EDIHelper.GetEdiFileInfo(input);
             if (expectedOutput == null)
             {
-                Assert.IsNull(actual);
+                actual.Should().BeNull();
             }
             else
             {
@@ -104,15 +105,15 @@ namespace EDILibraryTests
                     expectedOutput,
                     JsonFieldOptions
                 );
-                Assert.IsNotNull(expected);
+                expected.Should().NotBeNull();
                 if (!expected.Format.HasValue)
                 {
-                    Assert.AreEqual(expected.Format, actual.Format);
-                    Assert.IsTrue(System.Guid.TryParse(actual.Referenz, out _));
+                    actual.Format.Should().Be(expected.Format);
+                    System.Guid.TryParse(actual.Referenz, out _).Should().BeTrue();
                 }
                 else
                 {
-                    Assert.AreEqual(expected, actual);
+                    actual.Should().Be(expected);
                 }
             }
         }
@@ -152,7 +153,7 @@ namespace EDILibraryTests
             var actual = EDIHelper.GetEdiFileInfo(input, maskUTILMDX: false);
             if (expectedOutput == null)
             {
-                Assert.IsNull(actual);
+                actual.Should().BeNull();
             }
             else
             {
@@ -160,15 +161,15 @@ namespace EDILibraryTests
                     expectedOutput,
                     JsonFieldOptions
                 );
-                Assert.IsNotNull(expected);
+                expected.Should().NotBeNull();
                 if (!expected.Format.HasValue)
                 {
-                    Assert.AreEqual(expected.Format, actual.Format);
-                    Assert.IsTrue(System.Guid.TryParse(actual.Referenz, out _));
+                    actual.Format.Should().Be(expected.Format);
+                    System.Guid.TryParse(actual.Referenz, out _).Should().BeTrue();
                 }
                 else
                 {
-                    Assert.AreEqual(expected, actual);
+                    actual.Should().Be(expected);
                 }
             }
         }

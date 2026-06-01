@@ -31,7 +31,7 @@ namespace EDILibraryTests
         public void TestPruefiToFormat(string pruefi, EdifactFormat expectedFormat)
         {
             var actualFormat = EdifactFormatHelper.FromPruefidentifikator(pruefi);
-            Assert.AreEqual(expectedFormat, actualFormat);
+            actualFormat.Should().Be(expectedFormat);
         }
 
         [TestMethod]
@@ -50,7 +50,7 @@ namespace EDILibraryTests
                 false,
                 formatPackage
             );
-            Assert.AreEqual(expectedFormat, actualFormat);
+            actualFormat.Should().Be(expectedFormat);
         }
 
         [TestMethod]
@@ -59,9 +59,9 @@ namespace EDILibraryTests
         {
             const EdifactFormatVersion a = EdifactFormatVersion.FV1710;
             const EdifactFormatVersion b = EdifactFormatVersion.FV1904;
-            Assert.AreEqual(-1, a.CompareToVersion(b));
-            Assert.IsTrue(b > a);
-            Assert.IsFalse(a > b);
+            a.CompareToVersion(b).Should().Be(-1);
+            (b > a).Should().BeTrue();
+            (a > b).Should().BeFalse();
         }
 
         [TestMethod]
@@ -92,10 +92,9 @@ namespace EDILibraryTests
             {
                 for (int j = i + 1; j < expectedNaturalOrder.Count; j++)
                 {
-                    Assert.IsTrue(expectedNaturalOrder[i] < expectedNaturalOrder[j]);
-                    Assert.IsTrue(
-                        comparer.Compare(expectedNaturalOrder[i], expectedNaturalOrder[j]) < 0
-                    );
+                    (expectedNaturalOrder[i] < expectedNaturalOrder[j]).Should().BeTrue();
+                    comparer.Compare(expectedNaturalOrder[i], expectedNaturalOrder[j])
+                        .Should().BeNegative();
                 }
             }
         }
@@ -103,20 +102,17 @@ namespace EDILibraryTests
         [TestMethod]
         public void NoPruefiNoFormat()
         {
-            Assert.Throws<ArgumentNullException>(() =>
-                EdifactFormatHelper.FromPruefidentifikator(null)
-            );
-            Assert.Throws<ArgumentNullException>(() =>
-                EdifactFormatHelper.FromPruefidentifikator("   ")
-            );
+            var act1 = () => EdifactFormatHelper.FromPruefidentifikator(null);
+            act1.Should().Throw<ArgumentNullException>();
+            var act2 = () => EdifactFormatHelper.FromPruefidentifikator("   ");
+            act2.Should().Throw<ArgumentNullException>();
         }
 
         [TestMethod]
         public void UnmappedThrowsNotImplemented()
         {
-            Assert.Throws<NotImplementedException>(() =>
-                EdifactFormatHelper.FromPruefidentifikator("88888")
-            );
+            var act = () => EdifactFormatHelper.FromPruefidentifikator("88888");
+            act.Should().Throw<NotImplementedException>();
         }
 
         [TestMethod]
@@ -145,14 +141,14 @@ namespace EDILibraryTests
         )
         {
             var actualFormatVersion = legacyString.ToEdifactFormatVersion();
-            Assert.AreEqual(expectedFormatVersion, actualFormatVersion);
+            actualFormatVersion.Should().Be(expectedFormatVersion);
             if (!legacyString.StartsWith("FV"))
             {
-                Assert.AreEqual(legacyString, expectedFormatVersion.ToLegacyVersionString());
+                expectedFormatVersion.ToLegacyVersionString().Should().Be(legacyString);
             }
             else
             {
-                Assert.AreEqual(legacyString, expectedFormatVersion.ToString());
+                expectedFormatVersion.ToString().Should().Be(legacyString);
             }
         }
 
@@ -174,7 +170,7 @@ namespace EDILibraryTests
         {
             var versionProviderMock = Substitute.For<IEdifactFormatVersionProvider>();
             versionProviderMock.GetCurrent().Returns(EdifactFormatVersion.FV1904);
-            Assert.AreEqual(EdifactFormatVersion.FV1904, ActualCode(versionProviderMock));
+            ActualCode(versionProviderMock).Should().Be(EdifactFormatVersion.FV1904);
         }
 
         /// <summary>
@@ -203,7 +199,7 @@ namespace EDILibraryTests
         {
             IEdifactFormatVersionProvider versionProvider = new EdifactFormatVersionHelper();
             DateTimeOffset date = DateTimeOffset.Parse(dateTimeOffset);
-            Assert.AreEqual(expectedVersion, versionProvider.GetFormatVersion(date));
+            versionProvider.GetFormatVersion(date).Should().Be(expectedVersion);
         }
 
         [TestMethod]

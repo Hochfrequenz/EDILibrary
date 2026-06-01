@@ -22,7 +22,7 @@ namespace EDILibraryTests
 
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
-            Assert.IsTrue(root.TryGetProperty("Dokument", out _));
+            root.TryGetProperty("Dokument", out _).Should().BeTrue();
         }
 
         [TestMethod]
@@ -35,7 +35,7 @@ namespace EDILibraryTests
 
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
-            Assert.IsTrue(root.TryGetProperty("Dokument", out _));
+            root.TryGetProperty("Dokument", out _).Should().BeTrue();
         }
 
         [TestMethod]
@@ -48,7 +48,7 @@ namespace EDILibraryTests
 
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
-            Assert.IsTrue(root.TryGetProperty("Dokument", out _));
+            root.TryGetProperty("Dokument", out _).Should().BeTrue();
         }
 
         [TestMethod]
@@ -61,7 +61,7 @@ namespace EDILibraryTests
 
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
-            Assert.IsTrue(root.TryGetProperty("Dokument", out _));
+            root.TryGetProperty("Dokument", out _).Should().BeTrue();
         }
 
         [TestMethod]
@@ -74,7 +74,7 @@ namespace EDILibraryTests
 
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
-            Assert.IsTrue(root.TryGetProperty("Dokument", out _));
+            root.TryGetProperty("Dokument", out _).Should().BeTrue();
         }
 
         [TestMethod]
@@ -87,7 +87,7 @@ namespace EDILibraryTests
 
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
-            Assert.IsTrue(root.TryGetProperty("Dokument", out _));
+            root.TryGetProperty("Dokument", out _).Should().BeTrue();
         }
 
         [TestMethod]
@@ -103,7 +103,7 @@ namespace EDILibraryTests
 
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
-            Assert.IsTrue(root.TryGetProperty("Dokument", out _));
+            root.TryGetProperty("Dokument", out _).Should().BeTrue();
         }
 
         [TestMethod]
@@ -137,9 +137,9 @@ namespace EDILibraryTests
 
             using var doc = JsonDocument.Parse(json);
             var segments = doc.RootElement.GetProperty("Dokument")[0].GetProperty("Segment");
-            Assert.AreEqual(2, segments.GetArrayLength());
-            Assert.AreEqual("A", segments[0].GetProperty("Code").GetString());
-            Assert.AreEqual("B", segments[1].GetProperty("Code").GetString());
+            segments.GetArrayLength().Should().Be(2);
+            segments[0].GetProperty("Code").GetString().Should().Be("A");
+            segments[1].GetProperty("Code").GetString().Should().Be("B");
         }
 
         [TestMethod]
@@ -151,7 +151,7 @@ namespace EDILibraryTests
 
             using var doc = JsonDocument.Parse(json);
             var elem = doc.RootElement.GetProperty("Dokument")[0];
-            Assert.AreEqual("", elem.GetProperty("Key").GetString());
+            elem.GetProperty("Key").GetString().Should().Be("");
         }
 
         [TestMethod]
@@ -165,12 +165,12 @@ namespace EDILibraryTests
 
             using var doc = JsonDocument.Parse(json);
             var arr = doc.RootElement.GetProperty("Dokument");
-            Assert.AreEqual(2, arr.GetArrayLength());
-            Assert.AreEqual("m1", arr[0].GetProperty("Key").GetString());
-            Assert.AreEqual("a1", arr[0].GetProperty("A").GetString());
-            Assert.AreEqual("b1", arr[0].GetProperty("B").GetString());
-            Assert.AreEqual("a2", arr[1].GetProperty("A").GetString());
-            Assert.AreEqual("b2", arr[1].GetProperty("B").GetString());
+            arr.GetArrayLength().Should().Be(2);
+            arr[0].GetProperty("Key").GetString().Should().Be("m1");
+            arr[0].GetProperty("A").GetString().Should().Be("a1");
+            arr[0].GetProperty("B").GetString().Should().Be("b1");
+            arr[1].GetProperty("A").GetString().Should().Be("a2");
+            arr[1].GetProperty("B").GetString().Should().Be("b2");
         }
 
         [TestMethod]
@@ -187,9 +187,9 @@ namespace EDILibraryTests
 
             using var doc = JsonDocument.Parse(json);
             var arr = doc.RootElement.GetProperty("Dokument");
-            Assert.AreEqual(2, arr.GetArrayLength());
-            Assert.AreEqual("a2", arr[1].GetProperty("A").GetString());
-            Assert.AreEqual("x1", arr[1].GetProperty("Child")[0].GetProperty("X").GetString());
+            arr.GetArrayLength().Should().Be(2);
+            arr[1].GetProperty("A").GetString().Should().Be("a2");
+            arr[1].GetProperty("Child")[0].GetProperty("X").GetString().Should().Be("x1");
         }
 
         [TestMethod]
@@ -203,8 +203,7 @@ namespace EDILibraryTests
             var snapshot = LoadSnapshot(snapshotName);
             var newOutput = GetNewOutput(snapshotName);
 
-            Assert.IsTrue(
-                JToken.DeepEquals(snapshot, newOutput),
+            JToken.DeepEquals(snapshot, newOutput).Should().BeTrue(
                 $"New output for '{snapshotName}' differs from snapshot.\nSnapshot: {snapshot}\nNew:      {newOutput}"
             );
         }
