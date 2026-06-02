@@ -1,4 +1,5 @@
 using System.IO;
+using AwesomeAssertions;
 using EDILibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -17,7 +18,7 @@ public class TemplateHelperTests
     )
     {
         var actualFormatVersion = TemplateHelper.RetrieveFormatVersionFromInputFileName(filename);
-        Assert.AreEqual(expectedFormatVersion, actualFormatVersion);
+        actualFormatVersion.Should().Be(expectedFormatVersion);
     }
 
     [TestMethod]
@@ -28,6 +29,6 @@ public class TemplateHelperTests
         var actualFormatVersion = TemplateHelper.RetrieveFormatVersionFromInputFileName(
             filepathAsString
         );
-        Assert.AreEqual("1.0c", actualFormatVersion);
+        actualFormatVersion.Should().Be("1.0c");
     }
 }

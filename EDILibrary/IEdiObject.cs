@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -182,216 +181,63 @@ namespace EDILibrary
             }
         }
 
-        protected static string escapeSpecialChars(string value)
+        private static JToken BuildJToken(EdiObject cur)
         {
-            var sb = new StringBuilder(value.Length);
-            foreach (char c in value)
-            {
-                switch (c)
-                {
-                    case '\\':
-                        sb.Append("\\\\");
-                        break;
-                    case '"':
-                        sb.Append("\\\"");
-                        break;
-                    case '\n':
-                        sb.Append("\\n");
-                        break;
-                    case '\r':
-                        sb.Append("\\r");
-                        break;
-                    case '\t':
-                        sb.Append("\\t");
-                        break;
-                    default:
-                        if (c < 0x20)
-                            sb.Append($"\\u{(int)c:X4}");
-                        else
-                            sb.Append(c);
-                        break;
-                }
-            }
-            return sb.ToString();
-        }
-
-        protected StringBuilder _builder;
-
-        protected void RecurseJSON(EdiObject cur)
-        {
-            bool hasKey = false;
-
-            int i = cur.Fields.Count;
-            bool hasClass = cur.Children.Any();
-            if (cur.Key != null)
-            {
-                hasKey = true;
-                _builder.AppendLine(
-                    "\"" + "Key" + "\" : \"" + cur.Key + "\"" + (i != 0 || hasClass ? "," : "")
-                );
-            }
             if (
-                cur.Fields.Count(f => f.Value.Count > 1) == cur.Fields.Count
+                cur.Fields.Count > 0
+                && cur.Fields.Count(f => f.Value.Count > 1) == cur.Fields.Count
                 && cur.Fields.Any(f => f.Value.Count > 1)
-            ) // check for multiple values
+            )
             {
-                int index = 0;
-                int oldI = i;
-                while (index < cur.Fields.First(f => f.Value.Count > 1).Value.Count)
+                int count = cur.Fields.First(f => f.Value.Count > 1).Value.Count;
+                var arr = new JArray();
+                for (int i = 0; i < count; i++)
                 {
-                    foreach ((string key, var value) in cur.Fields)
-                    {
-                        i--;
-                        _builder.AppendLine(
-                            "\""
-                                + key
-                                + "\" : \""
-                                + escapeSpecialChars(value.ElementAt(index))
-                                + "\""
-                                + (i != 0 || hasClass ? "," : "")
-                        );
-                    }
-                    i = oldI;
-                    if (index + 1 < cur.Fields.First(f => f.Value.Count > 1).Value.Count)
-                    {
-                        _builder.AppendLine("},{");
-                    }
+                    var obj = new JObject();
+                    if (i == 0 && cur.Key != null)
+                        obj["Key"] = cur.Key;
+                    foreach ((string key, var values) in cur.Fields)
+                        obj[key] = values[i];
+                    arr.Add(obj);
+                }
+                AddChildrenToJObject(arr.Last as JObject, cur.Children);
+                return arr;
+            }
 
-                    index++;
-                }
-            }
-            else
+            var jobj = new JObject();
+            if (cur.Key != null)
+                jobj["Key"] = cur.Key;
+            foreach ((string key, var value) in cur.Fields)
             {
-                foreach ((string key, var value) in cur.Fields)
-                {
-                    i--;
-                    _builder.AppendLine(
-                        "\""
-                            + key
-                            + "\" : \""
-                            + escapeSpecialChars(
-                                value.Where(v => !string.IsNullOrWhiteSpace(v)).FirstOrDefault()
-                                    ?? ""
-                            )
-                            + "\""
-                            + (i != 0 || hasClass ? "," : "")
-                    );
-                }
+                var val = value.Where(v => !string.IsNullOrWhiteSpace(v)).FirstOrDefault() ?? "";
+                jobj[key] = val;
             }
-            int j = cur.Children.Count;
-            if (j == 0 && cur.Fields.Count == 0) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
-            {
-                if (!hasKey)
-                {
-                    string key; // = "";
-                    if (cur.Key != null)
-                    {
-                        key =
-                            "\""
-                            + "Key"
-                            + "\" : \""
-                            + cur.Key
-                            + "\""
-                            + (i != 0 || hasClass ? "," : "");
-                    }
-                    else
-                    {
-                        key =
-                            "\"" + "Key" + "\" : \"" + "" + "\"" + (i != 0 || hasClass ? "," : "");
-                    }
-                    _builder.AppendLine(key);
-                }
-            }
-            string lastName = "";
-            bool openElement = false;
-            foreach (var elem in cur.Children)
-            {
-                if (elem.Name != lastName && lastName != "")
-                {
-                    _builder.AppendLine("]" + (j != 0 ? "," : ""));
-                    openElement = false;
-                }
-                else if (lastName != "")
-                {
-                    _builder.AppendLine(",{");
-                }
+            AddChildrenToJObject(jobj, cur.Children);
 
-                j--;
-                if (elem.Name != lastName)
-                {
-                    _builder.AppendLine("\"" + elem.Name + "\" :  [{");
-                    openElement = true;
-                }
-                RecurseJSON(elem);
-                _builder.AppendLine("}");
-                lastName = elem.Name;
-            }
-            if (openElement)
-            {
-                _builder.AppendLine("]" + (j != 0 ? "," : ""));
-            }
+            if (cur.Fields.Count == 0 && cur.Children.Count == 0 && !jobj.ContainsKey("Key"))
+                jobj["Key"] = "";
+
+            return jobj;
         }
 
-        protected void RecurseJSON(XElement cur)
+        private static void AddChildrenToJObject(JObject parent, List<EdiObject> children)
         {
-            bool hasKey = false;
+            if (children == null || children.Count == 0)
+                return;
 
-            int i = cur.Descendants("Field").Count(d => d.Parent == cur);
-            bool hasClass = cur.Descendants("Class").Any(d => d.Parent == cur);
-            if (cur.Attribute("key") != null)
+            foreach (var group in children.GroupBy(c => c.Name))
             {
-                hasKey = true;
-                _builder.AppendLine(
-                    "\""
-                        + "Key"
-                        + "\" : \""
-                        + cur.Attribute("key").Value
-                        + "\""
-                        + (i != 0 || hasClass ? "," : "")
-                );
-            }
-            foreach (var elem in cur.Descendants("Field").Where(d => d.Parent == cur))
-            {
-                i--;
-                _builder.AppendLine(
-                    "\""
-                        + elem.Attribute("name").Value
-                        + "\" : \""
-                        + escapeSpecialChars(elem.Value)
-                        + "\""
-                        + (i != 0 || hasClass ? "," : "")
-                );
-            }
-            int j = cur.Descendants("Class").Count(d => d.Parent == cur);
-            if (j == 0 && cur.Descendants("Field").All(d => d.Parent != cur)) // bei keinen fields und classes einen Key einfügen (momentan nur für Kontakt notwendig)
-            {
-                if (!hasKey)
+                var arr = new JArray();
+                foreach (var child in group)
                 {
-                    string key; // = "";
-                    if (cur.Attribute("key") != null)
-                    {
-                        key =
-                            "\""
-                            + "Key"
-                            + "\" : \""
-                            + cur.Attribute("key").Value
-                            + "\""
-                            + (i != 0 || hasClass ? "," : "");
-                    }
+                    var token = BuildJToken(child);
+                    if (token is JArray multiArr)
+                        foreach (var item in multiArr)
+                            arr.Add(item);
                     else
-                    {
-                        key =
-                            "\"" + "Key" + "\" : \"" + "" + "\"" + (i != 0 || hasClass ? "," : "");
-                    }
-                    _builder.AppendLine(key);
+                        arr.Add(token);
                 }
-            }
-            foreach (var elem in cur.Descendants("Class").Where(d => d.Parent == cur))
-            {
-                j--;
-                _builder.AppendLine("\"" + elem.Attribute("name").Value + "\" :  [{");
-                RecurseJSON(elem);
-                _builder.AppendLine("}]" + (j != 0 ? "," : ""));
+                parent[group.Key] = arr;
             }
         }
 
@@ -404,13 +250,10 @@ namespace EDILibrary
 
         public string SerializeToJSON()
         {
-            _builder = new StringBuilder();
-            _builder.AppendLine("{");
-            _builder.AppendLine("\"Dokument\":[{");
-            RecurseJSON(this);
-            _builder.AppendLine("}]}");
-            _builder.Replace("\\\\\"", "\\\"");
-            return _builder.ToString();
+            var token = BuildJToken(this);
+            var dokumentArray = token as JArray ?? new JArray { token };
+            var root = new JObject { ["Dokument"] = dokumentArray };
+            return JsonConvert.SerializeObject(root, Formatting.Indented);
         }
 
         public bool ContainsField(string name)
