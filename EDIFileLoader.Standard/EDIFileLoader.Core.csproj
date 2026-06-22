@@ -32,7 +32,7 @@
       PrivateAssets="All"
     />
     <PackageReference Include="Storage.Net" Version="9.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.9" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SourceLink.Copy.PdbFiles" Version="2.8.3" PrivateAssets="All" />
