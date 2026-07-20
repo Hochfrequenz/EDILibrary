@@ -28,7 +28,7 @@
     <PackageReference Include="Azure.Storage.Blobs" Version="12.26.0" />
     <PackageReference
       Include="Microsoft.SourceLink.GitHub"
-      Version="10.0.300"
+      Version="10.0.301"
       PrivateAssets="All"
     />
     <PackageReference Include="Storage.Net" Version="9.3.0" />
