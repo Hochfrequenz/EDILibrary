@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ using Newtonsoft.Json.Linq;
 
 namespace EDILibrary
 {
-    public class EdiJsonMapper
+    public partial class EdiJsonMapper
     {
         protected Interfaces.ITemplateLoader _loader;
 
@@ -22,17 +23,17 @@ namespace EDILibrary
             _loader = loader;
         }
 
-        public struct JsonResult
+        public readonly record struct JsonResult
         {
-            public string EDI;
-            public EdifactFormat? Format;
+            public string EDI { get; init; }
+            public EdifactFormat? Format { get; init; }
 
             /// <summary>
             /// e.g. 5.2h
             /// </summary>
-            public string Version;
-            public string Sender;
-            public string Receiver;
+            public string Version { get; init; }
+            public string Sender { get; init; }
+            public string Receiver { get; init; }
         }
 
         [Obsolete("Use strongly typed version instead")]
@@ -129,14 +130,14 @@ namespace EDILibrary
             );
             var treeStringTask = _loader.LoadEDITemplate(ediInfo, "tree");
             var templateStringTask = _loader.LoadEDITemplate(ediInfo, "template");
-            await Task.WhenAll(new List<Task> { treeStringTask, templateStringTask });
-            string treeString = treeStringTask.Result;
+            string treeString = await treeStringTask;
+            string templateString = await templateStringTask;
             if (string.IsNullOrWhiteSpace(treeString))
             {
-                // something is seriously wrong, don't expect things to work below this line if the treeString is empty
-                // just proceed and let things crash later. what should go wrong
+                throw new InvalidDataException(
+                    $"The tree template for format {ediInfo.Format} in version {ediInfo.Version} is empty."
+                );
             }
-            string templateString = templateStringTask.Result;
             Tuple<EdifactFormat?, string> package;
             if (packageVersion.HasValue)
             {
@@ -504,12 +505,13 @@ namespace EDILibrary
             }
         }
 
-        static readonly Regex noLetterRegex = new Regex("[^A-Za-z]", RegexOptions.Compiled);
+        [GeneratedRegex("[^A-Za-z]")]
+        private static partial Regex NoLetterRegex();
 
         protected static bool CompareKey(string left, string right)
         {
-            string leftReplaced = noLetterRegex.Replace(left, "");
-            string rightReplaced = noLetterRegex.Replace(right, "");
+            string leftReplaced = NoLetterRegex().Replace(left, "");
+            string rightReplaced = NoLetterRegex().Replace(right, "");
             return leftReplaced == rightReplaced;
         }
 
