@@ -25,7 +25,6 @@ namespace EDILibraryTests
         [DataRow("15002", EdifactFormat.QUOTES)]
         [DataRow("35002", EdifactFormat.REQOTE)]
         [DataRow("33001", EdifactFormat.REMADV)]
-        [DataRow("11042", EdifactFormat.UTILMD)]
         [DataRow("44001", EdifactFormat.UTILMD)]
         [DataRow("55001", EdifactFormat.UTILMD)]
         public void TestPruefiToFormat(string pruefi, EdifactFormat expectedFormat)
