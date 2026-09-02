@@ -17,7 +17,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <DebugType>Embedded</DebugType>
     <EmbedAllSources>True</EmbedAllSources>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;NETCOREAPP1_1</DefineConstants>
