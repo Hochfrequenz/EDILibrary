@@ -12,17 +12,8 @@
     <Version>1.5.3</Version>
     <AssemblyName>EDILibrary.Core</AssemblyName>
     <RootNamespace>EDILibrary</RootNamespace>
-    <RepositoryUrl>https://github.com/Hochfrequenz/EDILibrary</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <IncludeSymbols>true</IncludeSymbols>
-    <DebugType>Embedded</DebugType>
-    <EmbedAllSources>True</EmbedAllSources>
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;NETCOREAPP1_1</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'"></PropertyGroup>
   <ItemGroup>
     <None
       Include="..\EDIFileLoader\EDIFileLoader.licenseheader"
@@ -30,22 +21,14 @@
     />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Humanizer.Core" Version="3.0.10" />
-    <PackageReference Include="MurmurHash.NETStandard" Version="1.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="System.ComponentModel.Primitives" Version="4.3.0" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
+    <PackageReference Include="Humanizer.Core" />
+    <PackageReference Include="MurmurHash.NETStandard" />
+    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference
-      Include="Microsoft.SourceLink.GitHub"
-      Version="10.0.300"
-      PrivateAssets="All"
-    />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="SourceLink.Copy.PdbFiles" Version="2.8.3" PrivateAssets="All" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <PackageReference Include="SourceLink.Copy.PdbFiles" PrivateAssets="All" />
   </ItemGroup>
 </Project>
