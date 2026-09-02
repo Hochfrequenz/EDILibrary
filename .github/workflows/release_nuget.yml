@@ -12,7 +12,9 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 10
+          dotnet-version: |
+            8.x
+            10.x
       - name: Build/Check for compile errors (dotnet build)
         run: dotnet build --configuration Release
       - name: Run Unit Tests (dotnet test) # never ever release with failing tests!
@@ -52,19 +54,7 @@ jobs:
         working-directory: "EDILibrary"
         run: |
           dotnet nuget push ./bin/Release/*.nupkg --source https://api.nuget.org/v3/index.json  --api-key ${{steps.login.outputs.NUGET_API_KEY}} --skip-duplicate
-      - name: Create Package EDILibrary.Standard (dotnet pack)
-        working-directory: "EDILibraryBase"
-        run: dotnet pack EDILibrary.Standard.csproj --configuration Release -p:PackageVersion="${{ steps.tagTBC.outputs.tag }}"
-      - name: NuGet login (OIDC → temp API key)
-        uses: NuGet/login@v1
-        id: loginBase
-        with:
-          user: Hochfrequenz
-      - name: Nuget push EDILibrary.Standard
-        working-directory: "EDILibraryBase"
-        run: |
-          dotnet nuget push ./bin/Release/*.nupkg --source https://api.nuget.org/v3/index.json  --api-key ${{steps.loginBase.outputs.NUGET_API_KEY}} --skip-duplicate
-      - name: Create Package EDIFileLoader.Core (dotnet pack)
+      - name: Create Package EDIFileLoader (dotnet pack)
         working-directory: "EDIFileLoader"
         run: dotnet pack EDIFileLoader.csproj --configuration Release -p:PackageVersion="${{ steps.tagTBC.outputs.tag }}"
       - name: NuGet login (OIDC → temp API key)
@@ -72,19 +62,7 @@ jobs:
         id: loginStandard
         with:
           user: Hochfrequenz
-      - name: Nuget push EDIFileLoader.Core
+      - name: Nuget push EDIFileLoader
         working-directory: "EDIFileLoader"
         run: |
           dotnet nuget push ./bin/Release/*.nupkg --source https://api.nuget.org/v3/index.json  --api-key ${{steps.loginStandard.outputs.NUGET_API_KEY}} --skip-duplicate
-      - name: Create Package EDIFileLoader.Standard (dotnet pack)
-        working-directory: "EDIFileLoader.Standard"
-        run: dotnet pack EDIFileLoader.Core.csproj --configuration Release -p:PackageVersion="${{ steps.tagTBC.outputs.tag }}"
-      - name: NuGet login (OIDC → temp API key)
-        uses: NuGet/login@v1
-        id: loginLoader
-        with:
-          user: Hochfrequenz
-      - name: Nuget push EDIFileLoader.Standard
-        working-directory: "EDIFileLoader.Standard"
-        run: |
-          dotnet nuget push ./bin/Release/*.nupkg --source https://api.nuget.org/v3/index.json  --api-key ${{steps.loginLoader.outputs.NUGET_API_KEY}} --skip-duplicate
