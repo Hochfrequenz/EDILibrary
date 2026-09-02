@@ -6,16 +6,8 @@
     <Authors>Joscha Metze</Authors>
     <Company>Hochfrequenz Unternehmensberatung GmbH</Company>
     <Version>1.4.4</Version>
-    <!-- Optional: Declare that the Repository URL can be published to NuSpec -->
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <RepositoryUrl>https://github.com/Hochfrequenz/EDILibrary</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <IncludeSymbols>true</IncludeSymbols>
-    <DebugType>Embedded</DebugType>
-    <EmbedAllSources>True</EmbedAllSources>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'"></PropertyGroup>
   <ItemGroup>
     <Compile Include="..\EDIFileLoader\AzureStorageLoader.cs" Link="AzureStorageLoader.cs" />
     <Compile Include="..\EDIFileLoader\StorageNetLoader.cs" Link="StorageNetLoader.cs" />
@@ -24,17 +16,10 @@
     <ProjectReference Include="..\EDILibrary\EDILibrary.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.29.2" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.26.0" />
-    <PackageReference
-      Include="Microsoft.SourceLink.GitHub"
-      Version="10.0.300"
-      PrivateAssets="All"
-    />
-    <PackageReference Include="Storage.Net" Version="9.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.11" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="SourceLink.Copy.PdbFiles" Version="2.8.3" PrivateAssets="All" />
+    <PackageReference Include="Azure.Storage.Blobs" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+    <PackageReference Include="Storage.Net" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="SourceLink.Copy.PdbFiles" PrivateAssets="All" />
   </ItemGroup>
 </Project>

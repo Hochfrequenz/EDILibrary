@@ -8,13 +8,6 @@
     <Product>EDILibrary.Standard</Product>
     <Version>1.5.3</Version>
     <LangVersion>12</LangVersion>
-    <!-- Optional: Declare that the Repository URL can be published to NuSpec -->
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <IncludeSymbols>true</IncludeSymbols>
-    <DebugType>Embedded</DebugType>
-    <EmbedAllSources>True</EmbedAllSources>
-    <RepositoryUrl>https://github.com/Hochfrequenz/EDILibrary</RepositoryUrl>
     <TargetFrameworks>net8.0;net9.0;netstandard2.1</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
@@ -60,14 +53,10 @@
     <Folder Include="Exceptions\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Humanizer.Core" Version="3.0.10" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="MurmurHash.NETStandard" Version="1.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
-    <PackageReference Include="System.Security.Cryptography.Primitives" Version="4.3.0" />
-    <PackageReference Include="System.Text.Json" Version="10.0.8" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <PackageReference Include="Humanizer.Core" />
+    <PackageReference Include="Microsoft.CSharp" />
+    <PackageReference Include="MurmurHash.NETStandard" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 </Project>

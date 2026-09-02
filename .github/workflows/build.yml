@@ -5,8 +5,6 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: windows-latest
-    env:
-      ACTIONS_ALLOW_UNSECURE_COMMANDS: "true"
     steps:
       - uses: actions/checkout@v7
       - name: Setup .NET Core
