@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <RepositoryUrl>https://github.com/Hochfrequenz/EDILibrary</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <DebugType>Embedded</DebugType>
+    <EmbedAllSources>true</EmbedAllSources>
+  </PropertyGroup>
+</Project>
