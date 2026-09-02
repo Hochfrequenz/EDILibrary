@@ -138,10 +138,12 @@ namespace EDILibrary
         }
     }
 
-    public class GenericEDIWriter
+    public partial class GenericEDIWriter
     {
         public ScriptHelper helper = new ScriptHelper();
-        static readonly Regex numericRegex = new Regex("^[0-9]+$", RegexOptions.Compiled);
+
+        [GeneratedRegex("^[0-9]+$")]
+        private static partial Regex NumericRegex();
 
         public GenericEDIWriter()
         {
@@ -164,7 +166,8 @@ namespace EDILibrary
             );
         }
 
-        static readonly Regex questionMarkRegex = new Regex("\\?'", RegexOptions.Compiled);
+        [GeneratedRegex("\\?'")]
+        private static partial Regex QuestionMarkRegex();
 
         string RecurseTemplate(string template, EdiObject parent)
         {
@@ -349,7 +352,7 @@ namespace EDILibrary
 
                     string format = innerNodeParts[1];
 
-                    if (!numericRegex.IsMatch(innerNodeParts[1]))
+                    if (!NumericRegex().IsMatch(innerNodeParts[1]))
                     {
                         selection =
                             from ele in parent.Fields
@@ -398,7 +401,7 @@ namespace EDILibrary
                             .Count(c => c == "'".ToCharArray()[0]); // warn: culture specific
                         //escapte ' muss ich abziehen
 
-                        int deduct = questionMarkRegex
+                        int deduct = QuestionMarkRegex()
                             .Matches(
                                 template.Substring(
                                     template.Substring(0, beginIndex).LastIndexOf("UNH+")
