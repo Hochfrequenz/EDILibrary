@@ -550,7 +550,6 @@ namespace EDILibrary
                 edi.Length - (unAoffset + segDelimiterLength)
             );
             message = message.Replace("?'", "?$");
-            message = message.Replace("\"", "\\\"");
             if (tree != null)
             {
                 TreeHelper.treeRoot = null;
