@@ -177,28 +177,31 @@ namespace EDILibrary
             var resultBuilder = new StringBuilder();
             do
             {
-                beginIndex = template.IndexOf("<", currentIndex); // :warn: is culture specific
+                // ordinal by construction: the char overloads never use the current culture
+                beginIndex = template.IndexOf('<', currentIndex);
                 if (beginIndex == -1)
                 {
                     continue;
                 }
 
-                endIndex = template.IndexOf(">", beginIndex); // :warn: is culture specific
+                endIndex = template.IndexOf('>', beginIndex);
                 // Where this tag starts. The branches below reassign beginIndex, so keep the
                 // scanned position: everything before it is fully expanded and contains no "<",
-                // which is what lets the next scan resume here instead of restarting at 0. That
-                // same invariant is why the branches that re-find their tag with IndexOf(tag, 0)
-                // still land here: with no "<" before this point, the first <foreach/<if/<date in
-                // the whole string is necessarily the one at tagStart.
+                // which is what lets the next scan resume here instead of restarting at 0. No
+                // branch re-scans for its own tag any more; they all reuse tagStart directly.
                 int tagStart = beginIndex;
                 string codeTemplate = template.Substring(beginIndex, endIndex - beginIndex + 1);
                 string code = codeTemplate.Substring(1, codeTemplate.Length - 2);
                 resultBuilder.Clear();
-                if (codeTemplate.StartsWith("<foreach"))
+                if (codeTemplate.StartsWith("<foreach", StringComparison.Ordinal))
                 {
                     string[] nodeparts = code.Split(new[] { ' ' });
                     string node = string.Join(" ", nodeparts.Skip(1));
-                    beginIndex = template.IndexOf("</foreach " + node + ">", endIndex); // :warn: is culture specific
+                    beginIndex = template.IndexOf(
+                        "</foreach " + node + ">",
+                        endIndex,
+                        StringComparison.Ordinal
+                    );
                     string innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
                     var nodes = from ele in parent.SelfOrChildren where ele.Name == node select ele;
                     if (!nodes.Any()) // wenn keine Treffer könnte es sich noch um eine field-Liste handeln
@@ -226,10 +229,10 @@ namespace EDILibrary
                                 + (i != max ? Environment.NewLine : "")
                         );
                     }
-                    // provably tagStart (see the invariant above), without rescanning the prefix
+                    // provably tagStart: nothing before it can contain a "<"
                     beginIndex = tagStart;
                     string end = "</foreach " + node + ">";
-                    endIndex = template.IndexOf(end, beginIndex);
+                    endIndex = template.IndexOf(end, beginIndex, StringComparison.Ordinal);
 
                     template = string.Concat(
                         template.AsSpan(0, beginIndex),
@@ -239,11 +242,11 @@ namespace EDILibrary
                     template = template.TrimEnd('\r', '\n', '\t');
                     beginIndex = 0;
                 }
-                else if (codeTemplate.StartsWith("<if"))
+                else if (codeTemplate.StartsWith("<if", StringComparison.Ordinal))
                 {
                     string[] nodeparts = code.Split(new[] { ' ' });
                     string node = string.Join(" ", nodeparts.Skip(1));
-                    beginIndex = template.IndexOf("</if>", endIndex);
+                    beginIndex = template.IndexOf("</if>", endIndex, StringComparison.Ordinal);
                     string innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
 
                     string value = null;
@@ -271,7 +274,7 @@ namespace EDILibrary
                         resultBuilder.Append(RecurseTemplate(innercode, parent));
                     }
                     beginIndex = tagStart;
-                    endIndex = template.IndexOf("</if>", beginIndex);
+                    endIndex = template.IndexOf("</if>", beginIndex, StringComparison.Ordinal);
                     template = string.Concat(
                         template.AsSpan(0, beginIndex),
                         resultBuilder.ToString().AsSpan(),
@@ -279,7 +282,7 @@ namespace EDILibrary
                     );
                     beginIndex = 0;
                 }
-                else if (codeTemplate.StartsWith("<dateformat"))
+                else if (codeTemplate.StartsWith("<dateformat", StringComparison.Ordinal))
                 {
                     string[] nodeparts = code.Split(new[] { ' ' });
                     string node = string.Join(" ", nodeparts.Skip(1));
@@ -315,7 +318,7 @@ namespace EDILibrary
                         }
                     }
                     beginIndex = tagStart;
-                    endIndex = template.IndexOf(">", beginIndex);
+                    endIndex = template.IndexOf('>', beginIndex);
                     template = string.Concat(
                         template.AsSpan(0, beginIndex),
                         resultBuilder.ToString().AsSpan(),
@@ -323,7 +326,7 @@ namespace EDILibrary
                     );
                     beginIndex = 0;
                 }
-                else if (codeTemplate.StartsWith("<date"))
+                else if (codeTemplate.StartsWith("<date", StringComparison.Ordinal))
                 {
                     string[] nodeparts = code.Split(new[] { ' ' });
                     string node = string.Join(" ", nodeparts.Skip(1));
@@ -374,7 +377,7 @@ namespace EDILibrary
                         resultBuilder.Append(ScriptHelper.Escape(helper.FormatDate(value, format)));
                     }
                     beginIndex = tagStart;
-                    endIndex = template.IndexOf(">", beginIndex);
+                    endIndex = template.IndexOf('>', beginIndex);
                     template = string.Concat(
                         template.AsSpan(0, beginIndex),
                         resultBuilder.ToString().AsSpan(),
@@ -382,21 +385,30 @@ namespace EDILibrary
                     );
                     beginIndex = 0;
                 }
-                else if (codeTemplate.StartsWith("<!") || codeTemplate.StartsWith("<$"))
+                else if (
+                    codeTemplate.StartsWith("<!", StringComparison.Ordinal)
+                    || codeTemplate.StartsWith("<$", StringComparison.Ordinal)
+                )
                 {
                     //determine segment counter
                     // do it the "dirty" way, count the segment ends from last unh
                     if (codeTemplate.Contains("SegmentCounter"))
                     {
                         int segCount = template
-                            .Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+"))
-                            .Count(c => c == "'".ToCharArray()[0]); // warn: culture specific
+                            .Substring(
+                                template
+                                    .Substring(0, beginIndex)
+                                    .LastIndexOf("UNH+", StringComparison.Ordinal)
+                            )
+                            .Count(c => c == '\'');
                         //escapte ' muss ich abziehen
 
                         int deduct = QuestionMarkRegex()
                             .Matches(
                                 template.Substring(
-                                    template.Substring(0, beginIndex).LastIndexOf("UNH+")
+                                    template
+                                        .Substring(0, beginIndex)
+                                        .LastIndexOf("UNH+", StringComparison.Ordinal)
                                 )
                             )
                             .Count;
@@ -449,7 +461,7 @@ namespace EDILibrary
                     }
                     template = template.Replace(codeTemplate, resultBuilder.ToString());
                 }
-                else if (codeTemplate.StartsWith("<§"))
+                else if (codeTemplate.StartsWith("<§", StringComparison.Ordinal))
                 {
                     string[] items = code.Split(new[] { ' ' });
                     _ = items.Skip(1).Take(1).First();
