@@ -76,6 +76,29 @@ public class GenericEDIWriterTests
         result.Should().Be("UNA:+.? 'UNH+1'UNZ+1'");
     }
 
+    /// <summary>
+    /// A foreach block that matches nothing and sits at the very end of the template, followed only
+    /// by whitespace, must render as nothing, leaving the segments before it intact.
+    /// </summary>
+    /// <remarks>
+    /// This is the case where the foreach branch's <c>TrimEnd</c> shortens the template past the
+    /// position the scan would resume at, which is why that position is clamped to the template
+    /// length. Unlike
+    /// <see cref="CompileTemplate_ForeachWithNoMatchingChildren_RendersNothing"/>, nothing follows
+    /// the block here, so the trim actually cuts below the resume position.
+    /// </remarks>
+    [TestMethod]
+    public void CompileTemplate_ForeachWithNoMatchesAtEndOfTemplate_StillRendersPrecedingSegments()
+    {
+        var doc = CreateDocument();
+        var template =
+            "UNA:+.? 'UNH+1'\n<foreach LIN>LIN+<Positionsnummer>'\n</foreach LIN>\n\r\n\t";
+
+        var result = new GenericEDIWriter().CompileTemplate(template, doc);
+
+        result.Should().Be("UNA:+.? 'UNH+1'");
+    }
+
     [TestMethod]
     public void CompileTemplate_ForeachOverRepeatedField_FallsBackToFieldValues()
     {

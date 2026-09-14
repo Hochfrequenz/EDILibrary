@@ -184,6 +184,13 @@ namespace EDILibrary
                 }
 
                 endIndex = template.IndexOf(">", beginIndex); // :warn: is culture specific
+                // Where this tag starts. The branches below reassign beginIndex, so keep the
+                // scanned position: everything before it is fully expanded and contains no "<",
+                // which is what lets the next scan resume here instead of restarting at 0. That
+                // same invariant is why the branches that re-find their tag with IndexOf(tag, 0)
+                // still land here: with no "<" before this point, the first <foreach/<if/<date in
+                // the whole string is necessarily the one at tagStart.
+                int tagStart = beginIndex;
                 string codeTemplate = template.Substring(beginIndex, endIndex - beginIndex + 1);
                 string code = codeTemplate.Substring(1, codeTemplate.Length - 2);
                 resultBuilder.Clear();
@@ -219,19 +226,16 @@ namespace EDILibrary
                                 + (i != max ? Environment.NewLine : "")
                         );
                     }
-                    beginIndex = template.IndexOf("<foreach", 0);
+                    // provably tagStart (see the invariant above), without rescanning the prefix
+                    beginIndex = tagStart;
                     string end = "</foreach " + node + ">";
                     endIndex = template.IndexOf(end, beginIndex);
 
-                    template =
-                        template.Substring(0, beginIndex)
-                        + template
-                            .Substring(beginIndex, endIndex - beginIndex + end.Length)
-                            .Replace(
-                                template.Substring(beginIndex, endIndex - beginIndex + end.Length),
-                                resultBuilder.ToString()
-                            )
-                        + template.Substring(endIndex + end.Length);
+                    template = string.Concat(
+                        template.AsSpan(0, beginIndex),
+                        resultBuilder.ToString().AsSpan(),
+                        template.AsSpan(endIndex + end.Length)
+                    );
                     template = template.TrimEnd('\r', '\n', '\t');
                     beginIndex = 0;
                 }
@@ -266,17 +270,13 @@ namespace EDILibrary
                     {
                         resultBuilder.Append(RecurseTemplate(innercode, parent));
                     }
-                    beginIndex = template.IndexOf("<if", 0);
+                    beginIndex = tagStart;
                     endIndex = template.IndexOf("</if>", beginIndex);
-                    template =
-                        template.Substring(0, beginIndex)
-                        + template
-                            .Substring(beginIndex, endIndex - beginIndex + 5)
-                            .Replace(
-                                template.Substring(beginIndex, endIndex - beginIndex + 5),
-                                resultBuilder.ToString()
-                            )
-                        + template.Substring(endIndex + 5);
+                    template = string.Concat(
+                        template.AsSpan(0, beginIndex),
+                        resultBuilder.ToString().AsSpan(),
+                        template.AsSpan(endIndex + 5)
+                    );
                     beginIndex = 0;
                 }
                 else if (codeTemplate.StartsWith("<dateformat"))
@@ -314,17 +314,13 @@ namespace EDILibrary
                             resultBuilder.Append("104");
                         }
                     }
-                    beginIndex = template.IndexOf("<dateformat", 0);
+                    beginIndex = tagStart;
                     endIndex = template.IndexOf(">", beginIndex);
-                    template =
-                        template.Substring(0, beginIndex)
-                        + template
-                            .Substring(beginIndex, endIndex - beginIndex + 1)
-                            .Replace(
-                                template.Substring(beginIndex, endIndex - beginIndex + 1),
-                                resultBuilder.ToString()
-                            )
-                        + template.Substring(endIndex + 1);
+                    template = string.Concat(
+                        template.AsSpan(0, beginIndex),
+                        resultBuilder.ToString().AsSpan(),
+                        template.AsSpan(endIndex + 1)
+                    );
                     beginIndex = 0;
                 }
                 else if (codeTemplate.StartsWith("<date"))
@@ -377,17 +373,13 @@ namespace EDILibrary
                     {
                         resultBuilder.Append(ScriptHelper.Escape(helper.FormatDate(value, format)));
                     }
-                    beginIndex = template.IndexOf("<date", 0);
+                    beginIndex = tagStart;
                     endIndex = template.IndexOf(">", beginIndex);
-                    template =
-                        template.Substring(0, beginIndex)
-                        + template
-                            .Substring(beginIndex, endIndex - beginIndex + 1)
-                            .Replace(
-                                template.Substring(beginIndex, endIndex - beginIndex + 1),
-                                resultBuilder.ToString()
-                            )
-                        + template.Substring(endIndex + 1);
+                    template = string.Concat(
+                        template.AsSpan(0, beginIndex),
+                        resultBuilder.ToString().AsSpan(),
+                        template.AsSpan(endIndex + 1)
+                    );
                     beginIndex = 0;
                 }
                 else if (codeTemplate.StartsWith("<!") || codeTemplate.StartsWith("<$"))
@@ -588,18 +580,17 @@ namespace EDILibrary
 
                     resultBuilder.Append(value);
                     //template = template.Replace(codeTemplate, evalResult);
-                    template =
-                        template.Substring(0, beginIndex)
-                        + template
-                            .Substring(beginIndex, endIndex - beginIndex + 1)
-                            .Replace(
-                                template.Substring(beginIndex, endIndex - beginIndex + 1),
-                                resultBuilder.ToString()
-                            )
-                        + template.Substring(endIndex + 1);
+                    template = string.Concat(
+                        template.AsSpan(0, beginIndex),
+                        resultBuilder.ToString().AsSpan(),
+                        template.AsSpan(endIndex + 1)
+                    );
                 }
 
-                currentIndex = 0;
+                // Resume at the tag we just expanded rather than at 0: the text before it is
+                // final and contains no "<", so a scan from 0 would re-walk it and find the same
+                // position. Clamped because the foreach branch may TrimEnd past this point.
+                currentIndex = Math.Min(tagStart, template.Length);
             } while (beginIndex != -1);
 
             return template.Trim();
