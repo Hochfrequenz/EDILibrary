@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using AwesomeAssertions;
 using EDILibrary;
@@ -97,6 +98,176 @@ public class GenericEDIWriterTests
         var result = new GenericEDIWriter().CompileTemplate(template, doc);
 
         result.Should().Be("UNA:+.? 'UNH+1'");
+    }
+
+    /// <summary>
+    /// A combining mark directly after a tag's closing "&gt;" must not stop the writer from finding
+    /// that tag.
+    /// </summary>
+    /// <remarks>
+    /// The structural scan looks for "&lt;", "&gt;" and "&lt;/foreach …&gt;" ordinally. A
+    /// culture-sensitive search treats a delimiter followed by a combining mark as a single
+    /// grapheme and fails to match it at all, which used to make this template throw
+    /// <see cref="System.ArgumentOutOfRangeException"/>. Combining marks reach the template through
+    /// field values, which are spliced into it as the render proceeds, so this is data-reachable
+    /// rather than merely theoretical.
+    /// </remarks>
+    [TestMethod]
+    public void CompileTemplate_ClosingTagFollowedByCombiningMark_IsStillFound()
+    {
+        var doc = CreateDocument();
+        var lin1 = new EdiObject("LIN", null, "1");
+        lin1.Fields["Positionsnummer"] = new List<string> { "1" };
+        var lin2 = new EdiObject("LIN", null, "2");
+        lin2.Fields["Positionsnummer"] = new List<string> { "2" };
+        doc.AddChild(lin1);
+        doc.AddChild(lin2);
+        var template =
+            "UNA:+.? 'UNH+1'<foreach LIN>LIN+<Positionsnummer>'</foreach LIN>\u0301BGM+<Belegnummer>'";
+
+        var result = new GenericEDIWriter().CompileTemplate(template, doc);
+
+        result.Should().Be("UNA:+.? 'UNH+1'LIN+1'LIN+2'\u0301BGM+DOC123'");
+    }
+
+    /// <summary>
+    /// An ICU-ignorable character *inside* a closing tag makes that tag unfindable, and the render
+    /// fails loudly instead of emitting corrupt EDIFACT.
+    /// </summary>
+    /// <remarks>
+    /// This pins the other side of the ordinal trade-off and is deliberately not a "nicer"
+    /// behaviour than before: a culture-sensitive search treats a soft hyphen as invisible and so
+    /// still matched "&lt;/foreach LIN&gt;", which used to render but left a stray "&gt;" in the
+    /// payload - silently malformed EDIFACT handed to a market partner. Ordinally the closer is not
+    /// found and the splice throws. Failing loudly on malformed template text is preferable to
+    /// shipping a corrupt message, but it IS a behaviour change; do not "fix" it by reverting the
+    /// comparison to culture-sensitive.
+    /// </remarks>
+    [TestMethod]
+    public void CompileTemplate_IgnorableCharacterInsideClosingTag_ThrowsRatherThanCorruptingOutput()
+    {
+        var doc = CreateDocument();
+        var template =
+            "UNA:+.? 'UNH+1'<foreach LIN>LIN+<Positionsnummer>'</\u00ADforeach LIN>BGM+<Belegnummer>'";
+
+        var act = () => new GenericEDIWriter().CompileTemplate(template, doc);
+
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    /// <summary>
+    /// An ignorable character inside an <em>opening</em> structural keyword still dispatches to the
+    /// foreach branch and renders the loop body.
+    /// </summary>
+    /// <remarks>
+    /// This test asserts no new behaviour: it exists only to ensure the ordinal conversion left
+    /// this case exactly as it was. The dispatch is culture-sensitive, so
+    /// <c>"&lt;\u00ADforeach LIN&gt;".StartsWith("&lt;foreach")</c> is true and the loop renders.
+    /// Making it ordinal would return false, drop the loop body and emit a silently short message -
+    /// which is why <see cref="GenericEDIWriter"/> deliberately keeps the culture-sensitive
+    /// comparison there. See the comment at the top of RecurseTemplate's loop.
+    /// </remarks>
+    [TestMethod]
+    public void CompileTemplate_IgnorableCharacterInsideOpeningForeach_StillRendersTheLoopBody()
+    {
+        var doc = CreateDocument();
+        var lin1 = new EdiObject("LIN", null, "1");
+        lin1.Fields["Positionsnummer"] = new List<string> { "1" };
+        var lin2 = new EdiObject("LIN", null, "2");
+        lin2.Fields["Positionsnummer"] = new List<string> { "2" };
+        doc.AddChild(lin1);
+        doc.AddChild(lin2);
+        var template =
+            "UNA:+.? 'UNH+1'<\u00ADforeach LIN>LIN+<Positionsnummer>'</foreach LIN>BGM+<Belegnummer>'";
+
+        var result = new GenericEDIWriter().CompileTemplate(template, doc);
+
+        result.Should().Be("UNA:+.? 'UNH+1'LIN+1'LIN+2'BGM+DOC123'");
+    }
+
+    /// <summary>
+    /// An ignorable character inside the "&lt;!" dispatch prefix still substitutes the segment
+    /// counter.
+    /// </summary>
+    /// <remarks>
+    /// Like <see cref="CompileTemplate_IgnorableCharacterInsideOpeningForeach_StillRendersTheLoopBody"/>
+    /// this asserts no new behaviour - it only ensures the ordinal conversion did not change it.
+    /// An ordinal dispatch would leave the count empty ("UNT++1"), and a missing UNT count is
+    /// rejected by the receiving market partner.
+    /// </remarks>
+    [TestMethod]
+    public void CompileTemplate_IgnorableCharacterInsideSegmentCounterPrefix_StillCounts()
+    {
+        var doc = CreateDocument();
+        var template = "UNA:+.? 'UNH+1'BGM+<Belegnummer>'UNT+<\u00AD!SegmentCounter>+1'";
+
+        var result = new GenericEDIWriter().CompileTemplate(template, doc);
+
+        result.Should().Be("UNA:+.? 'UNH+1'BGM+DOC123'UNT+3+1'");
+    }
+
+    /// <summary>
+    /// The "&lt;/if&gt;" closer behaves the same way as the foreach closer for an ignorable
+    /// character inside it.
+    /// </summary>
+    [TestMethod]
+    public void CompileTemplate_IgnorableCharacterInsideIfCloser_Throws()
+    {
+        var doc = CreateDocument();
+        doc.Fields["Flag"] = new List<string> { "Y" };
+        var template = "UNA:+.? 'UNH+1'<if Flag>X'</\u00ADif>BGM+<Belegnummer>'";
+
+        var act = () => new GenericEDIWriter().CompileTemplate(template, doc);
+
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    /// <summary>
+    /// An "&lt;if&gt;" block with a present value renders its inner content and consumes its closer.
+    /// </summary>
+    /// <remarks>
+    /// Plain ASCII, so this passes under either comparison - it is coverage for the "&lt;/if&gt;"
+    /// closer lookup, which had none, not a probe of the ordinal change. The ordinal behaviour of
+    /// that closer is pinned by
+    /// <see cref="CompileTemplate_IgnorableCharacterInsideClosingTag_ThrowsRatherThanCorruptingOutput"/>.
+    /// </remarks>
+    [TestMethod]
+    public void CompileTemplate_IfBlock_RendersInnerContentAndConsumesCloser()
+    {
+        var doc = CreateDocument();
+        doc.Fields["Flag"] = new List<string> { "Y" };
+        var template = "UNA:+.? 'UNH+1'<if Flag>X'</if>BGM+<Belegnummer>'";
+
+        var result = new GenericEDIWriter().CompileTemplate(template, doc);
+
+        result.Should().Be("UNA:+.? 'UNH+1'X'BGM+DOC123'");
+    }
+
+    /// <summary>
+    /// "&lt;!SegmentCounter&gt;" counts segment terminators back to the last "UNH+", and
+    /// "&lt;$MessageNumber&gt;" counts "UNH+" occurrences.
+    /// </summary>
+    /// <remarks>
+    /// Neither had any coverage before, yet the "UNH+" anchor search is one of the sites this
+    /// change makes ordinal - and its failure mode is a wrong number in the UNT segment rather than
+    /// an exception, which a market partner rejects rather than crashing on. Note both counters in
+    /// a template receive the value computed at the first one, because the branch replaces every
+    /// occurrence at once; that is pre-existing behaviour, pinned here rather than endorsed.
+    /// </remarks>
+    [TestMethod]
+    public void CompileTemplate_SegmentCounterAndMessageNumber_AreCounted()
+    {
+        var doc = CreateDocument();
+
+        new GenericEDIWriter()
+            .CompileTemplate("UNA:+.? 'UNH+1'BGM+<Belegnummer>'UNT+<!SegmentCounter>+1'", doc)
+            .Should()
+            .Be("UNA:+.? 'UNH+1'BGM+DOC123'UNT+3+1'");
+
+        new GenericEDIWriter()
+            .CompileTemplate("UNA:+.? 'UNH+1'BGM+a'UNH+2'BGM+b'UNZ+<$MessageNumber>'", doc)
+            .Should()
+            .Be("UNA:+.? 'UNH+1'BGM+a'UNH+2'BGM+b'UNZ+2'");
     }
 
     [TestMethod]

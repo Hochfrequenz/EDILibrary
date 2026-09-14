@@ -177,20 +177,29 @@ namespace EDILibrary
             var resultBuilder = new StringBuilder();
             do
             {
-                beginIndex = template.IndexOf("<", currentIndex); // :warn: is culture specific
+                // ordinal by construction: the char overloads never use the current culture
+                beginIndex = template.IndexOf('<', currentIndex);
                 if (beginIndex == -1)
                 {
                     continue;
                 }
 
-                endIndex = template.IndexOf(">", beginIndex); // :warn: is culture specific
+                endIndex = template.IndexOf('>', beginIndex);
                 // Where this tag starts. The branches below reassign beginIndex, so keep the
                 // scanned position: everything before it is fully expanded and contains no "<",
-                // which is what lets the next scan resume here instead of restarting at 0. That
-                // same invariant is why the branches that re-find their tag with IndexOf(tag, 0)
-                // still land here: with no "<" before this point, the first <foreach/<if/<date in
-                // the whole string is necessarily the one at tagStart.
+                // which is what lets the next scan resume here instead of restarting at 0. No
+                // branch re-scans for its own tag any more; they all reuse tagStart directly.
                 int tagStart = beginIndex;
+                // The StartsWith dispatch below is deliberately left culture-sensitive, as is the
+                // LastIndexOf("UNH+") anchor further down. Both look like bugs: matching a
+                // structural keyword of a machine format under the current culture is not what
+                // anyone intends, and ICU treats default-ignorable characters (SHY, ZWSP, ZWJ) as
+                // invisible, so "<\u00ADforeach LIN>" dispatches as a foreach here. Switching them
+                // to ordinal is a behaviour change in the wrong direction though: it makes such a
+                // tag fall through to field substitution and silently drop the loop body - and a
+                // silently short message is worse than the status quo. They stay as they are until
+                // that case is handled deliberately. The searches that feed splice arithmetic are
+                // ordinal (see below) because there correctness requires it.
                 string codeTemplate = template.Substring(beginIndex, endIndex - beginIndex + 1);
                 string code = codeTemplate.Substring(1, codeTemplate.Length - 2);
                 resultBuilder.Clear();
@@ -198,7 +207,15 @@ namespace EDILibrary
                 {
                     string[] nodeparts = code.Split(new[] { ' ' });
                     string node = string.Join(" ", nodeparts.Skip(1));
-                    beginIndex = template.IndexOf("</foreach " + node + ">", endIndex); // :warn: is culture specific
+                    // ordinal is required here, not a preference: a culture-sensitive match can
+                    // span more characters than the needle (ICU matches across ignorables), while
+                    // the splice below consumes exactly end.Length - leaking the surplus, e.g. a
+                    // bare ">", into the outgoing message.
+                    beginIndex = template.IndexOf(
+                        "</foreach " + node + ">",
+                        endIndex,
+                        StringComparison.Ordinal
+                    );
                     string innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
                     var nodes = from ele in parent.SelfOrChildren where ele.Name == node select ele;
                     if (!nodes.Any()) // wenn keine Treffer könnte es sich noch um eine field-Liste handeln
@@ -226,10 +243,10 @@ namespace EDILibrary
                                 + (i != max ? Environment.NewLine : "")
                         );
                     }
-                    // provably tagStart (see the invariant above), without rescanning the prefix
+                    // provably tagStart: nothing before it can contain a "<"
                     beginIndex = tagStart;
                     string end = "</foreach " + node + ">";
-                    endIndex = template.IndexOf(end, beginIndex);
+                    endIndex = template.IndexOf(end, beginIndex, StringComparison.Ordinal);
 
                     template = string.Concat(
                         template.AsSpan(0, beginIndex),
@@ -243,7 +260,7 @@ namespace EDILibrary
                 {
                     string[] nodeparts = code.Split(new[] { ' ' });
                     string node = string.Join(" ", nodeparts.Skip(1));
-                    beginIndex = template.IndexOf("</if>", endIndex);
+                    beginIndex = template.IndexOf("</if>", endIndex, StringComparison.Ordinal);
                     string innercode = template.Substring(endIndex + 1, beginIndex - endIndex - 1);
 
                     string value = null;
@@ -271,7 +288,7 @@ namespace EDILibrary
                         resultBuilder.Append(RecurseTemplate(innercode, parent));
                     }
                     beginIndex = tagStart;
-                    endIndex = template.IndexOf("</if>", beginIndex);
+                    endIndex = template.IndexOf("</if>", beginIndex, StringComparison.Ordinal);
                     template = string.Concat(
                         template.AsSpan(0, beginIndex),
                         resultBuilder.ToString().AsSpan(),
@@ -315,7 +332,7 @@ namespace EDILibrary
                         }
                     }
                     beginIndex = tagStart;
-                    endIndex = template.IndexOf(">", beginIndex);
+                    endIndex = template.IndexOf('>', beginIndex);
                     template = string.Concat(
                         template.AsSpan(0, beginIndex),
                         resultBuilder.ToString().AsSpan(),
@@ -374,7 +391,7 @@ namespace EDILibrary
                         resultBuilder.Append(ScriptHelper.Escape(helper.FormatDate(value, format)));
                     }
                     beginIndex = tagStart;
-                    endIndex = template.IndexOf(">", beginIndex);
+                    endIndex = template.IndexOf('>', beginIndex);
                     template = string.Concat(
                         template.AsSpan(0, beginIndex),
                         resultBuilder.ToString().AsSpan(),
@@ -388,9 +405,12 @@ namespace EDILibrary
                     // do it the "dirty" way, count the segment ends from last unh
                     if (codeTemplate.Contains("SegmentCounter"))
                     {
+                        // culture-sensitive LastIndexOf, kept for the reason given at the top
+                        // of the loop: ordinal returns -1 for an ignorable inside "UNH+" and the
+                        // unguarded Substring below would then throw where this renders today.
                         int segCount = template
                             .Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+"))
-                            .Count(c => c == "'".ToCharArray()[0]); // warn: culture specific
+                            .Count(c => c == '\'');
                         //escapte ' muss ich abziehen
 
                         int deduct = QuestionMarkRegex()
