@@ -84,4 +84,29 @@ public class GenericEDILoaderTests
         positions[1].Field("Positionsnummer").Should().Be("2");
         positions[1].Field("Menge").Should().Be("200");
     }
+
+    /// <summary>
+    /// The document anchor must be resolved from the class named "Dokument", regardless of where
+    /// that class sits among its siblings in the template.
+    /// </summary>
+    /// <remarks>
+    /// A non-matching sibling both before and after "Dokument" pins the anchor to the name lookup
+    /// rather than to a position.
+    /// </remarks>
+    [TestMethod]
+    public void LoadTemplateWithLoadedTree_ResolvesDokumentAnchorAmongSiblingClasses()
+    {
+        var loader = new GenericEDILoader();
+        var tree = loader.LoadTree(SyntheticEdifactFixture.TreeTemplate);
+        var normalized = EDIHelper.NormalizeEDIHeader(SyntheticEdifactFixture.Edi);
+        var ediTree = loader.LoadEDI(normalized, tree);
+        new TreeHelper().RefreshDirtyFlags(tree);
+        var template = loader.LoadTemplate(SyntheticEdifactFixture.XmlTemplateWithSiblingClasses);
+
+        var result = loader.LoadTemplateWithLoadedTree(template, ediTree);
+
+        result.Name.Should().Be("Dokument");
+        result.Field("Nachrichtenreferenz").Should().Be("1");
+        result.Field("Belegnummer").Should().Be("DOC123");
+    }
 }
