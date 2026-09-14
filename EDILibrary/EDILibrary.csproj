@@ -22,6 +22,9 @@
     />
   </ItemGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="EDILibraryTests" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Humanizer.Core" />
     <PackageReference Include="MurmurHash.NETStandard" />
     <PackageReference Include="Newtonsoft.Json" />

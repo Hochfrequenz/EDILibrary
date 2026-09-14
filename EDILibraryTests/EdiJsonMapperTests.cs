@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using EDILibrary;
@@ -75,5 +76,43 @@ public class EdiJsonMapperTests
         positions[0]["Menge"]!.Value<string>().Should().Be("100");
         positions[1]["Positionsnummer"]!.Value<string>().Should().Be("2");
         positions[1]["Menge"]!.Value<string>().Should().Be("200");
+    }
+
+    /// <summary>
+    /// The JSON produced for a message must list its properties in template order.
+    /// </summary>
+    /// <remarks>
+    /// This test exists for the sake of performance work, not to cover a functional requirement.
+    /// <see cref="EdiJsonMapper"/> used to build its result as an
+    /// <see cref="System.Dynamic.ExpandoObject"/>, which enumerates in insertion order; that was
+    /// replaced by <c>InsertionOrderedDictionary</c> because ExpandoObject dominated the cost of
+    /// parsing wide messages. The bag's enumeration order is what determines the property order of
+    /// the emitted JSON, so this pins that order down explicitly rather than leaving it to the
+    /// replacement type's implementation details. It is green both before and after the
+    /// optimisation - it measures nothing.
+    /// </remarks>
+    [TestMethod]
+    public async Task ParseToJsonWithTemplates_EmitsPropertiesInTemplateOrder()
+    {
+        var mapper = new EdiJsonMapper(loader: null);
+
+        var result = await mapper.ParseToJsonWithTemplates(
+            SyntheticEdifactFixture.Edi,
+            packageVersion: null,
+            SyntheticEdifactFixture.XmlTemplate,
+            SyntheticEdifactFixture.TreeTemplate,
+            BuildMappingJson(
+                SyntheticEdifactFixture.XmlTemplate,
+                SyntheticEdifactFixture.TreeTemplate
+            )
+        );
+
+        var dokument = JObject.Parse(result.EDI)["Dokument"]!.First as JObject;
+        dokument.Should().NotBeNull();
+        dokument!
+            .Properties()
+            .Select(property => property.Name)
+            .Should()
+            .Equal("Nachrichtenreferenz", "Belegart", "Belegnummer", "Erstellungsdatum");
     }
 }
