@@ -190,13 +190,27 @@ namespace EDILibrary
                 // which is what lets the next scan resume here instead of restarting at 0. No
                 // branch re-scans for its own tag any more; they all reuse tagStart directly.
                 int tagStart = beginIndex;
+                // The StartsWith dispatch below is deliberately left culture-sensitive, as is the
+                // LastIndexOf("UNH+") anchor further down. Both look like bugs: matching a
+                // structural keyword of a machine format under the current culture is not what
+                // anyone intends, and ICU treats default-ignorable characters (SHY, ZWSP, ZWJ) as
+                // invisible, so "<\u00ADforeach LIN>" dispatches as a foreach here. Switching them
+                // to ordinal is a behaviour change in the wrong direction though: it makes such a
+                // tag fall through to field substitution and silently drop the loop body - and a
+                // silently short message is worse than the status quo. They stay as they are until
+                // that case is handled deliberately. The searches that feed splice arithmetic are
+                // ordinal (see below) because there correctness requires it.
                 string codeTemplate = template.Substring(beginIndex, endIndex - beginIndex + 1);
                 string code = codeTemplate.Substring(1, codeTemplate.Length - 2);
                 resultBuilder.Clear();
-                if (codeTemplate.StartsWith("<foreach", StringComparison.Ordinal))
+                if (codeTemplate.StartsWith("<foreach"))
                 {
                     string[] nodeparts = code.Split(new[] { ' ' });
                     string node = string.Join(" ", nodeparts.Skip(1));
+                    // ordinal is required here, not a preference: a culture-sensitive match can
+                    // span more characters than the needle (ICU matches across ignorables), while
+                    // the splice below consumes exactly end.Length - leaking the surplus, e.g. a
+                    // bare ">", into the outgoing message.
                     beginIndex = template.IndexOf(
                         "</foreach " + node + ">",
                         endIndex,
@@ -242,7 +256,7 @@ namespace EDILibrary
                     template = template.TrimEnd('\r', '\n', '\t');
                     beginIndex = 0;
                 }
-                else if (codeTemplate.StartsWith("<if", StringComparison.Ordinal))
+                else if (codeTemplate.StartsWith("<if"))
                 {
                     string[] nodeparts = code.Split(new[] { ' ' });
                     string node = string.Join(" ", nodeparts.Skip(1));
@@ -282,7 +296,7 @@ namespace EDILibrary
                     );
                     beginIndex = 0;
                 }
-                else if (codeTemplate.StartsWith("<dateformat", StringComparison.Ordinal))
+                else if (codeTemplate.StartsWith("<dateformat"))
                 {
                     string[] nodeparts = code.Split(new[] { ' ' });
                     string node = string.Join(" ", nodeparts.Skip(1));
@@ -326,7 +340,7 @@ namespace EDILibrary
                     );
                     beginIndex = 0;
                 }
-                else if (codeTemplate.StartsWith("<date", StringComparison.Ordinal))
+                else if (codeTemplate.StartsWith("<date"))
                 {
                     string[] nodeparts = code.Split(new[] { ' ' });
                     string node = string.Join(" ", nodeparts.Skip(1));
@@ -385,30 +399,24 @@ namespace EDILibrary
                     );
                     beginIndex = 0;
                 }
-                else if (
-                    codeTemplate.StartsWith("<!", StringComparison.Ordinal)
-                    || codeTemplate.StartsWith("<$", StringComparison.Ordinal)
-                )
+                else if (codeTemplate.StartsWith("<!") || codeTemplate.StartsWith("<$"))
                 {
                     //determine segment counter
                     // do it the "dirty" way, count the segment ends from last unh
                     if (codeTemplate.Contains("SegmentCounter"))
                     {
+                        // culture-sensitive LastIndexOf, kept for the reason given at the top
+                        // of the loop: ordinal returns -1 for an ignorable inside "UNH+" and the
+                        // unguarded Substring below would then throw where this renders today.
                         int segCount = template
-                            .Substring(
-                                template
-                                    .Substring(0, beginIndex)
-                                    .LastIndexOf("UNH+", StringComparison.Ordinal)
-                            )
+                            .Substring(template.Substring(0, beginIndex).LastIndexOf("UNH+"))
                             .Count(c => c == '\'');
                         //escapte ' muss ich abziehen
 
                         int deduct = QuestionMarkRegex()
                             .Matches(
                                 template.Substring(
-                                    template
-                                        .Substring(0, beginIndex)
-                                        .LastIndexOf("UNH+", StringComparison.Ordinal)
+                                    template.Substring(0, beginIndex).LastIndexOf("UNH+")
                                 )
                             )
                             .Count;
@@ -425,7 +433,7 @@ namespace EDILibrary
                     }
                     template = template.Replace(codeTemplate, resultBuilder.ToString());
                 }
-                else if (codeTemplate.StartsWith("<§", StringComparison.Ordinal))
+                else if (codeTemplate.StartsWith("<§"))
                 {
                     // "<§ ..." renders as nothing.
                     template = template.Replace(codeTemplate, "");

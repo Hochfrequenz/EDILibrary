@@ -156,6 +156,57 @@ public class GenericEDIWriterTests
     }
 
     /// <summary>
+    /// An ignorable character inside an <em>opening</em> structural keyword still dispatches to the
+    /// foreach branch and renders the loop body.
+    /// </summary>
+    /// <remarks>
+    /// This test asserts no new behaviour: it exists only to ensure the ordinal conversion left
+    /// this case exactly as it was. The dispatch is culture-sensitive, so
+    /// <c>"&lt;\u00ADforeach LIN&gt;".StartsWith("&lt;foreach")</c> is true and the loop renders.
+    /// Making it ordinal would return false, drop the loop body and emit a silently short message -
+    /// which is why <see cref="GenericEDIWriter"/> deliberately keeps the culture-sensitive
+    /// comparison there. See the comment at the top of RecurseTemplate's loop.
+    /// </remarks>
+    [TestMethod]
+    public void CompileTemplate_IgnorableCharacterInsideOpeningForeach_StillRendersTheLoopBody()
+    {
+        var doc = CreateDocument();
+        var lin1 = new EdiObject("LIN", null, "1");
+        lin1.Fields["Positionsnummer"] = new List<string> { "1" };
+        var lin2 = new EdiObject("LIN", null, "2");
+        lin2.Fields["Positionsnummer"] = new List<string> { "2" };
+        doc.AddChild(lin1);
+        doc.AddChild(lin2);
+        var template =
+            "UNA:+.? 'UNH+1'<\u00ADforeach LIN>LIN+<Positionsnummer>'</foreach LIN>BGM+<Belegnummer>'";
+
+        var result = new GenericEDIWriter().CompileTemplate(template, doc);
+
+        result.Should().Be("UNA:+.? 'UNH+1'LIN+1'LIN+2'BGM+DOC123'");
+    }
+
+    /// <summary>
+    /// An ignorable character inside the "&lt;!" dispatch prefix still substitutes the segment
+    /// counter.
+    /// </summary>
+    /// <remarks>
+    /// Like <see cref="CompileTemplate_IgnorableCharacterInsideOpeningForeach_StillRendersTheLoopBody"/>
+    /// this asserts no new behaviour - it only ensures the ordinal conversion did not change it.
+    /// An ordinal dispatch would leave the count empty ("UNT++1"), and a missing UNT count is
+    /// rejected by the receiving market partner.
+    /// </remarks>
+    [TestMethod]
+    public void CompileTemplate_IgnorableCharacterInsideSegmentCounterPrefix_StillCounts()
+    {
+        var doc = CreateDocument();
+        var template = "UNA:+.? 'UNH+1'BGM+<Belegnummer>'UNT+<\u00AD!SegmentCounter>+1'";
+
+        var result = new GenericEDIWriter().CompileTemplate(template, doc);
+
+        result.Should().Be("UNA:+.? 'UNH+1'BGM+DOC123'UNT+3+1'");
+    }
+
+    /// <summary>
     /// The "&lt;/if&gt;" closer behaves the same way as the foreach closer for an ignorable
     /// character inside it.
     /// </summary>
