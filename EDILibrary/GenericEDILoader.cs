@@ -85,13 +85,6 @@ namespace EDILibrary
             foreach (var child in children)
             {
                 //var iChildCounter = 0;
-                string Hash = "";
-                if (child.Attribute("hash") == null)
-                {
-                    Hash = TreeHelper.GetHash(child.ToString());
-                    child.SetAttributeValue("hash", Hash);
-                }
-
                 string refName = child.Attribute("ref").Value.Split(new[] { '[' })[0];
                 var childTree = new List<TreeElement>();
                 treeRoot.FindElements(refName, true, ref childTree, 1);
