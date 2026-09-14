@@ -261,6 +261,27 @@ public class GenericEDIWriterTests
         result.Should().Be("UNA:+.? 'UNH+1'UNZ+1'");
     }
 
+    /// <summary>A malformed "&lt;§…&gt;" tag renders as nothing rather than throwing.</summary>
+    /// <remarks>
+    /// Well-formed "&lt;§ date X&gt;" tags already rendered as nothing. A tag with fewer than two
+    /// space-separated parts used to throw <see cref="System.InvalidOperationException"/> from a
+    /// discarded lookup that existed only to feed since-deleted scripting code. No such tag exists
+    /// in any template (742 "&lt;§…&gt;" tags across the corpus, all with three or more parts), so
+    /// this pins the behaviour rather than describing a case anyone relies on.
+    /// </remarks>
+    [TestMethod]
+    public void CompileTemplate_MalformedParagraphTag_RendersNothing()
+    {
+        var doc = CreateDocument();
+
+        var result = new GenericEDIWriter().CompileTemplate(
+            "UNA:+.? 'UNH+1'<§x>BGM+<Belegnummer>'",
+            doc
+        );
+
+        result.Should().Be("UNA:+.? 'UNH+1'BGM+DOC123'");
+    }
+
     [TestMethod]
     public void CompileTemplate_CollapsesEmptyElement_BeforeGroupSeparator()
     {
