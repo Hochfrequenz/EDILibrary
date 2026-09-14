@@ -423,63 +423,11 @@ namespace EDILibrary
                                 .Length - 1;
                         resultBuilder.Append(messageCount);
                     }
-                    code = code.TrimStart('!', '$');
-                    // evaluate code
-                    try
-                    {
-                        _ = code.Split(new[] { ';' });
-                        /*int counter = 0;
-
-                        foreach (string line in lines)
-                        {
-
-                            if (counter == lines.Count() - 1 && codeTemplate.StartsWith("<!"))
-                            {
-
-                                if (!compilerCache.ContainsKey(line))
-                                {
-                                    compilerCache.Add(line, engine.CreateScriptSourceFromString(line, SourceCodeKind.Expression).Compile());
-                                }
-                                String result = (String)compilerCache[line].Execute(scope);
-                                resultBuilder.Append(result);
-                            }
-                            else
-                            {
-                                if (!compilerCache.ContainsKey(line))
-                                {
-                                    compilerCache.Add(line, engine.CreateScriptSourceFromString(line, SourceCodeKind.SingleStatement).Compile());
-                                }
-                                compilerCache[line].Execute(scope);
-
-                            }
-                            counter++;
-                        }*/
-                    }
-                    catch (Exception) // todo: now pokoemon catching
-                    {
-                        //     MessageBox.Show(e.ToString());
-                    }
                     template = template.Replace(codeTemplate, resultBuilder.ToString());
                 }
                 else if (codeTemplate.StartsWith("<§", StringComparison.Ordinal))
                 {
-                    string[] items = code.Split(new[] { ' ' });
-                    _ = items.Skip(1).Take(1).First();
-                    _ = string.Join(" ", items.Skip(2));
-                    /*
-                    string value = null;
-                    try
-                    {
-                        value = (from ele in parent.Fields
-                                 where ele.Key == item
-                                 select ele.Value[0]).SingleOrDefault();
-                    }
-                    catch (Exception)
-                    {
-                        value = "";
-                    }
-                    */
-                    //scope.SetVariable(variableName, value);
+                    // "<§ ..." renders as nothing.
                     template = template.Replace(codeTemplate, "");
                 }
                 else
@@ -586,12 +534,10 @@ namespace EDILibrary
                             }
                         }
                         // Bei leerem Vornamen muss trotzdem ein Doppelpunkt drin sein.
-                        //if((from string s in parts where s!="" select s).Count()>0)
                         value = string.Join(":", parts.Take(int.Parse(maxCount)));
                     }
 
                     resultBuilder.Append(value);
-                    //template = template.Replace(codeTemplate, evalResult);
                     template = string.Concat(
                         template.AsSpan(0, beginIndex),
                         resultBuilder.ToString().AsSpan(),
