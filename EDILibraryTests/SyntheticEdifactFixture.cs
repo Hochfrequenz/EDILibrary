@@ -74,6 +74,27 @@ internal static class SyntheticEdifactFixture
         + "</class>"
         + "</class>";
 
+    /// <summary>
+    /// class/field XML template variant that surrounds "Dokument" with non-matching sibling
+    /// classes, one before and one after it, to pin down that the document anchor is resolved by
+    /// class name rather than by position. Only "Dokument" is ever expanded into an EdiObject, so
+    /// the fields on the two siblings are never read - they are there to make the siblings look
+    /// realistic.
+    /// </summary>
+    public const string XmlTemplateWithSiblingClasses =
+        "<class name=\"Root\">"
+        + "<class name=\"Vorspann\" ref=\"UNB\">"
+        + "<field name=\"Absender\" ref=\"UNB:2:0\" />"
+        + "</class>"
+        + "<class name=\"Dokument\" ref=\"UNH\">"
+        + "<field name=\"Nachrichtenreferenz\" ref=\"UNH:1:0\" />"
+        + "<field name=\"Belegnummer\" ref=\"BGM:2:0\" />"
+        + "</class>"
+        + "<class name=\"Nachspann\" ref=\"UNZ\">"
+        + "<field name=\"Datenaustauschreferenz\" ref=\"UNZ:2:0\" />"
+        + "</class>"
+        + "</class>";
+
     /// <summary>A synthetic message with two repetitions of the "SG10" (LIN + QTY) group.</summary>
     public const string EdiWithRepeatingGroup =
         "UNA:+.? '\n"

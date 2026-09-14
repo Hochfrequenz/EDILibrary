@@ -452,7 +452,6 @@ namespace EDILibrary
 
         public EdiObject LoadTemplateWithLoadedTree(XElement template, TreeElement tree)
         {
-            var objectMapping = new Dictionary<string, List<TreeElement>>();
             var classes = from cls in template.DescendantsAndSelf("class") select cls;
             _elementCache.Clear();
             _valueCache.Clear();
@@ -461,10 +460,14 @@ namespace EDILibrary
                 where temp.Attribute("name").Value == "Dokument"
                 select temp
             ).Single();
+            // The loop below never mutates `dokument` (nor the template structure), so its hash is
+            // loop invariant. Computing it inside the loop meant re-serializing and re-hashing the
+            // entire template once per <class> element.
+            string dokumentHash = TreeHelper.GetHash(dokument.ToString());
             TreeElement docElement = null;
             foreach (var cls in classes)
             {
-                if (TreeHelper.GetHash(cls.ToString()) == TreeHelper.GetHash(dokument.ToString()))
+                if (TreeHelper.GetHash(cls.ToString()) == dokumentHash)
                 {
                     var treeElements = new List<TreeElement>();
                     string refName = cls.Attribute("ref").Value.Split(new[] { '[' })[0];
@@ -476,11 +479,6 @@ namespace EDILibrary
                     ).ToList();
                     docElement = treeElements[0];
                 }
-                //List<TreeElement> treeElements = new List<TreeElement>();
-                //string refName = cls.Attribute("ref").Value.Split(new char[] { '[' })[0];
-                //tree.FindElements(refName, true, ref treeElements);
-                //treeElements = (from childElem in treeElements where (childElem.Name == "/" || childElem.Dirty || childElem.Edi.Count > 0) select childElem).ToList<TreeElement>();
-                //objectMapping[TreeHelper.GetHash(cls.ToString())] = treeElements;
             }
             return ProcessSpecificTemplate(dokument, docElement, null);
         }
