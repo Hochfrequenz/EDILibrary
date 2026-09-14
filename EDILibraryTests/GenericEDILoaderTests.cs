@@ -1,3 +1,4 @@
+using System.Xml.Linq;
 using AwesomeAssertions;
 using EDILibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -83,6 +84,76 @@ public class GenericEDILoaderTests
         positions[0].Field("Menge").Should().Be("100");
         positions[1].Field("Positionsnummer").Should().Be("2");
         positions[1].Field("Menge").Should().Be("200");
+    }
+
+    /// <summary>
+    /// Parsing the same <see cref="XElement"/> template instance twice must yield the same, correct
+    /// result: the loader must not carry state over into the template it was handed.
+    /// </summary>
+    /// <remarks>
+    /// Asserts concrete field values rather than only "run 2 equals run 1", which would stay green
+    /// if both runs changed together.
+    /// </remarks>
+    [TestMethod]
+    public void LoadTemplateWithLoadedTree_IsIdempotentWhenTheSameTemplateInstanceIsReused()
+    {
+        // deliberately shared across both runs - the template is what the removed code mutated
+        var template = new GenericEDILoader().LoadTemplate(
+            SyntheticEdifactFixture.XmlTemplateWithRepeatingGroup
+        );
+
+        // a fresh loader per run, so this isolates template state from the loader's own caches
+        static EdiObject ParseOnce(XElement template)
+        {
+            var loader = new GenericEDILoader();
+            var tree = loader.LoadTree(SyntheticEdifactFixture.TreeTemplateWithRepeatingGroup);
+            var normalized = EDIHelper.NormalizeEDIHeader(
+                SyntheticEdifactFixture.EdiWithRepeatingGroup
+            );
+            var ediTree = loader.LoadEDI(normalized, tree);
+            new TreeHelper().RefreshDirtyFlags(tree);
+            return loader.LoadTemplateWithLoadedTree(template, ediTree);
+        }
+
+        var first = ParseOnce(template);
+        var second = ParseOnce(template);
+
+        foreach (var result in new[] { first, second })
+        {
+            result.Name.Should().Be("Dokument");
+            result.Field("Nachrichtenreferenz").Should().Be("1");
+            result.Field("Belegnummer").Should().Be("DOC123");
+            var positions = result.Childs("Position");
+            positions.Should().HaveCount(2);
+            positions[0].Field("Positionsnummer").Should().Be("1");
+            positions[0].Field("Menge").Should().Be("100");
+            positions[1].Field("Positionsnummer").Should().Be("2");
+            positions[1].Field("Menge").Should().Be("200");
+        }
+
+        second.SerializeToJSON().Should().Be(first.SerializeToJSON());
+    }
+
+    /// <summary>
+    /// <see cref="GenericEDILoader.LoadTemplateWithLoadedTree"/> must not modify the template it is
+    /// given: the template belongs to the caller, who may reuse or cache it.
+    /// </summary>
+    [TestMethod]
+    public void LoadTemplateWithLoadedTree_DoesNotModifyTheTemplateItWasGiven()
+    {
+        var loader = new GenericEDILoader();
+        var tree = loader.LoadTree(SyntheticEdifactFixture.TreeTemplateWithRepeatingGroup);
+        var normalized = EDIHelper.NormalizeEDIHeader(
+            SyntheticEdifactFixture.EdiWithRepeatingGroup
+        );
+        var ediTree = loader.LoadEDI(normalized, tree);
+        new TreeHelper().RefreshDirtyFlags(tree);
+        var template = loader.LoadTemplate(SyntheticEdifactFixture.XmlTemplateWithRepeatingGroup);
+        string before = template.ToString();
+
+        loader.LoadTemplateWithLoadedTree(template, ediTree);
+
+        template.ToString().Should().Be(before);
     }
 
     /// <summary>
