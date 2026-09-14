@@ -98,7 +98,7 @@ namespace EDILibrary
             {
                 throw new BadFormatException(ediInfo.Format, ediInfo.Version, e);
             }
-            dynamic resultObject = new ExpandoObject();
+            dynamic resultObject = new InsertionOrderedDictionary();
 
             // var resultDict = resultObject as IDictionary<string, object>;
             ParseObject(
@@ -399,7 +399,7 @@ namespace EDILibrary
                         string superKey = ((JProperty)retObj.First).Name;
                         if (propVal.Type == JTokenType.Array)
                         {
-                            dynamic obj = new ExpandoObject();
+                            dynamic obj = new InsertionOrderedDictionary();
                             //call recursively
                             var returns = new JArray();
                             if (prop.Value.Type == JTokenType.Array)
@@ -407,7 +407,7 @@ namespace EDILibrary
                                 obj = new List<dynamic>();
                                 foreach (var entry in prop.Value as JArray)
                                 {
-                                    dynamic subObj = new ExpandoObject();
+                                    dynamic subObj = new InsertionOrderedDictionary();
                                     ParseObject(
                                         entry as JObject,
                                         subObj as IDictionary<string, object>,
@@ -435,13 +435,13 @@ namespace EDILibrary
                         //special case for groupBy fields
                         if (superKey != prop.Name && superValue != prop.Name)
                         {
-                            //dynamic obj = new ExpandoObject();
+                            //dynamic obj = new InsertionOrderedDictionary();
                             if (!target.ContainsKey(superValue))
                             {
                                 //create group array
                                 target.Add(superValue, new JArray());
                             }
-                            var newProp = new ExpandoObject();
+                            var newProp = new InsertionOrderedDictionary();
                             AddProperty(newProp, ((JValue)propVal).Value<string>(), prop.Value);
                             var addObj = new JObject();
                             //if we already have an object in the array, just add the new property
@@ -494,7 +494,7 @@ namespace EDILibrary
                         continue;
                     }
 
-                    var newObj = new ExpandoObject();
+                    var newObj = new InsertionOrderedDictionary();
                     target.Add(splits.First(), newObj);
                     target = target[splits.First()] as IDictionary<string, object>;
                     name = string.Join(".", splits.Skip(1));
