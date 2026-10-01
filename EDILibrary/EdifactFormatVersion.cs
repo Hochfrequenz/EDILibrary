@@ -241,11 +241,6 @@ namespace EDILibrary
         /// Format Version valid since October 2026
         /// </summary>
         FV2610,
-
-        /// <summary>
-        /// Format Version valid since April 2027
-        /// </summary>
-        FV2704,
     }
 
     public class EdifactFormatVersionComparer : IComparer<EdifactFormatVersion>
@@ -287,7 +282,6 @@ namespace EDILibrary
                 EdifactFormatVersion.FV2510 => "10/25",
                 EdifactFormatVersion.FV2604 => "04/26",
                 EdifactFormatVersion.FV2610 => "10/26",
-                EdifactFormatVersion.FV2704 => "04/27",
                 _ => throw new NotImplementedException(
                     $"The legacy format for {edifactFormatVersion} is not yet implemented."
                 ),
@@ -546,26 +540,8 @@ namespace EDILibrary
             DateTimeKind.Utc
         );
 
-        /// <summary>
-        /// validity start date of <see cref="EdifactFormatVersion.FV2704"/>
-        /// </summary>
-        private static readonly DateTime KeyDate2704 = new(
-            2027,
-            03,
-            31,
-            22,
-            0,
-            0,
-            DateTimeKind.Utc
-        );
-
         public EdifactFormatVersion GetFormatVersion(DateTimeOffset keydate)
         {
-            if (keydate >= KeyDate2704)
-            {
-                return EdifactFormatVersion.FV2704;
-            }
-
             if (keydate >= KeyDate2610)
             {
                 return EdifactFormatVersion.FV2610;
