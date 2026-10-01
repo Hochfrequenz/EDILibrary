@@ -14,6 +14,13 @@ namespace EDILibraryTests
     public class EdifactFormatVersionTests
     {
         [TestMethod]
+        public void TestThereIsNoFv2704()
+        {
+            // FV2704 was added by mistake (no format version starts on 2027-04-01) and removed again.
+            Enum.GetNames<EdifactFormatVersion>().Should().NotContain("FV2704");
+        }
+
+        [TestMethod]
         [DataRow("21009", EdifactFormat.IFTSTA)]
         [DataRow("23001", EdifactFormat.INSRPT)]
         [DataRow("31001", EdifactFormat.INVOIC)]
@@ -84,7 +91,6 @@ namespace EDILibraryTests
                 EdifactFormatVersion.FV2510,
                 EdifactFormatVersion.FV2604,
                 EdifactFormatVersion.FV2610,
-                EdifactFormatVersion.FV2704,
             };
             var comparer = new EdifactFormatVersionComparer();
             for (int i = 0; i < expectedNaturalOrder.Count - 1; i++)
@@ -135,7 +141,6 @@ namespace EDILibraryTests
         [DataRow("10/25", EdifactFormatVersion.FV2510)]
         [DataRow("04/26", EdifactFormatVersion.FV2604)]
         [DataRow("10/26", EdifactFormatVersion.FV2610)]
-        [DataRow("04/27", EdifactFormatVersion.FV2704)]
         public void TestLegacyStrings(
             string legacyString,
             EdifactFormatVersion expectedFormatVersion
@@ -161,6 +166,15 @@ namespace EDILibraryTests
         private EdifactFormatVersion ActualCode(IEdifactFormatVersionProvider versionProvider)
         {
             return versionProvider.GetCurrent();
+        }
+
+        [TestMethod]
+        [DataRow("04/27")]
+        [DataRow("FV2704")]
+        public void TestRemovedFv2704StringsThrow(string legacyString)
+        {
+            var act = () => legacyString.ToEdifactFormatVersion();
+            act.Should().Throw<NotImplementedException>();
         }
 
         /// <summary>
@@ -192,7 +206,10 @@ namespace EDILibraryTests
         [DataRow("2025-09-30T22:00:00+00:00", EdifactFormatVersion.FV2510)]
         [DataRow("2026-03-31T22:00:00+00:00", EdifactFormatVersion.FV2604)]
         [DataRow("2026-09-30T22:00:00+00:00", EdifactFormatVersion.FV2610)]
-        [DataRow("2027-03-31T22:00:00+00:00", EdifactFormatVersion.FV2704)]
+        // there is no FV2704: 2027-04-01 does not start a new format version
+        [DataRow("2027-03-31T21:59:59+00:00", EdifactFormatVersion.FV2610)]
+        [DataRow("2027-03-31T22:00:00+00:00", EdifactFormatVersion.FV2610)]
+        [DataRow("2030-01-01T00:00:00+00:00", EdifactFormatVersion.FV2610)]
         public void TestFormatVersionProvider(
             string dateTimeOffset,
             EdifactFormatVersion expectedVersion
