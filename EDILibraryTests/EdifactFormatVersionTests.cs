@@ -174,6 +174,15 @@ namespace EDILibraryTests
         /// This test is just to show how the <see cref="EdifactFormatHelper"/> is thought to be used: behind an interface!
         /// </summary>
         [TestMethod]
+        [DataRow("04/27")]
+        [DataRow("FV2704")]
+        public void TestRemovedFv2704StringsThrow(string legacyString)
+        {
+            var act = () => legacyString.ToEdifactFormatVersion();
+            act.Should().Throw<NotImplementedException>();
+        }
+
+        [TestMethod]
         public void TestMockingVersionProvider()
         {
             var versionProviderMock = Substitute.For<IEdifactFormatVersionProvider>();
@@ -199,7 +208,7 @@ namespace EDILibraryTests
         [DataRow("2025-09-30T22:00:00+00:00", EdifactFormatVersion.FV2510)]
         [DataRow("2026-03-31T22:00:00+00:00", EdifactFormatVersion.FV2604)]
         [DataRow("2026-09-30T22:00:00+00:00", EdifactFormatVersion.FV2610)]
-        // there is no FV2704: FV2610 stays valid beyond 2027-04-01
+        // there is no FV2704: 2027-04-01 does not start a new format version
         [DataRow("2027-03-31T21:59:59+00:00", EdifactFormatVersion.FV2610)]
         [DataRow("2027-03-31T22:00:00+00:00", EdifactFormatVersion.FV2610)]
         [DataRow("2030-01-01T00:00:00+00:00", EdifactFormatVersion.FV2610)]
