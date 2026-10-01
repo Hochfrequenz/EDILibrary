@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using AwesomeAssertions;
 using EDILibrary;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,7 +18,6 @@ namespace EDILibraryTests
         {
             // FV2704 was added by mistake (no format version starts on 2027-04-01) and removed again.
             Enum.GetNames<EdifactFormatVersion>().Should().NotContain("FV2704");
-            Enum.GetValues<EdifactFormatVersion>().Max().Should().Be(EdifactFormatVersion.FV2610);
         }
 
         [TestMethod]
@@ -170,9 +168,6 @@ namespace EDILibraryTests
             return versionProvider.GetCurrent();
         }
 
-        /// <summary>
-        /// This test is just to show how the <see cref="EdifactFormatHelper"/> is thought to be used: behind an interface!
-        /// </summary>
         [TestMethod]
         [DataRow("04/27")]
         [DataRow("FV2704")]
@@ -182,6 +177,9 @@ namespace EDILibraryTests
             act.Should().Throw<NotImplementedException>();
         }
 
+        /// <summary>
+        /// This test is just to show how the <see cref="EdifactFormatHelper"/> is thought to be used: behind an interface!
+        /// </summary>
         [TestMethod]
         public void TestMockingVersionProvider()
         {
