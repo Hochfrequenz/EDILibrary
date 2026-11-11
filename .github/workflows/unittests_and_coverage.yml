@@ -10,12 +10,12 @@ jobs:
         - name: Setup .NET Core
           uses: actions/setup-dotnet@v6
           with:
-            # EDILibraryTests multi-targets net8.0;net10.0 (the two TargetFrameworks the
+            # EDILibraryTests multi-targets net10.0;net11.0 (the two TargetFrameworks the
             # libraries support); both runtimes need to be installed so "dotnet test" can
             # actually execute both, not just build them.
             dotnet-version: |
-              8.x
               10.x
+              11.x
         - name: Run Tests
           run: dotnet test --configuration Release
   coverage:
@@ -27,8 +27,8 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
-            8.x
             10.x
+            11.x
       - name: Install dependencies
         run: dotnet restore
       - name: Install coverlet.msbuild in EDILibraryTests
