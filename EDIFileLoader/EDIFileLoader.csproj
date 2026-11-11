@@ -5,7 +5,7 @@
     <Copyright>Hochfrequenz Unternehmensberatung 2017</Copyright>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <Version>1.0.1</Version>
-    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" />
