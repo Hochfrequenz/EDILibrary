@@ -160,9 +160,8 @@ namespace EDILibrary
 
         protected string EscapeValue(string value)
         {
-            return escapeMap.Aggregate(
-                value,
-                (current, pair) => current.Replace(pair.Key, pair.Value)
+            return escapeMap.Aggregate(value, (current, pair) =>
+                current.Replace(pair.Key, pair.Value)
             );
         }
 
