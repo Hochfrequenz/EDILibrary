@@ -169,10 +169,10 @@ namespace EDIFileLoader
                 text = EDIHelper.RemoveByteOrderMark(text);
                 if (Cache != null)
                 {
-                    var ediCache = Cache.GetOrAdd(
-                        "edi",
-                        _ => new ConcurrentDictionary<string, string>()
-                    );
+                    var ediCache = Cache.GetOrAdd("edi", _ => new ConcurrentDictionary<
+                        string,
+                        string
+                    >());
                     ediCache[
                         Path.Combine(
                                 "edi",
@@ -288,10 +288,10 @@ namespace EDIFileLoader
                 text = EDIHelper.RemoveByteOrderMark(text);
                 if (Cache != null)
                 {
-                    var ediCache = Cache.GetOrAdd(
-                        "maus",
-                        _ => new ConcurrentDictionary<string, string>()
-                    );
+                    var ediCache = Cache.GetOrAdd("maus", _ => new ConcurrentDictionary<
+                        string,
+                        string
+                    >());
                     ediCache[
                         Path.Combine(version.ToString(), format.ToString(), pid + "_maus.json")
                     ] = text;
